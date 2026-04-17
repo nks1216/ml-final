@@ -1,33 +1,36 @@
-# ml-final
-ml-final
+# final project
 
+# Topic 1: Predicting HMDA Mortgage Approvals (Kyungsu)
 
-Sample Project Topic 1: Predicting HMDA Mortgage Approvals
-
-Introduction
+## Introduction
 
 This project utilizes data managed by the Consumer Financial Protection Bureau (CFPB) under the Home Mortgage Disclosure Act (HMDA). HMDA requires nearly all U.S. financial institutions to maintain, report, and publicly disclose loan-level information about mortgages.
 
-Core Components
-
-Problem Statement:
+## Problem Statement:
 
 Build a classification model to predict loan outcomes (Approved vs. Denied) by leveraging a diverse set of features, including applicant income, loan amount, debt-to-income (DTI) ratio, race, gender, and geographical location.
 
-Data Scope:
+## Data Scope:
 
 The dataset consists of millions of records annually, providing a robust foundation for large-scale sampling and high-velocity model training.
 
-Methodology (API Integration):
-
+## Methodology (API Integration):
+ 
 Data is programmatically retrieved through the CFPB HMDA API using the Python requests library, ensuring a reproducible and automated data pipeline.
 
-Analytical Value & Research Objectives
+## Model:
 
-Predictive Inference:
+Logistic, Random Forest, XGBoost, CatBoost (new model)
 
-Beyond simple accuracy, this project focuses on identifying which financial indicators—such as the Debt-to-Income (DTI) ratio—exert the most significant influence on approval decisions from a commercial banking perspective.
+## Predictive Inference:
 
-Algorithmic Fairness Analysis:
+The analysis also examines which financial indicators—such as DTI, income, and loan amount—most strongly influence approval outcomes, providing insight into how lending decisions align with economic fundamentals.
 
-Aligned with the "Theory Project" track, we will conduct a rigorous investigation into model fairness. This involves auditing the model for potential predictive biases across demographic groups (e.g., race and gender) to ensure the model does not reinforce systemic disparities.
+## Algorithmic Fairness Analysis
+
+Given HMDA’s regulatory purpose, we additionally evaluate whether model performance differs across demographic groups to ensure the model does not inadvertently reflect or amplify existing disparities.
+
+See `hmda_loader.py` and `hmda_raw_2023_TX_48453.csv` for reference.
+(I used Travis County (48453) for the initial project setup.)
+
+---
