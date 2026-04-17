@@ -103,3 +103,115 @@ See `hmda_loader.py` and `hmda_raw_2023_TX_48453.csv` for reference.
 I only used **Travis County (48453) in Texas** for the initial project setup. (48,254 results)
 
 ---
+
+# Topic 2: 
+
+---
+
+# Topic 3: 
+
+---
+
+# Topic 4: 
+
+---
+
+
+## 1. Project Overview
+
+#### Research Questions
+
+#### Motivation
+
+## 2. Dataset Description
+
+### 2.1. Data Source
+
+### 2.2 Variables
+
+### 2.3. Train / Test Split
+
+### 2.4. Data Limitations
+
+## 3. Modeling Approach and Individual Model Results
+
+### 3.1. Logistic (can be changed)
+
+### 3.2. Random Forest (can be changed)
+
+### 3.3. XGBoost (new model, can be changed)
+
+### 3.4. CatBoost (new model, can be changed)
+
+## 4. Comparative Evaluation of Models
+
+### 4.1. Performance Metrics
+
+- Accuracy  
+- Precision  
+- Recall  
+- F1‑Score  
+- ROC‑AUC  
+- Confusion Matrix  
+
+### 4.2. Actual vs Predicted
+
+- Confusion Matrix (per model)  
+- ROC Curve Comparison  
+- Precision–Recall Curve Comparison  
+
+### 4.3. Top 5 Feature Importances
+
+- Logistic Regression: absolute coefficients  
+- Random Forest: Gini importance  
+- XGBoost / CatBoost: gain or split importance  
+
+### 4.4. Top 20 Feature Importances
+
+- Based on the best-performing model  
+- (Optional) SHAP summary plot for interpretability  
+
+### 4.5. Key Takeaways and Recommendations
+
+- Comparative performance summary  
+- Most influential predictors  
+- Practical and fairness-related implications  
+
+## 5. Reproducibility
+
+### 5.1. Clone the repository  
+```
+git clone https://github.com/nks1216/ml-final.git
+cd ml-final
+```
+
+### 5.2. Setting up the Virtual Environment
+
+- Create a virtual environment: `python3 -m venv venv`
+- Activate the virtual environment: `source venv/bin/activate`
+- Install all required packages: `pip install -r requirements.txt`
+
+### 5.3. Download the data 
+
+### 5.4 Run the code
+```
+
+```
+For convenience, individual model scripts are provided.
+
+---
+
+## 6. Limitations and Future Improvements
+
+**Modeling Limitations**
+
+**Future Improvements**
+
+---
+
+## 7. Collaboration and Workflow
+
+- All team members worked through GitHub Issues and feature branches, following a branch‑per‑issue workflow.
+- Each member opened pull requests for their work and merged them after review and testing.
+- The repository contains more than 30 commits across multiple contributors.
+- All code and documentation were merged into the main branch before submission.
