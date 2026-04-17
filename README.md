@@ -104,7 +104,145 @@ I only used **Travis County (48453) in Texas** for the initial project setup. (4
 
 ---
 
-# Topic 2: 
+# Topic 2: Predicting U.S. Startup Failure (Razan) 
+
+## Introduction
+
+This project uses two Crunchbase datasets sourced from Kaggle to predict whether a U.S. startup will fail based on its funding profile, sector, and geography. Crunchbase is the leading platform for tracking startup activity, funding rounds, investor relationships, and company outcomes. Both datasets are publicly available, crowdsourced, and editor-verified by Crunchbase. The data covers companies founded between 2000 and 2014.
+
+## Problem Statement
+
+Build a classification model to predict startup failure (closed vs. operating) using funding history, investor type, sector, and geographic features.
+
+## Data Scope
+
+Two Crunchbase datasets joined on `permalink` — a unique company identifier assigned by Crunchbase (e.g. `/organization/uber`). The join matches 98.5% of records with no manual modifications.
+
+| Dataset | Source | Records | Kaggle URL |
+|---|---|---|---|
+| Startup Success/Fail | Crunchbase via Kaggle | ~66,000 global | `yanmaksi/big-startup-secsees-fail-dataset-from-crunchbase` |
+| StartUp Investments | Crunchbase via Kaggle | ~54,000 global | `arindam235/startup-investments-crunchbase` |
+
+**After joining and filtering to U.S. only: 29,696 companies, 2,302 confirmed failures (7.8%)**
+
+### Key Variable Groups
+
+## 1. Funding Variables
+
+| Variable | Definition |
+|---|---|
+| `funding_total_usd` | Total funding raised across all rounds (USD) |
+| `funding_rounds` | Number of distinct funding rounds raised |
+| `venture` | Amount raised from venture capital (USD) |
+| `angel` | Amount raised from angel investors (USD) |
+| `seed` | Amount raised in seed round (USD) |
+| `round_A` through `round_D` | Amount raised in each specific round (USD) |
+| `debt_financing` | Amount raised through debt (USD) |
+| `grant` | Amount raised through grants (USD) |
+
+---
+
+## 2. Timeline Variables
+
+| Variable | Definition |
+|---|---|
+| `founded_at` | Date the company was founded |
+| `first_funding_at` | Date of first external funding round |
+| `last_funding_at` | Date of most recent funding round |
+| `funding_gap` | Derived: months between first and last funding (runway proxy) |
+| `time_to_first_funding` | Derived: months from founding to first funding |
+
+---
+
+## 3. Company Characteristics
+
+| Variable | Definition |
+|---|---|
+| `category_list` | Startup sector (SaaS, Social Media, Biotech, Games, etc.) |
+| `state_code` | U.S. state of incorporation |
+| `region` | U.S. region (e.g. SF Bay Area, New York) |
+
+---
+
+## 4. Target Variable
+
+| Variable | Definition |
+|---|---|
+| `status` | Outcome — recoded as **closed** (failed) vs. **operating** (survived) |
+
+---
+
+## What the Data Tells Us
+
+Before modeling, the data reveals clear patterns:
+
+**Highest failure rates by sector (min. 100 companies):**
+
+| Sector | Failure Rate |
+|---|---|
+| Curated Web | 21.1% |
+| Social Media | 19.1% |
+| Public Relations | 17.1% |
+| Messaging | 16.4% |
+| Games | 15.3% |
+
+**Lowest failure rates:**
+
+| Sector | Failure Rate |
+|---|---|
+| Medical | 0.6% |
+| Real Estate | 1.2% |
+| EdTech | 2.4% |
+| B2B | 2.6% |
+
+**Funding type signal (failed vs. surviving):**
+
+| Type | Failed avg | Surviving avg |
+|---|---|---|
+| Seed | $164,212 | $253,789 |
+| Venture | $6,727,887 | $7,261,590 |
+| Angel | $85,385 | $52,738 |
+
+Notable: failed startups raised *more* from angel investors on average, suggesting angel-only funding may be a risk signal rather than a safety net.
+
+## Methodology
+
+Data is downloaded programmatically via the Kaggle API using `setup.sh`, ensuring a fully reproducible and automated data pipeline. Both datasets are joined in `data_cleaning.py` with no manual modifications.
+
+## Class Imbalance
+
+7.8% failure rate, a model that always predicts "operating" would be 92% accurate and useless. Addressed with:
+- Class weights (`scale_pos_weight` in XGBoost/CatBoost)
+- SMOTE oversampling
+- Evaluated using precision-recall curve, not accuracy
+
+## Models
+
+(1) Logistic Regression (baseline)
+
+(2) XGBoost
+
+(3) CatBoost (new model, handles categorical features natively)
+
+(4) Best model + Optuna Bayesian hyperparameter tuning (new technique)
+
+## Predictive Inference
+
+The analysis examines which signals most strongly influence failure. specifically whether **funding type, number of rounds, and sector** matter more than raw dollar amounts — providing insight into what distinguishes startups that survive from those that close.
+
+## Algorithmic Fairness Analysis
+
+We evaluate whether model predictions differ systematically across **sector, geographic region (coastal vs. non-coastal), and funding type (VC-backed vs. angel-only)** to ensure the model does not amplify existing ecosystem biases.
+
+## Data Limitations
+
+- **Survivorship bias:** Only funded startups appear, bootstrapped companies are invisible
+- **Noisy labels:** Many closed startups never updated their Crunchbase profile, some `operating` labels are likely dead companies
+- **No timing on failure:** The data captures whether a company failed, not when, we cannot measure failure within a specific time window
+- **No founder data:** Founder experience, demographics, and prior exits unavailable
+- **No revenue or traction data:** Product-market fit signals absent from both datasets
+- **Founded date missing** for 16.5% of records, limits time-based feature engineering for those rows
+- **Time period:** Covers 2000–2014, may not reflect post-2020 market dynamics
 
 ---
 
