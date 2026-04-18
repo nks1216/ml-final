@@ -1,106 +1,105 @@
 # Topic 1: Predicting HMDA Mortgage Approvals (Kyungsu)
 
-## Introduction
+## Project Scope:
 
-This project utilizes data managed by the Consumer Financial Protection Bureau (CFPB) under the Home Mortgage Disclosure Act (HMDA). HMDA requires nearly all U.S. financial institutions to maintain, report, and publicly disclose loan-level information about mortgages.
+- **Develop four classification models** to predict mortgage loan outcomes (Approved vs. Denied) using a comprehensive set of applicant, loan, and neighborhood-level features.
+The models include:
 
-## Problem Statement:
+    (1) Logistic Regression (baseline)
 
-Build a classification model to predict loan outcomes (Approved vs. Denied) by leveraging a diverse set of features, including applicant income, loan amount, debt-to-income (DTI) ratio, race, gender, and geographical location.
+    (2) Random Forest
+
+    (3) XGBoost
+
+    (4) CatBoost (new model)
+
+- **Compare model performance** using appropriate evaluation metrics (e.g., precision, recall, F1-score, ROC-AUC) and address class imbalance if necessary.
+
+- **Identify key predictors** that most strongly influence loan approval outcomes through model-based feature importance and interpretability tools.
+
+- **Assess demographic disparities** by evaluating whether model performance differs across groups defined by race, ethnicity, gender, or age (applied to the best-performing model).
+
+- **Examine geographic variation** by comparing approval patterns and model behavior across the Big Four Texas counties (Travis, Harris, Dallas, Bexar), using the best-performing model.
+
+## Further Feasible Extensions:
+
+- Data quality and missingness analysis
+
+- Fairness metrics (e.g., demographic parity, equal opportunity)
+
+- Explainability using SHAP or permutation importance
+
+- County‑level heterogeneity analysis
+
+- Class imbalance handling
+
+- Train/validation/test split strategy
 
 ## Data Scope:
 
-The dataset consists of millions of records annually, providing a robust foundation for large-scale sampling and high-velocity model training.
+This project utilizes data managed by the Consumer Financial Protection Bureau (CFPB) under the Home Mortgage Disclosure Act (HMDA). HMDA requires nearly all U.S. financial institutions to maintain, report, and publicly disclose loan-level information about mortgages.
 
-### Key Variable Groups 
+Data is programmatically retrieved through the CFPB HMDA API using the Python `requests` library, ensuring a reproducible and automated data pipeline.
 
-## 1. Financial Variables
+The dataset consists of **310,241 HMDA mortgage applications** from Texas’s four largest counties—**Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
+A total of **109 features** are used to predict a single outcome variable: **loan approval**.
 
-| Variable | Definition |
-|---------|------------|
-| loan_amount | Dollar amount of the loan applied for. |
-| loan_to_value_ratio | Ratio of loan amount to property value (LTV). |
-| debt_to_income_ratio | Applicant’s monthly debt payments divided by monthly income (DTI). |
-| interest_rate | Interest rate assigned to the loan. |
-| loan_term | Length of the loan in months. |
-| property_value | Estimated market value of the property securing the loan. |
+See `data/hmda_loader.py` and `data/hmda_raw_2023_TX_big4.csv` for reference.
 
----
+## Key Variable Groups (Representative subset of the 109 features)
 
-## 2. Applicant Characteristics
+### 1. Financial Variables
 
 | Variable | Definition |
 |---------|------------|
-| income | Applicant’s annual income used for underwriting. |
-| applicant_age | Age of the primary applicant. |
-| applicant_race | Self‑reported race of the applicant. |
-| applicant_ethnicity | Self‑reported ethnicity of the applicant. |
-| applicant_sex | Self‑reported sex of the applicant. |
-| applicant_credit_score_type | Type of credit score model used (e.g., FICO, VantageScore). |
+| `loan_amount` | Dollar amount of the loan applied for. |
+| `loan_to_value_ratio` | Ratio of loan amount to property value (LTV). |
+| `debt_to_income_ratio` | Applicant’s monthly debt payments divided by monthly income (DTI). |
+| `interest_rate` | Interest rate assigned to the loan. |
+| `loan_term` | Length of the loan in months. |
+| `property_value` | Estimated market value of the property securing the loan. |
 
----
-
-## 3. Geographic & Neighborhood Variables
+### 2. Applicant Characteristics
 
 | Variable | Definition |
 |---------|------------|
-| census_tract | Census tract identifier for the property location. |
-| derived_msa-md | CFPB‑derived Metropolitan Statistical Area / Metropolitan Division code. |
-| ffiec_msa_md_median_family_income | Median family income for the MSA/MD. |
-| tract_minority_population_percent | Percentage of minority residents in the census tract. |
+| `income` | Applicant’s annual income used for underwriting. |
+| `applicant_age` | Age of the primary applicant. |
+| `applicant_race` | Self‑reported race of the applicant. |
+| `applicant_ethnicity` | Self‑reported ethnicity of the applicant. |
+| `applicant_sex` | Self‑reported sex of the applicant. |
+| `applicant_credit_score_type` | Type of credit score model used (e.g., FICO, VantageScore). |
 
----
-
-## 4. Loan Type & Purpose
-
-| Variable | Definition |
-|---------|------------|
-| loan_type | Type of loan (Conventional, FHA, VA, USDA). |
-| loan_purpose | Purpose of the loan (Home purchase, Refinance, Home improvement). |
-| lien_status | Indicates whether the loan is a first lien, subordinate lien, or unsecured. |
-
----
-
-## 5. Application Process Variables
+### 3. Geographic & Neighborhood Variables
 
 | Variable | Definition |
 |---------|------------|
-| preapproval | Indicates whether the applicant sought preapproval. |
-| aus-1 | Result from the primary Automated Underwriting System (e.g., Approve/Eligible). |
+| `census_tract` | Census tract identifier for the property location. |
+| `derived_msa-md` | CFPB‑derived Metropolitan Statistical Area / Metropolitan Division code. |
+| `ffiec_msa_md_median_family_income` | Median family income for the MSA/MD. |
+| `tract_minority_population_percent` | Percentage of minority residents in the census tract. |
 
----
-
-## Target Variable
+### 4. Loan Type & Purpose
 
 | Variable | Definition |
 |---------|------------|
-| action_taken | Outcome of the loan application, recoded as **Approved** vs. **Denied**. |
+| `loan_type` | Type of loan (Conventional, FHA, VA, USDA). |
+| `loan_purpose` | Purpose of the loan (Home purchase, Refinance, Home improvement). |
+| `lien_status` | Indicates whether the loan is a first lien, subordinate lien, or unsecured. |
 
-## Methodology (API Integration):
- 
-Data is programmatically retrieved through the CFPB HMDA API using the Python requests library, ensuring a reproducible and automated data pipeline.
+### 5. Application Process Variables
 
-## Model:
+| Variable | Definition |
+|---------|------------|
+| `preapproval` | Indicates whether the applicant sought preapproval. |
+| `aus-1` | Result from the primary Automated Underwriting System (e.g., Approve/Eligible). |
 
-(1) Logistic
+### Target Variable
 
-(2) Random Forest
+| Variable | Definition |
+|---------|------------|
+| `action_taken` | Outcome of the loan application, recoded as **Approved** vs. **Denied**. |
 
-(3) XGBoost (new model)
-
-(4) CatBoost (new model)
-
-## Predictive Inference:
-
-The analysis also examines which financial indicators—such as **DTI, income, and loan amount—most strongly influence approval outcomes**, providing insight into how lending decisions align with economic fundamentals.
-
-## Algorithmic Fairness Analysis
-
-Given HMDA’s regulatory purpose, we additionally evaluate whether **model performance differs across demographic groups** to ensure the model does not inadvertently reflect or amplify existing disparities.
-
-See `hmda_loader.py` and `hmda_raw_2023_TX_48453.csv` for reference.
-
-I only used **Travis County (48453) in Texas** for the initial project setup. (48,254 results)
 
 ---
 
@@ -244,13 +243,123 @@ We evaluate whether model predictions differ systematically across **sector, geo
 - **Founded date missing** for 16.5% of records, limits time-based feature engineering for those rows
 - **Time period:** Covers 2000–2014, may not reflect post-2020 market dynamics
 
+----
+
+# Topic 3: Predicting Consumer Relief in CFPB Complaint Outcomes (Omar)
+
+## Introduction
+
+This project uses the Consumer Financial Protection Bureau (CFPB) Consumer Complaint Database to predict whether a consumer complaint ends with relief. The dataset contains public complaints about consumer financial products and services and includes information on the product, issue, company, geography, submission channel, timing, and company response.
+
+## Problem Statement
+
+Build a classification model to predict whether a consumer complaint results in relief using complaint characteristics such as product type, issue, company, state, submission method, timing, and response-related variables.
+
+## Data Scope
+
+The project uses the CFPB Consumer Complaint Database, an official public dataset of complaint-level observations. The database supports filtering and export, making the project fully reproducible with a programmatic data pipeline.
+
+### Key Variable Groups
+
+## 1. Complaint Characteristics
+
+| Variable | Definition |
+|---|---|
+| `product` | Consumer financial product involved in the complaint |
+| `sub_product` | More specific product category when available |
+| `issue` | Main issue identified by the consumer |
+| `sub_issue` | More detailed issue category when available |
+| `complaint_what_happened` | Narrative text of the complaint, when provided |
+
 ---
 
-# Topic 3: 
+## 2. Company / Response Variables
+
+| Variable | Definition |
+|---|---|
+| `company` | Company named in the complaint |
+| `company_response_to_consumer` | Company response category |
+| `timely_response` | Whether the company responded on time |
+| `company_public_response` | Public-facing company response, if available |
 
 ---
 
-# Topic 4: 
+## 3. Geography / Submission Variables
+
+| Variable | Definition |
+|---|---|
+| `state` | State of the consumer |
+| `submitted_via` | Channel used to submit the complaint |
+| `date_received` | Date complaint was received |
+| `date_sent_to_company` | Date complaint was sent to the company |
+
+---
+
+## 4. Derived Timing / Text Variables
+
+| Variable | Definition |
+|---|---|
+| `year_month` | Derived complaint month for time patterns |
+| `narrative_length` | Derived word or character length of complaint narrative |
+| `has_narrative` | Indicator for whether narrative text is present |
+
+---
+
+## Target Variable
+
+| Variable | Definition |
+|---|---|
+| `relief` | Outcome recoded as **relief** (closed with monetary relief or non-monetary relief) vs. **no relief** (all other outcomes) |
+
+## What the Data Tells Us
+
+Before modeling, the data can reveal clear patterns such as:
+
+- which financial products are most likely to end with relief  
+- whether certain issue categories are more associated with monetary or non-monetary relief  
+- whether response patterns differ by company, state, or submission channel  
+- whether complaints with narratives behave differently from complaints without narratives  
+
+These patterns help motivate the final feature set and provide context for the classification results.
+
+## Methodology
+
+Data will be downloaded programmatically and cleaned entirely through code, with no manual modifications. The analysis will focus on predicting relief outcomes using structured complaint information and, where available, text-based features from complaint narratives.
+
+## Class Imbalance
+
+Relief outcomes are less common than non-relief outcomes, so a model that predicts only "no relief" could still appear accurate while being useless in practice. This will be addressed with:
+
+- Class weights
+- Threshold tuning
+- Evaluation using precision-recall metrics, not accuracy alone
+
+## Models
+
+(1) Logistic Regression (baseline)
+
+(2) Random Forest
+
+(3) XGBoost (new model)
+
+(4) Best model + SHAP or threshold tuning (new technique)
+
+## Predictive Inference
+
+The analysis examines which signals most strongly influence whether a complaint ends with relief, specifically whether **product type, issue category, company, submission channel, and timing** matter more than geography alone.
+
+## Algorithmic Fairness / Group Analysis
+
+We evaluate whether model predictions differ systematically across **product groups, states, and submission channels** to ensure the model does not amplify existing disparities in complaint handling outcomes.
+
+## Data Limitations
+
+- **Outcome limitation:** Complaint outcomes do not perfectly measure true consumer harm or true case merit
+- **Reporting limitation:** Company response categories may reflect reporting practices as well as complaint severity
+- **Missing text:** Not all complaints include narratives, limiting text-based analysis
+- **Selection bias:** The data represents submitted complaints, not the full universe of consumer financial problems
+- **Class imbalance:** Relief outcomes are less common than non-relief outcomes
+- **Unobserved variables:** Important factors such as internal company processes, legal context, or case complexity are not observed in the data
 
 ---
 
