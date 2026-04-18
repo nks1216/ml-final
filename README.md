@@ -478,3 +478,54 @@ For convenience, individual model scripts are provided.
 
 ----
 
+
+
+# Topic 3 : Predicting Hacker News Virality
+
+Hacker News (HN) is a social news aggregator run by Y Combinator, focused on technology, startups, and programming. Since its launch in 2007, it has become one of the most influential online communities in the tech industry, where a submission reaching the front page can drive substantial traffic, career opportunities, and even funding interest for its author. 
+
+## 1. Research Question
+
+We frame the task as a **binary classification problem**:
+
+> Given only the information available at the moment of submission, can we predict whether a Hacker News story will reach **100 or more points within 24 hours** of being posted?
+
+The 100-point threshold approximates the score typically required to appear on the HN front page, which serves as the practical definition of "going viral" in this community.
+
+- Which features most strongly influence virality (title wording, linked domain, submission time, author reputation)?
+
+## 2. Data Collection
+
+All data will be sourced exclusively from official Hacker News channels to ensure clear provenance and reproducibility.
+
+**Google BigQuery Public Dataset**
+- Table: `bigquery-public-data.hacker_news.full`
+- Contains every item (story, comment, poll, job) from 2007 to the present, maintained by Google Cloud
+- We will extract stories submitted between 2022 and 2025, excluding deleted or dead posts
+- Expected sample size: approximately 400,000–600,000 stories
+
+**Fields collected**
+- `id`, `title`, `url`, `text`, `by`, `time`, `type`
+- `score` and `descendants` (used for labeling, collected 24+ hours after submission)
+- Author metadata — `karma` and account creation time — queried via the `/user/` endpoint
+
+## 3. Methodology
+
+### 3.1 Feature Engineering
+- **Title features**: length, presence of numbers or special characters, "Show HN:" / "Ask HN:" prefix, and a set of trending keyword flags (e.g., *AI*, *Rust*, *GPT*)
+- **URL features**: top-level domain, historical mean score of that domain
+- **Temporal features**: hour of day (UTC and US Pacific), day of week, year
+- **Author features**: historical karma at submission time, account age, prior submission count and average score
+
+### 3.2 Models
+
+- Logistic Regression with L1 and L2 regularization
+- Random Forest
+- Gradient Boosting with **LightGBM**, tuned using **Optuna** Bayesian hyperparameter search
+- Title embeddings produced by **Sentence-BERT** (`all-MiniLM-L6-v2`), stacked with tabular features
+- Probability calibration via **isotonic regression** on a held-out set
+
+### 3.3 Evaluation
+- **Temporal split**: training on 2022–2024, validation on early 2025, testing on late 2025. A random split would leak future information and inflate performance
+- **Metrics**: ROC-AUC and PR-AUC (given class imbalance), plus F1 at an operating threshold selected through cost-sensitive analysis
+- **Calibration quality**: Brier score and calibration curves
