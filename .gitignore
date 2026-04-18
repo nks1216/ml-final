@@ -5,3 +5,5 @@ env/
 
 # Environment variables
 .env
+
+data/hmda_raw_2023_TX_big4.csv
