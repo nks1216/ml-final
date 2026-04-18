@@ -353,3 +353,120 @@ For convenience, individual model scripts are provided.
 - Each member opened pull requests for their work and merged them after review and testing.
 - The repository contains more than 30 commits across multiple contributors.
 - All code and documentation were merged into the main branch before submission.
+
+----
+# Topic 3: Predicting Consumer Relief in CFPB Complaint Outcomes (Omar)
+
+## Introduction
+
+This project uses the Consumer Financial Protection Bureau (CFPB) Consumer Complaint Database to predict whether a consumer complaint ends with relief. The dataset contains public complaints about consumer financial products and services and includes information on the product, issue, company, geography, submission channel, timing, and company response.
+
+## Problem Statement
+
+Build a classification model to predict whether a consumer complaint results in relief using complaint characteristics such as product type, issue, company, state, submission method, timing, and response-related variables.
+
+## Data Scope
+
+The project uses the CFPB Consumer Complaint Database, an official public dataset of complaint-level observations. The database supports filtering and export, making the project fully reproducible with a programmatic data pipeline.
+
+### Key Variable Groups
+
+## 1. Complaint Characteristics
+
+| Variable | Definition |
+|---|---|
+| `product` | Consumer financial product involved in the complaint |
+| `sub_product` | More specific product category when available |
+| `issue` | Main issue identified by the consumer |
+| `sub_issue` | More detailed issue category when available |
+| `complaint_what_happened` | Narrative text of the complaint, when provided |
+
+---
+
+## 2. Company / Response Variables
+
+| Variable | Definition |
+|---|---|
+| `company` | Company named in the complaint |
+| `company_response_to_consumer` | Company response category |
+| `timely_response` | Whether the company responded on time |
+| `company_public_response` | Public-facing company response, if available |
+
+---
+
+## 3. Geography / Submission Variables
+
+| Variable | Definition |
+|---|---|
+| `state` | State of the consumer |
+| `submitted_via` | Channel used to submit the complaint |
+| `date_received` | Date complaint was received |
+| `date_sent_to_company` | Date complaint was sent to the company |
+
+---
+
+## 4. Derived Timing / Text Variables
+
+| Variable | Definition |
+|---|---|
+| `year_month` | Derived complaint month for time patterns |
+| `narrative_length` | Derived word or character length of complaint narrative |
+| `has_narrative` | Indicator for whether narrative text is present |
+
+---
+
+## Target Variable
+
+| Variable | Definition |
+|---|---|
+| `relief` | Outcome recoded as **relief** (closed with monetary relief or non-monetary relief) vs. **no relief** (all other outcomes) |
+
+## What the Data Tells Us
+
+Before modeling, the data can reveal clear patterns such as:
+
+- which financial products are most likely to end with relief  
+- whether certain issue categories are more associated with monetary or non-monetary relief  
+- whether response patterns differ by company, state, or submission channel  
+- whether complaints with narratives behave differently from complaints without narratives  
+
+These patterns help motivate the final feature set and provide context for the classification results.
+
+## Methodology
+
+Data will be downloaded programmatically and cleaned entirely through code, with no manual modifications. The analysis will focus on predicting relief outcomes using structured complaint information and, where available, text-based features from complaint narratives.
+
+## Class Imbalance
+
+Relief outcomes are less common than non-relief outcomes, so a model that predicts only "no relief" could still appear accurate while being useless in practice. This will be addressed with:
+
+- Class weights
+- Threshold tuning
+- Evaluation using precision-recall metrics, not accuracy alone
+
+## Models
+
+(1) Logistic Regression (baseline)
+
+(2) Random Forest
+
+(3) XGBoost (new model)
+
+(4) Best model + SHAP or threshold tuning (new technique)
+
+## Predictive Inference
+
+The analysis examines which signals most strongly influence whether a complaint ends with relief, specifically whether **product type, issue category, company, submission channel, and timing** matter more than geography alone.
+
+## Algorithmic Fairness / Group Analysis
+
+We evaluate whether model predictions differ systematically across **product groups, states, and submission channels** to ensure the model does not amplify existing disparities in complaint handling outcomes.
+
+## Data Limitations
+
+- **Outcome limitation:** Complaint outcomes do not perfectly measure true consumer harm or true case merit
+- **Reporting limitation:** Company response categories may reflect reporting practices as well as complaint severity
+- **Missing text:** Not all complaints include narratives, limiting text-based analysis
+- **Selection bias:** The data represents submitted complaints, not the full universe of consumer financial problems
+- **Class imbalance:** Relief outcomes are less common than non-relief outcomes
+- **Unobserved variables:** Important factors such as internal company processes, legal context, or case complexity are not observed in the data
