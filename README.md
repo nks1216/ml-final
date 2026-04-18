@@ -480,7 +480,7 @@ For convenience, individual model scripts are provided.
 
 
 
-# Topic 3 : Predicting Hacker News Virality
+# Topic 4 : Predicting Hacker News Virality (Kyusub)
 
 Hacker News (HN) is a social news aggregator run by Y Combinator, focused on technology, startups, and programming. Since its launch in 2007, it has become one of the most influential online communities in the tech industry, where a submission reaching the front page can drive substantial traffic, career opportunities, and even funding interest for its author. 
 
