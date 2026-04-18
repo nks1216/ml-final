@@ -44,7 +44,15 @@ Data is programmatically retrieved through the CFPB HMDA API using the Python `r
 The dataset consists of **310,241 HMDA mortgage applications** from Texas’s four largest counties—**Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
 A total of **109 features** are used to predict a single outcome variable: **loan approval**.
 
-See `data/hmda_loader.py` and `data/hmda_raw_2023_TX_big4.csv` for reference.
+See `data/hmda_loader.py` for reference.
+
+## Data Access
+
+Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored externally.
+
+Download the dataset from Google Drive:
+https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link
+
 
 ## Key Variable Groups (Representative subset of the 109 features)
 
