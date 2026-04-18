@@ -371,7 +371,7 @@ We evaluate whether model predictions differ systematically across **product gro
 
 ---
 
-# Topic 3:
+# Topic 4:
 
 ---
 
