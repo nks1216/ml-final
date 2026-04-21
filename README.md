@@ -1,4 +1,4 @@
-# Topic 1: Predicting HMDA Mortgage Approvals (Kyungsu)
+# Topic 1: Predicting HMDA Mortgage Approvals (Kyungsu Noh)
 
 ## Project Scope:
 
