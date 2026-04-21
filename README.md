@@ -109,6 +109,55 @@ https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=dri
 | `action_taken` | Outcome of the loan application, recoded as **Approved** vs. **Denied**. |
 
 
+## Data Preprocessing: Feature Selection
+
+To ensure the integrity of the machine learning models and prevent Data Leakage, the following features were excluded from the final training dataset.
+
+### 1. Data Leakage (Post-Decision Variables)
+
+These features contain information that is only determined after the loan decision has been made. Including them would lead to an artificially high accuracy that does not generalize to real-world scenarios.
+
+denial_reason-1 to denial_reason-4: Directly indicates why a loan was rejected.
+
+purchaser_type: Reflects which entity purchased the loan after origination.
+
+Pricing Metadata: interest_rate, rate_spread, total_loan_costs, total_points_and_fees, and origination_charges. These are typically only available for approved and originated loans.
+
+hoepa_status: Determined based on the final interest rate of an approved loan.
+
+### 2. Identifiers and Constants
+
+Features that provide no predictive power because they are unique identifiers or have the same value for every record in this specific dataset.
+
+lei: Legal Entity Identifier (Financial institution ID).
+
+activity_year: Constant value (2023) across the entire dataset.
+
+state_code: Constant value (TX) as the scope is limited to Texas.
+
+census_tract: Excluded due to extremely high cardinality, which can lead to overfitting. Regional trends are captured via derived_msa-md and county_code.
+
+### 3. Redundant / Derived Features
+
+To reduce multi-collinearity and simplify the model, we prioritize the "derived" features provided by the CFPB over the raw input fields.
+
+Raw Demographic Info: applicant_race-1~5, applicant_ethnicity-1~5, and applicant_sex are removed in favor of derived_race, derived_ethnicity, and derived_sex.
+
+applicant_age_above_62: Redundant if the continuous or binned applicant_age is already present.
+
+### Target Variable Refinement
+
+The target variable action_taken was filtered to include only definitive outcomes:
+
+Approved (Class 1): action_taken = 1 (Loan originated)
+
+Denied (Class 0): action_taken = 3 (Application denied)
+
+Note: Cases such as "Application withdrawn" (4) or "File closed for incompleteness" (5) were excluded to focus the model on the institution's credit decision logic.
+
+
+
+
 ---
 
 # Topic 2: Predicting U.S. Startup Failure (Razan) 
