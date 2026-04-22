@@ -38,8 +38,6 @@ Data is programmatically retrieved through the CFPB HMDA API using the Python `r
 The dataset consists of **310,241 HMDA mortgage applications** from Texas’s four largest counties—**Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
 A total of **109 features** are used to predict a single outcome variable: **loan approval**. 
 
-See `data/hmda_loader.py` for reference.
-
 Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored externally.
 
 Download the dataset from Google Drive:
@@ -47,77 +45,102 @@ https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=dri
 
 ## 2.2. Data Preprocessing: Feature Selection & Transformation
 
-To ensure the integrity of the machine learning models and prevent **Data Leakage**, we performed a rigorous feature selection process, reducing the initial **109 variables** to a finalized set of **44 variables (including the target variable)**. This refined dataset prioritizes primary applicant characteristics and economic indicators over internal bank markers or redundant metadata, ensuring the model's predictive power is both robust and ethically sound for fairness analysis.
+This section summarizes the preprocessing steps applied to reduce the original 109 HMDA variables to a finalized set of 44 modeling features.
+The process emphasizes data **leakage prevention, fairness analysis, and model interpretability**.
 
 ### 2.2.1. Feature Selection: Excluded Variables
 
-The following features were excluded from the training dataset for specific technical and analytical reasons:
-
 ### A. Data Leakage (Internal Decision & Post-Decision Markers)
 
-These features contain information determined during or after the loan decision process. Including them would lead to "Data Leakage," where the model "cheats" by looking at the results of internal algorithms rather than applicant qualifications.
+These variables reflect internal bank processes or information determined after the credit decision. Including them would allow the model to “peek” at the outcome.
 
-Internal Decisions: aus-1 to aus-5 (Automated Underwriting System results) and initially_payable_to_institution. These reflect the bank's internal AI/process conclusions.
+• Internal Decisions
+  - aus-1 ~ aus-5 (Automated Underwriting System results)
+  - initially_payable_to_institution
 
-Post-Decision Metadata: denial_reason-1 to denial_reason-4 and purchaser_type.
+• Post‑Decision Metadata
+  - denial_reason-1 ~ denial_reason-4
+  - purchaser_type
 
-Pricing Metadata: interest_rate, rate_spread, total_loan_costs, total_points_and_fees, and origination_charges. These are typically finalized only for approved loans.
+• Pricing Metadata (finalized only for approved loans)
+  - interest_rate
+  - rate_spread
+  - total_loan_costs
+  - total_points_and_fees
+  - origination_charges
 
-Regulatory Flags: hoepa_status, which is determined based on the final APR.
+• Regulatory Flags
+  - hoepa_status
 
 ### B. Identifiers and Constants
 
-Variables that provide no predictive power or possess extremely high cardinality.
+Variables with no predictive value or extremely high cardinality.
 
-Constants: activity_year (fixed at 2023) and state_code (fixed at TX).
+• Constants
+  - activity_year (fixed at 2023)
+  - state_code (fixed at TX)
 
-Identifiers: lei (Legal Entity Identifier).
+• Identifiers
+  - lei (Legal Entity Identifier)
 
-High Cardinality: census_tract was excluded to prevent overfitting; regional trends are instead captured through county_code and derived_msa-md (focused on 4 major Texas counties).
+• High Cardinality
+  - census_tract (replaced by county_code and derived_msa-md)
 
 ### C. Redundant and Observational Features
 
-To reduce multi-collinearity and focus on "Fairness" analysis, redundant features were removed.
+• Raw Demographics (replaced by derived_* variables)
+  - applicant_race-1~5
+  - applicant_ethnicity-1~5
+  - applicant_sex
 
-Raw Demographics: applicant_race-1-5, applicant_ethnicity-1-5, and applicant_sex were removed in favor of the CFPB's "derived" versions (derived_race, derived_ethnicity, derived_sex).
+• Observational Metadata
+  - applicant_race_observed
+  - co-applicant_race_observed
+  - applicant_ethnicity_observed
+  - co-applicant_ethnicity_observed
 
-Observational Metadata: _observed flags (e.g., applicant_race_observed) were removed as they describe the collection method rather than applicant creditworthiness.
-
-Binary Age Flags: applicant_age_above_62 was removed because the binned applicant_age provides more granular information.
+• Binary Age Flags
+  - applicant_age_above_62
 
 ### 2.2.2. Data Transformation: Numerical & Categorical
 
-We transformed the raw data into a format suitable for both traditional statistical models (Logistic Regression) and gradient boosting models (CatBoost, XGBoost).
-
 ### A. Ordinal Mapping (Age)
 
-To capture the chronological trend of aging, we transformed the categorical age ranges into Ordinal Integers.
+Age ranges were converted into ordinal integers (0–6) to preserve chronological ordering.
 
-Mapping: Categories like "25-34", "35-44", etc., were mapped to a scale of 0 to 6. This allows the model to treat age as a ranked numerical value.
+Example:
+
+"25-34" → 1  
+"35-44" → 2  
+"75+"   → 6
 
 ### B. Range-to-Midpoint Conversion (DTI & Units)
 
-HMDA often provides data in ranges to protect privacy. We converted these into continuous numerical values.
+HMDA often reports values as ranges for privacy.
+These were converted into continuous numerical midpoints.
 
-Method: Range strings (e.g., "30%-36%", "5-24 units") were converted to their mathematical midpoints (e.g., 33.0, 14.5).
+Examples:
 
-Imputation: Missing numerical values were imputed using the Median to maintain distribution robustness.
+"30%-36%" → 33.0  
+"5-24 units" → 14.5
+
+Missing values were imputed using the median.
 
 ### C. Categorical Encoding
 
-Remaining string-based features (e.g., loan_purpose, derived_race) were kept as categorical.
+• String-based variables retained as categorical
 
-Missing categorical values were filled with a dedicated "Unknown" label to treat missingness as a potential signal.
+• Missing values replaced with "Unknown"
 
 ### 2.2.3. Target Variable Refinement
 
-The target variable was derived from action_taken to focus exclusively on the institution's credit decision logic:
+- The `target` variable was derived from `action_taken` to focus exclusively on the institution's credit decision logic:
 
-Class 1 (Approved): action_taken = 1 (Loan originated)
+- Class 1 (Approved): `action_taken` = 1 (Loan originated)
 
-Class 0 (Denied): action_taken = 3 (Application denied)
+- Class 0 (Denied): `action_taken` = 3 (Application denied)
 
-Exclusions: Applications that were withdrawn by the applicant (4) or closed for incompleteness (5) were removed to ensure the model only learns from definitive approval or denial outcomes.
+- Exclusions: Applications that were withdrawn by the applicant (4) or closed for incompleteness (5) were removed to ensure the model only learns from definitive approval or denial outcomes.
 
 ---
 
@@ -211,6 +234,8 @@ Exclusions: Applications that were withdrawn by the applicant (4) or closed for 
 
 ### 2.4. Train / Test Split
 
+
+
 ### 2.5. Data Limitations
 
 ---
@@ -276,7 +301,27 @@ cd ml-final
 - Activate the virtual environment: `source venv/bin/activate`
 - Install all required packages: `pip install -r requirements.txt`
 
-### 6.3. Download the data 
+### 6.3. Data Preparation
+
+Run the scripts in the following order to collect and prepare the dataset:
+
+1. Download Raw Data: Fetches 2023 HMDA data for Big 4 TX counties.
+
+```
+python3 src/data/hmda_loader.py
+```
+
+2. Clean Data: Performs preprocessing and prevents data leakage.
+
+```
+python3 src/data/clean_hmda.py
+```
+
+3. Split Data: Creates train.csv and test.csv in data/split/.
+
+```
+python3 src/data/split_data.py
+```
 
 ### 6.4 Run the code
 ```
