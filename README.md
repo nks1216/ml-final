@@ -1,4 +1,4 @@
-# Topic 1: Predicting HMDA Mortgage Approvals (Kyungsu Noh)
+# Predicting HMDA Mortgage Approvals 
 
 ## Project Scope:
 
@@ -217,8 +217,6 @@ Exclusions: Applications that were withdrawn by the applicant (4) or closed for 
 ---
 
 
-
-(readme draft)
 
 ## 1. Project Overview
 
