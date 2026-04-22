@@ -6,4 +6,4 @@ env/
 # Environment variables
 .env
 
-data/raw/*.csv
+data/**/*.csv
