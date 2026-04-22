@@ -3,7 +3,7 @@
 ## Project Scope:
 
 - **Develop four classification models** to predict mortgage loan outcomes (Approved vs. Denied) using a comprehensive set of applicant, loan, and neighborhood-level features.
-The models include:
+The models include: (It can be changed.)
 
     (1) Logistic Regression (baseline)
 
@@ -54,425 +54,168 @@ Download the dataset from Google Drive:
 https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link
 
 
-## Key Variable Groups (Representative subset of the 109 features)
+## Data Preprocessing: Feature Selection & Transformation
 
-### 1. Financial Variables
+To ensure the integrity of the machine learning models and prevent **Data Leakage**, we performed a rigorous feature selection process, reducing the initial **109 variables** to a finalized set of **44 variables (including the target variable)**. This refined dataset prioritizes primary applicant characteristics and economic indicators over internal bank markers or redundant metadata, ensuring the model's predictive power is both robust and ethically sound for fairness analysis.
 
-| Variable | Definition |
-|---------|------------|
-| `loan_amount` | Dollar amount of the loan applied for. |
-| `loan_to_value_ratio` | Ratio of loan amount to property value (LTV). |
-| `debt_to_income_ratio` | Applicant’s monthly debt payments divided by monthly income (DTI). |
-| `interest_rate` | Interest rate assigned to the loan. |
-| `loan_term` | Length of the loan in months. |
-| `property_value` | Estimated market value of the property securing the loan. |
+### 1. Feature Selection: Excluded Variables
 
-### 2. Applicant Characteristics
+The following features were excluded from the training dataset for specific technical and analytical reasons:
 
-| Variable | Definition |
-|---------|------------|
-| `income` | Applicant’s annual income used for underwriting. |
-| `applicant_age` | Age of the primary applicant. |
-| `applicant_race` | Self‑reported race of the applicant. |
-| `applicant_ethnicity` | Self‑reported ethnicity of the applicant. |
-| `applicant_sex` | Self‑reported sex of the applicant. |
-| `applicant_credit_score_type` | Type of credit score model used (e.g., FICO, VantageScore). |
+### A. Data Leakage (Internal Decision & Post-Decision Markers)
 
-### 3. Geographic & Neighborhood Variables
+These features contain information determined during or after the loan decision process. Including them would lead to "Data Leakage," where the model "cheats" by looking at the results of internal algorithms rather than applicant qualifications.
 
-| Variable | Definition |
-|---------|------------|
-| `census_tract` | Census tract identifier for the property location. |
-| `derived_msa-md` | CFPB‑derived Metropolitan Statistical Area / Metropolitan Division code. |
-| `ffiec_msa_md_median_family_income` | Median family income for the MSA/MD. |
-| `tract_minority_population_percent` | Percentage of minority residents in the census tract. |
+Internal Decisions: aus-1 to aus-5 (Automated Underwriting System results) and initially_payable_to_institution. These reflect the bank's internal AI/process conclusions.
 
-### 4. Loan Type & Purpose
+Post-Decision Metadata: denial_reason-1 to denial_reason-4 and purchaser_type.
 
-| Variable | Definition |
-|---------|------------|
-| `loan_type` | Type of loan (Conventional, FHA, VA, USDA). |
-| `loan_purpose` | Purpose of the loan (Home purchase, Refinance, Home improvement). |
-| `lien_status` | Indicates whether the loan is a first lien, subordinate lien, or unsecured. |
+Pricing Metadata: interest_rate, rate_spread, total_loan_costs, total_points_and_fees, and origination_charges. These are typically finalized only for approved loans.
 
-### 5. Application Process Variables
+Regulatory Flags: hoepa_status, which is determined based on the final APR.
 
-| Variable | Definition |
-|---------|------------|
-| `preapproval` | Indicates whether the applicant sought preapproval. |
-| `aus-1` | Result from the primary Automated Underwriting System (e.g., Approve/Eligible). |
+### B. Identifiers and Constants
 
-### Target Variable
+Variables that provide no predictive power or possess extremely high cardinality.
 
-| Variable | Definition |
-|---------|------------|
-| `action_taken` | Outcome of the loan application, recoded as **Approved** vs. **Denied**. |
+Constants: activity_year (fixed at 2023) and state_code (fixed at TX).
 
+Identifiers: lei (Legal Entity Identifier).
 
-## Data Preprocessing: Feature Selection
+High Cardinality: census_tract was excluded to prevent overfitting; regional trends are instead captured through county_code and derived_msa-md (focused on 4 major Texas counties).
 
-To ensure the integrity of the machine learning models and prevent Data Leakage, the following features were excluded from the final training dataset.
+### C. Redundant and Observational Features
 
-### 1. Data Leakage (Post-Decision Variables)
+To reduce multi-collinearity and focus on "Fairness" analysis, redundant features were removed.
 
-These features contain information that is only determined after the loan decision has been made. Including them would lead to an artificially high accuracy that does not generalize to real-world scenarios.
+Raw Demographics: applicant_race-1~5, applicant_ethnicity-1~5, and applicant_sex were removed in favor of the CFPB's "derived" versions (derived_race, derived_ethnicity, derived_sex).
 
-denial_reason-1 to denial_reason-4: Directly indicates why a loan was rejected.
+Observational Metadata: _observed flags (e.g., applicant_race_observed) were removed as they describe the collection method rather than applicant creditworthiness.
 
-purchaser_type: Reflects which entity purchased the loan after origination.
+Binary Age Flags: applicant_age_above_62 was removed because the binned applicant_age provides more granular information.
 
-Pricing Metadata: interest_rate, rate_spread, total_loan_costs, total_points_and_fees, and origination_charges. These are typically only available for approved and originated loans.
+### 2. Data Transformation: Numerical & Categorical
 
-hoepa_status: Determined based on the final interest rate of an approved loan.
+We transformed the raw data into a format suitable for both traditional statistical models (Logistic Regression) and gradient boosting models (CatBoost, XGBoost).
 
-### 2. Identifiers and Constants
+### A. Ordinal Mapping (Age)
 
-Features that provide no predictive power because they are unique identifiers or have the same value for every record in this specific dataset.
+To capture the chronological trend of aging, we transformed the categorical age ranges into Ordinal Integers.
 
-lei: Legal Entity Identifier (Financial institution ID).
+Mapping: Categories like "25-34", "35-44", etc., were mapped to a scale of 0 to 6. This allows the model to treat age as a ranked numerical value.
 
-activity_year: Constant value (2023) across the entire dataset.
+### B. Range-to-Midpoint Conversion (DTI & Units)
 
-state_code: Constant value (TX) as the scope is limited to Texas.
+HMDA often provides data in ranges to protect privacy. We converted these into continuous numerical values.
 
-census_tract: Excluded due to extremely high cardinality, which can lead to overfitting. Regional trends are captured via derived_msa-md and county_code.
+Method: Range strings (e.g., "30%-36%", "5-24 units") were converted to their mathematical midpoints (e.g., 33.0, 14.5).
 
-### 3. Redundant / Derived Features
+Imputation: Missing numerical values were imputed using the Median to maintain distribution robustness.
 
-To reduce multi-collinearity and simplify the model, we prioritize the "derived" features provided by the CFPB over the raw input fields.
+### C. Categorical Encoding
 
-Raw Demographic Info: applicant_race-1~5, applicant_ethnicity-1~5, and applicant_sex are removed in favor of derived_race, derived_ethnicity, and derived_sex.
+Remaining string-based features (e.g., loan_purpose, derived_race) were kept as categorical.
 
-applicant_age_above_62: Redundant if the continuous or binned applicant_age is already present.
+Missing categorical values were filled with a dedicated "Unknown" label to treat missingness as a potential signal.
 
-### Target Variable Refinement
+### 3. Target Variable Refinement
 
-The target variable action_taken was filtered to include only definitive outcomes:
+The target variable was derived from action_taken to focus exclusively on the institution's credit decision logic:
 
-Approved (Class 1): action_taken = 1 (Loan originated)
+Class 1 (Approved): action_taken = 1 (Loan originated)
 
-Denied (Class 0): action_taken = 3 (Application denied)
+Class 0 (Denied): action_taken = 3 (Application denied)
 
-Note: Cases such as "Application withdrawn" (4) or "File closed for incompleteness" (5) were excluded to focus the model on the institution's credit decision logic.
-
-
-
+Exclusions: Applications that were withdrawn by the applicant (4) or closed for incompleteness (5) were removed to ensure the model only learns from definitive approval or denial outcomes.
 
 ---
 
-# Topic 2: Predicting U.S. Startup Failure (Razan) 
+### Target Variable (1)
 
-## Introduction
+| Variable Name | Description |
+|---------------|-------------|
+| `target` | Final outcome of the application (1: Approved, 0: Denied) |
 
-This project uses two Crunchbase datasets sourced from Kaggle to predict whether a U.S. startup will fail based on its funding profile, sector, and geography. Crunchbase is the leading platform for tracking startup activity, funding rounds, investor relationships, and company outcomes. Both datasets are publicly available, crowdsourced, and editor-verified by Crunchbase. The data covers companies founded between 2000 and 2014.
+### 1. Institutional & Geographic Metadata (5)
 
-## Problem Statement
+| Variable Name | Description |
+|---------------|-------------|
+| `derived_msa-md` | Derived Metropolitan Statistical Area or Division code |
+| `county_code` | Five-digit FIPS county code |
+| `conforming_loan_limit` | Whether the loan amount is within GSE limits |
+| `derived_loan_product_type` | Derived categorization of the loan product |
+| `derived_dwelling_category` | Derived categorization of the dwelling type |
 
-Build a classification model to predict startup failure (closed vs. operating) using funding history, investor type, sector, and geographic features.
+### 2. Loan Application Details (10)
 
-## Data Scope
+| Variable Name | Description |
+|---------------|-------------|
+| `preapproval` | Whether pre-approval was requested |
+| `loan_type` | Conventional, FHA, VA, or RHS/FSA |
+| `loan_purpose` | Purchase, Refinance, Home Improvement, etc. |
+| `lien_status` | First or subordinate lien |
+| `reverse_mortgage` | Reverse mortgage flag |
+| `open-end_line_of_credit` | HELOC/open-end credit flag |
+| `business_or_commercial_purpose` | Whether the loan is for business purposes |
+| `loan_amount` | Requested or originated loan amount (Numeric) |
+| `loan_to_value_ratio` | Loan-to-Value ratio (Numeric) |
+| `loan_term` | Loan maturity in months (Numeric) |
 
-Two Crunchbase datasets joined on `permalink` — a unique company identifier assigned by Crunchbase (e.g. `/organization/uber`). The join matches 98.5% of records with no manual modifications.
+### 3. Pricing & Property Features (6)
 
-| Dataset | Source | Records | Kaggle URL |
-|---|---|---|---|
-| Startup Success/Fail | Crunchbase via Kaggle | ~66,000 global | `yanmaksi/big-startup-secsees-fail-dataset-from-crunchbase` |
-| StartUp Investments | Crunchbase via Kaggle | ~54,000 global | `arindam235/startup-investments-crunchbase` |
+| Variable Name | Description |
+|---------------|-------------|
+| `negative_amortization` | Negative amortization flag |
+| `interest_only_payment` | Interest-only payment flag |
+| `balloon_payment` | Balloon payment flag |
+| `other_nonamortizing_features` | Other non-standard payment features |
+| `property_value` | Appraised property value (Numeric) |
+| `construction_method` | Site-built or manufactured |
 
-**After joining and filtering to U.S. only: 29,696 companies, 2,302 confirmed failures (7.8%)**
+### 4. Property & Occupancy (6)
 
-### Key Variable Groups
+| Variable Name | Description |
+|---------------|-------------|
+| `occupancy_type` | Primary, secondary, or investment |
+| `manufactured_home_secured_property_type` | Security type for manufactured homes |
+| `manufactured_home_land_property_interest` | Land property interest |
+| `total_units` | Number of dwelling units (Numeric) |
+| `multifamily_affordable_units` | Affordable units (for multifamily) |
+| `income` | Applicant(s) gross annual income (Numeric) |
 
-## 1. Funding Variables
+### 5. Credit & Submission Metrics (4)
 
-| Variable | Definition |
-|---|---|
-| `funding_total_usd` | Total funding raised across all rounds (USD) |
-| `funding_rounds` | Number of distinct funding rounds raised |
-| `venture` | Amount raised from venture capital (USD) |
-| `angel` | Amount raised from angel investors (USD) |
-| `seed` | Amount raised in seed round (USD) |
-| `round_A` through `round_D` | Amount raised in each specific round (USD) |
-| `debt_financing` | Amount raised through debt (USD) |
-| `grant` | Amount raised through grants (USD) |
+| Variable Name | Description |
+|---------------|-------------|
+| `debt_to_income_ratio` | Debt-to-Income ratio (Numeric Midpoint) |
+| `applicant_credit_score_type` | Credit score model used for the applicant |
+| `co-applicant_credit_score_type` | Credit score model used for the co-applicant |
+| `submission_of_application` | Whether submitted directly to the institution |
 
----
+### 6. Applicant Demographics (Fairness Variables) (5)
 
-## 2. Timeline Variables
+| Variable Name | Description |
+|---------------|-------------|
+| `derived_ethnicity` | Aggregate ethnicity of the applicant |
+| `derived_race` | Aggregate race of the applicant |
+| `derived_sex` | Aggregate sex of the applicant |
+| `applicant_age` | Applicant age range (Mapped to Ordinal 0–6) |
+| `co-applicant_age` | Co-applicant age range (Mapped to Ordinal 0–6) |
 
-| Variable | Definition |
-|---|---|
-| `founded_at` | Date the company was founded |
-| `first_funding_at` | Date of first external funding round |
-| `last_funding_at` | Date of most recent funding round |
-| `funding_gap` | Derived: months between first and last funding (runway proxy) |
-| `time_to_first_funding` | Derived: months from founding to first funding |
+### 7. Census Tract Demographics (7)
 
----
-
-## 3. Company Characteristics
-
-| Variable | Definition |
-|---|---|
-| `category_list` | Startup sector (SaaS, Social Media, Biotech, Games, etc.) |
-| `state_code` | U.S. state of incorporation |
-| `region` | U.S. region (e.g. SF Bay Area, New York) |
-
----
-
-## 4. Target Variable
-
-| Variable | Definition |
-|---|---|
-| `status` | Outcome — recoded as **closed** (failed) vs. **operating** (survived) |
-
----
-
-## What the Data Tells Us
-
-Before modeling, the data reveals clear patterns:
-
-**Highest failure rates by sector (min. 100 companies):**
-
-| Sector | Failure Rate |
-|---|---|
-| Curated Web | 21.1% |
-| Social Media | 19.1% |
-| Public Relations | 17.1% |
-| Messaging | 16.4% |
-| Games | 15.3% |
-
-**Lowest failure rates:**
-
-| Sector | Failure Rate |
-|---|---|
-| Medical | 0.6% |
-| Real Estate | 1.2% |
-| EdTech | 2.4% |
-| B2B | 2.6% |
-
-**Funding type signal (failed vs. surviving):**
-
-| Type | Failed avg | Surviving avg |
-|---|---|---|
-| Seed | $164,212 | $253,789 |
-| Venture | $6,727,887 | $7,261,590 |
-| Angel | $85,385 | $52,738 |
-
-Notable: failed startups raised *more* from angel investors on average, suggesting angel-only funding may be a risk signal rather than a safety net.
-
-## Methodology
-
-Data is downloaded programmatically via the Kaggle API using `setup.sh`, ensuring a fully reproducible and automated data pipeline. Both datasets are joined in `data_cleaning.py` with no manual modifications.
-
-## Class Imbalance
-
-7.8% failure rate, a model that always predicts "operating" would be 92% accurate and useless. Addressed with:
-- Class weights (`scale_pos_weight` in XGBoost/CatBoost)
-- SMOTE oversampling
-- Evaluated using precision-recall curve, not accuracy
-
-## Models
-
-(1) Logistic Regression (baseline)
-
-(2) XGBoost
-
-(3) CatBoost (new model, handles categorical features natively)
-
-(4) Best model + Optuna Bayesian hyperparameter tuning (new technique)
-
-## Predictive Inference
-
-The analysis examines which signals most strongly influence failure. specifically whether **funding type, number of rounds, and sector** matter more than raw dollar amounts — providing insight into what distinguishes startups that survive from those that close.
-
-## Algorithmic Fairness Analysis
-
-We evaluate whether model predictions differ systematically across **sector, geographic region (coastal vs. non-coastal), and funding type (VC-backed vs. angel-only)** to ensure the model does not amplify existing ecosystem biases.
-
-## Data Limitations
-
-- **Survivorship bias:** Only funded startups appear, bootstrapped companies are invisible
-- **Noisy labels:** Many closed startups never updated their Crunchbase profile, some `operating` labels are likely dead companies
-- **No timing on failure:** The data captures whether a company failed, not when, we cannot measure failure within a specific time window
-- **No founder data:** Founder experience, demographics, and prior exits unavailable
-- **No revenue or traction data:** Product-market fit signals absent from both datasets
-- **Founded date missing** for 16.5% of records, limits time-based feature engineering for those rows
-- **Time period:** Covers 2000–2014, may not reflect post-2020 market dynamics
-
-----
-
-# Topic 3: Predicting Consumer Relief in CFPB Complaint Outcomes (Omar)
-
-## Introduction
-
-This project uses the Consumer Financial Protection Bureau (CFPB) Consumer Complaint Database to predict whether a consumer complaint ends with relief. The dataset contains public complaints about consumer financial products and services and includes information on the product, issue, company, geography, submission channel, timing, and company response.
-
-## Problem Statement
-
-Build a classification model to predict whether a consumer complaint results in relief using complaint characteristics such as product type, issue, company, state, submission method, timing, and response-related variables.
-
-## Data Scope
-
-The project uses the CFPB Consumer Complaint Database, an official public dataset of complaint-level observations. The database supports filtering and export, making the project fully reproducible with a programmatic data pipeline.
-
-### Key Variable Groups
-
-## 1. Complaint Characteristics
-
-| Variable | Definition |
-|---|---|
-| `product` | Consumer financial product involved in the complaint |
-| `sub_product` | More specific product category when available |
-| `issue` | Main issue identified by the consumer |
-| `sub_issue` | More detailed issue category when available |
-| `complaint_what_happened` | Narrative text of the complaint, when provided |
+| Variable Name | Description |
+|---------------|-------------|
+| `tract_population` | Total population in the census tract |
+| `tract_minority_population_percent` | Minority population percentage in the tract |
+| `ffiec_msa_md_median_family_income` | MSA median family income |
+| `tract_to_msa_income_percentage` | Tract income relative to MSA median |
+| `tract_owner_occupied_units` | Owner-occupied units in the tract |
+| `tract_one_to_four_family_homes` | 1–4 family homes in the tract |
+| `tract_median_age_of_housing_units` | Median age of housing units in the tract |
 
 ---
 
-## 2. Company / Response Variables
-
-| Variable | Definition |
-|---|---|
-| `company` | Company named in the complaint |
-| `company_response_to_consumer` | Company response category |
-| `timely_response` | Whether the company responded on time |
-| `company_public_response` | Public-facing company response, if available |
-
----
-
-## 3. Geography / Submission Variables
-
-| Variable | Definition |
-|---|---|
-| `state` | State of the consumer |
-| `submitted_via` | Channel used to submit the complaint |
-| `date_received` | Date complaint was received |
-| `date_sent_to_company` | Date complaint was sent to the company |
-
----
-
-## 4. Derived Timing / Text Variables
-
-| Variable | Definition |
-|---|---|
-| `year_month` | Derived complaint month for time patterns |
-| `narrative_length` | Derived word or character length of complaint narrative |
-| `has_narrative` | Indicator for whether narrative text is present |
-
----
-
-## Target Variable
-
-| Variable | Definition |
-|---|---|
-| `relief` | Outcome recoded as **relief** (closed with monetary relief or non-monetary relief) vs. **no relief** (all other outcomes) |
-
-## What the Data Tells Us
-
-Before modeling, the data can reveal clear patterns such as:
-
-- which financial products are most likely to end with relief  
-- whether certain issue categories are more associated with monetary or non-monetary relief  
-- whether response patterns differ by company, state, or submission channel  
-- whether complaints with narratives behave differently from complaints without narratives  
-
-These patterns help motivate the final feature set and provide context for the classification results.
-
-## Methodology
-
-Data will be downloaded programmatically and cleaned entirely through code, with no manual modifications. The analysis will focus on predicting relief outcomes using structured complaint information and, where available, text-based features from complaint narratives.
-
-## Class Imbalance
-
-Relief outcomes are less common than non-relief outcomes, so a model that predicts only "no relief" could still appear accurate while being useless in practice. This will be addressed with:
-
-- Class weights
-- Threshold tuning
-- Evaluation using precision-recall metrics, not accuracy alone
-
-## Models
-
-(1) Logistic Regression (baseline)
-
-(2) Random Forest
-
-(3) XGBoost (new model)
-
-(4) Best model + SHAP or threshold tuning (new technique)
-
-## Predictive Inference
-
-The analysis examines which signals most strongly influence whether a complaint ends with relief, specifically whether **product type, issue category, company, submission channel, and timing** matter more than geography alone.
-
-## Algorithmic Fairness / Group Analysis
-
-We evaluate whether model predictions differ systematically across **product groups, states, and submission channels** to ensure the model does not amplify existing disparities in complaint handling outcomes.
-
-## Data Limitations
-
-- **Outcome limitation:** Complaint outcomes do not perfectly measure true consumer harm or true case merit
-- **Reporting limitation:** Company response categories may reflect reporting practices as well as complaint severity
-- **Missing text:** Not all complaints include narratives, limiting text-based analysis
-- **Selection bias:** The data represents submitted complaints, not the full universe of consumer financial problems
-- **Class imbalance:** Relief outcomes are less common than non-relief outcomes
-- **Unobserved variables:** Important factors such as internal company processes, legal context, or case complexity are not observed in the data
-
-
----
-
-# Topic 4 : Predicting Hacker News Virality (Kyusub)
-
-Hacker News (HN) is a social news aggregator run by Y Combinator, focused on technology, startups, and programming. Since its launch in 2007, it has become one of the most influential online communities in the tech industry, where a submission reaching the front page can drive substantial traffic, career opportunities, and even funding interest for its author. 
-
-## 1. Research Question
-
-We frame the task as a **binary classification problem**:
-
-> Given only the information available at the moment of submission, can we predict whether a Hacker News story will reach **100 or more points within 24 hours** of being posted?
-
-The 100-point threshold approximates the score typically required to appear on the HN front page, which serves as the practical definition of "going viral" in this community.
-
-- Which features most strongly influence virality (title wording, linked domain, submission time, author reputation)?
-
-## 2. Data Collection
-
-All data will be sourced exclusively from official Hacker News channels to ensure clear provenance and reproducibility.
-
-**Google BigQuery Public Dataset**
-- Table: `bigquery-public-data.hacker_news.full`
-- Contains every item (story, comment, poll, job) from 2007 to the present, maintained by Google Cloud
-- We will extract stories submitted between 2022 and 2025, excluding deleted or dead posts
-- Expected sample size: approximately 400,000–600,000 stories
-
-**Fields collected**
-- `id`, `title`, `url`, `text`, `by`, `time`, `type`
-- `score` and `descendants` (used for labeling, collected 24+ hours after submission)
-- Author metadata — `karma` and account creation time — queried via the `/user/` endpoint
-
-## 3. Methodology
-
-### 3.1 Feature Engineering
-- **Title features**: length, presence of numbers or special characters, "Show HN:" / "Ask HN:" prefix, and a set of trending keyword flags (e.g., *AI*, *Rust*, *GPT*)
-- **URL features**: top-level domain, historical mean score of that domain
-- **Temporal features**: hour of day (UTC and US Pacific), day of week, year
-- **Author features**: historical karma at submission time, account age, prior submission count and average score
-
-### 3.2 Models
-
-- Logistic Regression with L1 and L2 regularization
-- Random Forest
-- Gradient Boosting with **LightGBM**, tuned using **Optuna** Bayesian hyperparameter search
-- Title embeddings produced by **Sentence-BERT** (`all-MiniLM-L6-v2`), stacked with tabular features
-- Probability calibration via **isotonic regression** on a held-out set
-
-### 3.3 Evaluation
-- **Temporal split**: training on 2022–2024, validation on early 2025, testing on late 2025. A random split would leak future information and inflate performance
-- **Metrics**: ROC-AUC and PR-AUC (given class imbalance), plus F1 at an operating threshold selected through cost-sensitive analysis
-- **Calibration quality**: Brier score and calibration curves
-
-
----
 
 
 (readme draft)
