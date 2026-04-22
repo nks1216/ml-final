@@ -255,7 +255,40 @@ The cleaned dataset is split into training (80%) and testing (20%) sets using sc
 
 ### 3.2. Random Forest (can be changed)
 
-### 3.3. XGBoost (new model, can be changed)
+### 3.3. XGBoost
+
+#### 1. Performance Summary
+
+| Metric               | Value  |
+|----------------------|:------:|
+| Accuracy             | 0.8471 |
+| Precision (Approved) | 0.9087 |
+| Recall (Approved)    | 0.8709 |
+| F1 Score             | 0.8894 |
+| ROC-AUC              | 0.9109 |
+| Average Precision    | 0.9529 |
+
+_Evaluated on 39,095 held-out test samples._
+
+#### 2. Confusion Matrix & ROC Curve
+
+| Confusion Matrix | ROC Curve |
+|:---:|:---:|
+| <img width="420" height="350" alt="xgboost_confusion_matrix" src="https://github.com/user-attachments/assets/03bd43bd-fda5-4f97-8469-61d12387da67" /> | <img width="420" height="350" alt="xgboost_roc_curve" src="https://github.com/user-attachments/assets/91f420aa-971f-4a1a-9346-6b3c9cd7dc84" /> |
+
+#### 3 Precision–Recall Curve & Feature Importance
+
+| Precision–Recall Curve | Top 20 Feature Importances |
+|:---:|:---:|
+| <img width="420" height="350" alt="xgboost_feature_importance_top20" src="https://github.com/user-attachments/assets/7b199875-898d-47ec-88f5-244c4b8ddf87" /> | <img width="420" height="350" alt="xgboost_precision_recall_curve" src="https://github.com/user-attachments/assets/91fd70e4-3500-46b3-8c7e-40d64b824f3e" />|
+
+**Top 5 drivers (gain):**
+1. `construction_method`
+2. `derived_dwelling_category`
+3. `manufactured_home_secured_property_type`
+4. `debt_to_income_ratio`
+5. `loan_purpose`
+
 
 ### 3.4. CatBoost (new model, can be changed)
 
