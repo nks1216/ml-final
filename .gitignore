@@ -6,4 +6,5 @@ env/
 # Environment variables
 .env
 
-data/**/*.csv
+data/**/*.csv.DS_Store
+**/.DS_Store
