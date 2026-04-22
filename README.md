@@ -236,7 +236,13 @@ Missing values were imputed using the median.
 
 ### 2.4. Train / Test Split
 
+The cleaned dataset is split into training (80%) and testing (20%) sets using scikit-learn to ensure reliable model evaluation.
 
+- Stratified Sampling: We applied stratification on the target column to maintain the original distribution of approved and denied loans in both sets.
+
+- Reproducibility: A fixed random_state of 42 was used to ensure consistent results across different runs.
+
+- Outputs: The split files are saved as `train.csv` and `test.csv` in the `data/split/` directory.
 
 ### 2.5. Data Limitations
 
