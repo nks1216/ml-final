@@ -1,6 +1,6 @@
 # Predicting HMDA Mortgage Approvals 
 
-## Project Scope:
+## 1. Project Overview
 
 - **Develop four classification models** to predict mortgage loan outcomes (Approved vs. Denied) using a comprehensive set of applicant, loan, and neighborhood-level features.
 The models include: (It can be changed.)
@@ -21,44 +21,35 @@ The models include: (It can be changed.)
 
 - **Examine geographic variation** by comparing approval patterns and model behavior across the Big Four Texas counties (Travis, Harris, Dallas, Bexar), using the best-performing model.
 
-## Further Feasible Extensions:
+#### Research Questions (To be updated)
 
-- Data quality and missingness analysis
+#### Motivation (To be updated)
 
-- Fairness metrics (e.g., demographic parity, equal opportunity)
+---
 
-- Explainability using SHAP or permutation importance
+## 2. Dataset Description
 
-- County‑level heterogeneity analysis
-
-- Class imbalance handling
-
-- Train/validation/test split strategy
-
-## Data Scope:
+### 2.1. Data Source
 
 This project utilizes data managed by the Consumer Financial Protection Bureau (CFPB) under the Home Mortgage Disclosure Act (HMDA). HMDA requires nearly all U.S. financial institutions to maintain, report, and publicly disclose loan-level information about mortgages.
 
 Data is programmatically retrieved through the CFPB HMDA API using the Python `requests` library, ensuring a reproducible and automated data pipeline.
 
 The dataset consists of **310,241 HMDA mortgage applications** from Texas’s four largest counties—**Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
-A total of **109 features** are used to predict a single outcome variable: **loan approval**.
+A total of **109 features** are used to predict a single outcome variable: **loan approval**. 
 
 See `data/hmda_loader.py` for reference.
-
-## Data Access
 
 Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored externally.
 
 Download the dataset from Google Drive:
 https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link
 
-
-## Data Preprocessing: Feature Selection & Transformation
+## 2.2. Data Preprocessing: Feature Selection & Transformation
 
 To ensure the integrity of the machine learning models and prevent **Data Leakage**, we performed a rigorous feature selection process, reducing the initial **109 variables** to a finalized set of **44 variables (including the target variable)**. This refined dataset prioritizes primary applicant characteristics and economic indicators over internal bank markers or redundant metadata, ensuring the model's predictive power is both robust and ethically sound for fairness analysis.
 
-### 1. Feature Selection: Excluded Variables
+### 2.2.1. Feature Selection: Excluded Variables
 
 The following features were excluded from the training dataset for specific technical and analytical reasons:
 
@@ -88,13 +79,13 @@ High Cardinality: census_tract was excluded to prevent overfitting; regional tre
 
 To reduce multi-collinearity and focus on "Fairness" analysis, redundant features were removed.
 
-Raw Demographics: applicant_race-1~5, applicant_ethnicity-1~5, and applicant_sex were removed in favor of the CFPB's "derived" versions (derived_race, derived_ethnicity, derived_sex).
+Raw Demographics: applicant_race-1-5, applicant_ethnicity-1-5, and applicant_sex were removed in favor of the CFPB's "derived" versions (derived_race, derived_ethnicity, derived_sex).
 
 Observational Metadata: _observed flags (e.g., applicant_race_observed) were removed as they describe the collection method rather than applicant creditworthiness.
 
 Binary Age Flags: applicant_age_above_62 was removed because the binned applicant_age provides more granular information.
 
-### 2. Data Transformation: Numerical & Categorical
+### 2.2.2. Data Transformation: Numerical & Categorical
 
 We transformed the raw data into a format suitable for both traditional statistical models (Logistic Regression) and gradient boosting models (CatBoost, XGBoost).
 
@@ -118,7 +109,7 @@ Remaining string-based features (e.g., loan_purpose, derived_race) were kept as 
 
 Missing categorical values were filled with a dedicated "Unknown" label to treat missingness as a potential signal.
 
-### 3. Target Variable Refinement
+### 2.2.3. Target Variable Refinement
 
 The target variable was derived from action_taken to focus exclusively on the institution's credit decision logic:
 
@@ -129,6 +120,9 @@ Class 0 (Denied): action_taken = 3 (Application denied)
 Exclusions: Applications that were withdrawn by the applicant (4) or closed for incompleteness (5) were removed to ensure the model only learns from definitive approval or denial outcomes.
 
 ---
+
+
+### 2.3. Variables 
 
 ### Target Variable (1)
 
@@ -214,25 +208,13 @@ Exclusions: Applications that were withdrawn by the applicant (4) or closed for 
 | `tract_one_to_four_family_homes` | 1–4 family homes in the tract |
 | `tract_median_age_of_housing_units` | Median age of housing units in the tract |
 
+
+### 2.4. Train / Test Split
+
+### 2.5. Data Limitations
+
 ---
 
-
-
-## 1. Project Overview
-
-#### Research Questions
-
-#### Motivation
-
-## 2. Dataset Description
-
-### 2.1. Data Source
-
-### 2.2 Variables
-
-### 2.3. Train / Test Split
-
-### 2.4. Data Limitations
 
 ## 3. Modeling Approach and Individual Model Results
 
@@ -246,7 +228,7 @@ Exclusions: Applications that were withdrawn by the applicant (4) or closed for 
 
 ## 4. Comparative Evaluation of Models
 
-### 4.1. Performance Metrics
+### 4.1. Performance Metrics (can be changed)
 
 - Accuracy  
 - Precision  
@@ -278,23 +260,25 @@ Exclusions: Applications that were withdrawn by the applicant (4) or closed for 
 - Most influential predictors  
 - Practical and fairness-related implications  
 
-## 5. Reproducibility
+## 5. Fairness check
 
-### 5.1. Clone the repository  
+## 6. Reproducibility
+
+### 6.1. Clone the repository  
 ```
 git clone https://github.com/nks1216/ml-final.git
 cd ml-final
 ```
 
-### 5.2. Setting up the Virtual Environment
+### 6.2. Setting up the Virtual Environment
 
 - Create a virtual environment: `python3 -m venv venv`
 - Activate the virtual environment: `source venv/bin/activate`
 - Install all required packages: `pip install -r requirements.txt`
 
-### 5.3. Download the data 
+### 6.3. Download the data 
 
-### 5.4 Run the code
+### 6.4 Run the code
 ```
 
 ```
@@ -302,7 +286,7 @@ For convenience, individual model scripts are provided.
 
 ---
 
-## 6. Limitations and Future Improvements
+## 7. Limitations and Future Improvements
 
 **Modeling Limitations**
 
@@ -310,10 +294,24 @@ For convenience, individual model scripts are provided.
 
 ---
 
-## 7. Collaboration and Workflow
+## 8. Collaboration and Workflow
 
 - All team members worked through GitHub Issues and feature branches, following a branch‑per‑issue workflow.
 - Each member opened pull requests for their work and merged them after review and testing.
 - The repository contains more than 30 commits across multiple contributors.
 - All code and documentation were merged into the main branch before submission.
 
+
+## Further Feasible Extensions:
+
+- Data quality and missingness analysis
+
+- Fairness metrics (e.g., demographic parity, equal opportunity)
+
+- Explainability using SHAP or permutation importance
+
+- County‑level heterogeneity analysis
+
+- Class imbalance handling
+
+- Train/validation/test split strategy
