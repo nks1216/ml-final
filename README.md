@@ -43,6 +43,8 @@ Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored external
 Download the dataset from Google Drive:
 https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link
 
+Please refer to `data/data_dictionary.md` for detailed descriptions of the raw data variables.
+
 ## 2.2. Data Preprocessing: Feature Selection & Transformation
 
 This section summarizes the preprocessing steps applied to reduce the original 109 HMDA variables to a finalized set of 44 modeling features.
