@@ -276,7 +276,7 @@ _Evaluated on 39,095 held-out test samples._
 |:---:|:---:|
 | <img width="420" height="350" alt="xgboost_confusion_matrix" src="https://github.com/user-attachments/assets/03bd43bd-fda5-4f97-8469-61d12387da67" /> | <img width="420" height="350" alt="xgboost_roc_curve" src="https://github.com/user-attachments/assets/91f420aa-971f-4a1a-9346-6b3c9cd7dc84" /> |
 
-#### 3 Precision–Recall Curve & Feature Importance
+#### 3. Precision–Recall Curve & Feature Importance
 
 | Precision–Recall Curve | Top 20 Feature Importances |
 |:---:|:---:|
