@@ -1,5 +1,9 @@
 # HMDA Full Data Dictionary (109 Variables)
 
+**Note**: This data dictionary describes the raw HMDA dataset (`hmda_raw_2023_TX_big4.csv`).
+
+It does **not** apply to the cleaned and split datasets (`hmda_cleaned.csv`, `train.csv`, `test.csv`), as feature selection and transformations were applied during preprocessing.
+
 ## 1. Institutional & Geographic Metadata (11)
 
 | Variable Name | Description | Values / Range |
