@@ -282,7 +282,32 @@ Logistic Regression serves as the interpretable baseline model for the mortgage 
 
 The model’s ROC-AUC of 0.8117 shows that it provides meaningful discrimination between approved and denied applications, but it remains below the XGBoost benchmark currently reported in the project. This is expected, since Logistic Regression assumes a linear relationship between predictors and approval probability, while tree-based methods can capture richer interactions and nonlinearities. Still, Logistic Regression is valuable because it is transparent, fast to estimate, and easy to interpret through coefficient signs and magnitudes.
 
-### 3.2. Random Forest (can be changed)
+### 3.2. Random Forest
+
+#### 1. Performance Summary
+
+| Metric               | Value  |
+|----------------------|:------:|
+| Accuracy             | 0.8682 |
+| Precision (Approved) | 0.8752 |
+| Recall (Approved)    | 0.9485 |
+| F1 Score             | 0.9104 |
+| ROC-AUC              | 0.9038 |
+| Average Precision    | 0.9435 |
+
+_Evaluated on 39,095 held-out test samples._
+
+### Confusion Matrix
+![Confusion Matrix](reports/figures/prediction/rf_confusion_matrix.png)
+
+### ROC Curve
+![ROC Curve](reports/figures/prediction/rf_roc_curve.png)
+
+### Precision-Recall Curve
+![PR Curve](reports/figures/prediction/rf_precision_recall_curve.png)
+
+### Top 20 Feature Importances
+![Feature Importances](reports/figures/prediction/rf_feature_importances.png)
 
 ### 3.3. XGBoost
 
