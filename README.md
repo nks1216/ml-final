@@ -251,7 +251,46 @@ The cleaned dataset is split into training (80%) and testing (20%) sets using sc
 
 ## 3. Modeling Approach and Individual Model Results
 
-### 3.1. Logistic (can be changed)
+### 3.1. Logistic Regression
+
+#### 1. Performance Summary
+
+| Metric | Value |
+|---|---|
+| Accuracy | 0.7533 |
+| Precision (Approved) | 0.8632 |
+| Recall (Approved) | 0.7731 |
+| F1 Score | 0.8156 |
+| ROC-AUC | 0.8117 |
+| Average Precision | 0.9011 |
+
+Evaluated on 39,095 held-out test samples.
+
+#### 2. Confusion Matrix & ROC Curve
+
+| Confusion Matrix | ROC Curve |
+|---|---|
+| `logistic_confusion_matrix` | `logistic_roc_curve` |
+
+#### 3. Precision–Recall Curve & Feature Importance
+
+| Precision–Recall Curve | Top 20 Coefficients |
+|---|---|
+| `logistic_precision_recall_curve` | `logistic_top20_coefficients` |
+
+Top 5 drivers (absolute coefficient magnitude):
+
+- multifamily_affordable_units = Exempt
+- reverse_mortgage
+- open-end_line_of_credit
+- applicant_credit_score_type
+- co-applicant_credit_score_type
+
+#### 4. Interpretation
+
+Logistic Regression serves as the interpretable baseline model for the mortgage approval classification task. It performs reasonably well overall, especially in predicting approved loans, with strong precision (0.8632) and a solid F1 score (0.8156). However, its performance is weaker for denied loans, which reflects both class imbalance and the limited flexibility of a linear classifier relative to more complex nonlinear models.
+
+The model’s ROC-AUC of 0.8117 shows that it provides meaningful discrimination between approved and denied applications, but it remains below the XGBoost benchmark currently reported in the project. This is expected, since Logistic Regression assumes a linear relationship between predictors and approval probability, while tree-based methods can capture richer interactions and nonlinearities. Still, Logistic Regression is valuable because it is transparent, fast to estimate, and easy to interpret through coefficient signs and magnitudes.
 
 ### 3.2. Random Forest (can be changed)
 
