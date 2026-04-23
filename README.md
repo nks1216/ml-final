@@ -256,7 +256,7 @@ The cleaned dataset is split into training (80%) and testing (20%) sets using sc
 #### 1. Performance Summary
 
 | Metric | Value |
-|---|---|
+|---|---:|
 | Accuracy | 0.7533 |
 | Precision (Approved) | 0.8632 |
 | Recall (Approved) | 0.7731 |
@@ -270,13 +270,13 @@ Evaluated on 39,095 held-out test samples.
 
 | Confusion Matrix | ROC Curve |
 |---|---|
-| `logistic_confusion_matrix` | `logistic_roc_curve` |
+| ![](reports/figures/prediction/logistic_confusion_matrix.png) | ![](reports/figures/prediction/logistic_roc_curve.png) |
 
 #### 3. Precision–Recall Curve & Feature Importance
 
 | Precision–Recall Curve | Top 20 Coefficients |
 |---|---|
-| `logistic_precision_recall_curve` | `logistic_top20_coefficients` |
+| ![](reports/figures/prediction/logistic_precision_recall_curve.png) | ![](reports/figures/prediction/logistic_top20_coefficients.png) |
 
 Top 5 drivers (absolute coefficient magnitude):
 
