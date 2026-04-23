@@ -146,93 +146,83 @@ Missing values were imputed using the median.
 
 ---
 
-
 ### 2.3. Variables 
 
-### Target Variable (1)
+#### Target Variable (1)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `target` | Final outcome of the application | **1:** Approved, **0:** Denied |
 
-| Variable Name | Description |
-|---------------|-------------|
-| `target` | Final outcome of the application (1: Approved, 0: Denied) |
+#### 1. Institutional & Geographic Metadata (5)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `derived_msa-md` | Metropolitan Statistical Area/Division code | 5-digit FIPS (e.g., 12420, 26420, 19100, 41700) |
+| `county_code` | Five-digit FIPS county code | 48453 (Travis), 48201 (Harris), 48113 (Dallas), 48029 (Bexar) |
+| `conforming_loan_limit` | Within GSE (Fannie/Freddie) limits | **C:** Conforming, **NC:** Non-conforming, **U:** Unknown |
+| `derived_loan_product_type` | Categorization of the loan product | Conventional, FHA, VA, FSA/RHS (with Lien status) |
+| `derived_dwelling_category` | Categorization of the dwelling type | Single Family (1-4 Units), Multifamily (5+) |
 
-### 1. Institutional & Geographic Metadata (5)
+#### 2. Loan Application Details (10)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `preapproval` | Pre-approval request status | **1:** Requested, **2:** Not requested |
+| `loan_type` | Type of loan | **1:** Conventional, **2:** FHA, **3:** VA, **4:** USDA |
+| `loan_purpose` | Purpose of the loan | **1:** Purchase, **2:** Improvement, **31:** Refi, **32:** Cash-out Refi, **4:** Other |
+| `lien_status` | Lien priority | **1:** First Lien, **2:** Subordinate Lien |
+| `reverse_mortgage` | Reverse mortgage flag | **1:** Yes, **2:** No |
+| `open-end_line_of_credit` | HELOC/Open-end flag | **1:** Yes, **2:** No |
+| `business_or_commercial_purpose` | Business purpose flag | **1:** Yes, **2:** No |
+| `loan_amount` | Requested loan amount | Numeric (Continuous) |
+| `loan_to_value_ratio` | Loan-to-Value (LTV) | Numeric (Continuous, Midpoint converted) |
+| `loan_term` | Loan maturity in months | Numeric (Continuous) |
 
-| Variable Name | Description |
-|---------------|-------------|
-| `derived_msa-md` | Derived Metropolitan Statistical Area or Division code |
-| `county_code` | Five-digit FIPS county code |
-| `conforming_loan_limit` | Whether the loan amount is within GSE limits |
-| `derived_loan_product_type` | Derived categorization of the loan product |
-| `derived_dwelling_category` | Derived categorization of the dwelling type |
+#### 3. Pricing & Property Features (6)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `negative_amortization` | Negative amortization flag | **1:** Yes, **2:** No |
+| `interest_only_payment` | Interest-only payment flag | **1:** Yes, **2:** No |
+| `balloon_payment` | Balloon payment flag | **1:** Yes, **2:** No |
+| `other_nonamortizing_features` | Other non-standard payment features | **1:** Yes, **2:** No |
+| `property_value` | Appraised property value | Numeric (Continuous) |
+| `construction_method` | Property construction type | **1:** Site-built, **2:** Manufactured |
 
-### 2. Loan Application Details (10)
+#### 4. Property & Occupancy (6)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `occupancy_type` | Intended use of property | **1:** Primary, **2:** Second Home, **3:** Investment |
+| `manufactured_home_secured_property_type` | Security type for manufactured | **1:** Real Property, **2:** Personal Property, **3:** N/A |
+| `manufactured_home_land_property_interest` | Land interest for manufactured | **1:** Direct, **2:** Indirect, **3:** Paid Lease, **4:** Unpaid, **5:** N/A |
+| `total_units` | Number of dwelling units | Numeric (Continuous, Midpoint: 1, 2, 3, 4, 14.5, 60, 150) |
+| `multifamily_affordable_units` | Affordable units for multifamily | Numeric (Continuous) or "Unknown" |
+| `income` | Applicant(s) gross annual income | Numeric (Continuous, in Thousands) |
 
-| Variable Name | Description |
-|---------------|-------------|
-| `preapproval` | Whether pre-approval was requested |
-| `loan_type` | Conventional, FHA, VA, or RHS/FSA |
-| `loan_purpose` | Purchase, Refinance, Home Improvement, etc. |
-| `lien_status` | First or subordinate lien |
-| `reverse_mortgage` | Reverse mortgage flag |
-| `open-end_line_of_credit` | HELOC/open-end credit flag |
-| `business_or_commercial_purpose` | Whether the loan is for business purposes |
-| `loan_amount` | Requested or originated loan amount (Numeric) |
-| `loan_to_value_ratio` | Loan-to-Value ratio (Numeric) |
-| `loan_term` | Loan maturity in months (Numeric) |
+#### 5. Credit & Submission Metrics (4)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `debt_to_income_ratio` | Debt-to-Income (DTI) ratio | Numeric (Continuous, Midpoint: 20, 33, 41, 48, 55, etc.) |
+| `applicant_credit_score_type` | Credit score model used | **1-3:** Credit Bureau, **4:** Vantage, **5:** Multi-model, **6:** Other, **9:** N/A |
+| `co-applicant_credit_score_type` | Credit score model for co-app | **1-9:** Same as above, **10:** No co-applicant |
+| `submission_of_application` | Submission channel | **1:** Directly to institution, **2:** Not direct, **3:** N/A |
 
-### 3. Pricing & Property Features (6)
+#### 6. Applicant Demographics (Fairness Variables) (5)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `derived_ethnicity` | Aggregate ethnicity | Hispanic or Latino, Not Hispanic or Latino, Joint, Unknown |
+| `derived_race` | Aggregate race | White, Black, Asian, Am-Indian, Pacific-Islander, Joint, Unknown |
+| `derived_sex` | Aggregate sex | Male, Female, Joint, Unknown |
+| `applicant_age` | Applicant age (Mapped Ordinal) | **0:** <25, **1:** 25-34, **2:** 35-44, **3:** 45-54, **4:** 55-64, **5:** 65-74, **6:** >74 |
+| `co-applicant_age` | Co-applicant age (Mapped Ordinal) | **0-6:** Same as above, **999:** No co-applicant (Imputed to Median) |
 
-| Variable Name | Description |
-|---------------|-------------|
-| `negative_amortization` | Negative amortization flag |
-| `interest_only_payment` | Interest-only payment flag |
-| `balloon_payment` | Balloon payment flag |
-| `other_nonamortizing_features` | Other non-standard payment features |
-| `property_value` | Appraised property value (Numeric) |
-| `construction_method` | Site-built or manufactured |
-
-### 4. Property & Occupancy (6)
-
-| Variable Name | Description |
-|---------------|-------------|
-| `occupancy_type` | Primary, secondary, or investment |
-| `manufactured_home_secured_property_type` | Security type for manufactured homes |
-| `manufactured_home_land_property_interest` | Land property interest |
-| `total_units` | Number of dwelling units (Numeric) |
-| `multifamily_affordable_units` | Affordable units (for multifamily) |
-| `income` | Applicant(s) gross annual income (Numeric) |
-
-### 5. Credit & Submission Metrics (4)
-
-| Variable Name | Description |
-|---------------|-------------|
-| `debt_to_income_ratio` | Debt-to-Income ratio (Numeric Midpoint) |
-| `applicant_credit_score_type` | Credit score model used for the applicant |
-| `co-applicant_credit_score_type` | Credit score model used for the co-applicant |
-| `submission_of_application` | Whether submitted directly to the institution |
-
-### 6. Applicant Demographics (Fairness Variables) (5)
-
-| Variable Name | Description |
-|---------------|-------------|
-| `derived_ethnicity` | Aggregate ethnicity of the applicant |
-| `derived_race` | Aggregate race of the applicant |
-| `derived_sex` | Aggregate sex of the applicant |
-| `applicant_age` | Applicant age range (Mapped to Ordinal 0–6) |
-| `co-applicant_age` | Co-applicant age range (Mapped to Ordinal 0–6) |
-
-### 7. Census Tract Demographics (7)
-
-| Variable Name | Description |
-|---------------|-------------|
-| `tract_population` | Total population in the census tract |
-| `tract_minority_population_percent` | Minority population percentage in the tract |
-| `ffiec_msa_md_median_family_income` | MSA median family income |
-| `tract_to_msa_income_percentage` | Tract income relative to MSA median |
-| `tract_owner_occupied_units` | Owner-occupied units in the tract |
-| `tract_one_to_four_family_homes` | 1–4 family homes in the tract |
-| `tract_median_age_of_housing_units` | Median age of housing units in the tract |
-
+#### 7. Census Tract Demographics (7)
+| Variable Name | Description | Values / Range |
+|---------------|-------------|----------------|
+| `tract_population` | Tract total population | Numeric (Continuous) |
+| `tract_minority_population_percent` | Minority % in tract | Numeric (Percentage) |
+| `ffiec_msa_md_median_family_income` | MSA median family income | Numeric (Continuous) |
+| `tract_to_msa_income_percentage` | Relative tract income | Numeric (Percentage) |
+| `tract_owner_occupied_units` | Owner-occupied count | Numeric (Continuous) |
+| `tract_one_to_four_family_homes` | 1-4 family home count | Numeric (Continuous) |
+| `tract_median_age_of_housing_units` | Median housing age | Numeric (Years) |
 
 ### 2.4. Train / Test Split
 
