@@ -1,0 +1,21 @@
+feature,coefficient,abs_coefficient
+cat__multifamily_affordable_units_Exempt,9.642165124039275,9.642165124039275
+num__reverse_mortgage,-9.112312180332964,9.112312180332964
+num__open-end_line_of_credit,8.4806622682139,8.4806622682139
+num__applicant_credit_score_type,-6.928000765604407,6.928000765604407
+num__co-applicant_credit_score_type,5.532419001704892,5.532419001704892
+cat__multifamily_affordable_units_Unknown,-3.157291702824462,3.157291702824462
+cat__multifamily_affordable_units_0,-3.0187133396562977,3.0187133396562977
+num__submission_of_application,2.1191169529028953,2.1191169529028953
+num__interest_only_payment,1.9960855420562984,1.9960855420562984
+num__balloon_payment,-1.9172456019863993,1.9172456019863993
+num__business_or_commercial_purpose,-1.6155149740395127,1.6155149740395127
+num__preapproval,-1.4098112377921066,1.4098112377921066
+cat__multifamily_affordable_units_81,-1.349597063830868,1.349597063830868
+cat__multifamily_affordable_units_100,-1.3284260040685323,1.3284260040685323
+cat__conforming_loan_limit_Unknown,1.2846156187427198,1.2846156187427198
+cat__derived_dwelling_category_Multifamily:Manufactured,1.1909840092473019,1.1909840092473019
+cat__derived_loan_product_type_FSA/RHS:First Lien,-1.1804819960624475,1.1804819960624475
+cat__derived_dwelling_category_Single Family (1-4 Units):Manufactured,-1.17213200146171,1.17213200146171
+cat__derived_loan_product_type_FHA:Subordinate Lien,-1.078902785748269,1.078902785748269
+cat__derived_dwelling_category_Single Family (1-4 Units):Site-Built,0.8815085935386779,0.8815085935386779
