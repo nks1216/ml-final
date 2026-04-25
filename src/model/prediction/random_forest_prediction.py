@@ -150,10 +150,21 @@ importance_df = importance_df.sort_values("importance", ascending=False)
 importance_df.head(20).to_csv(f"{results_dir}/random_forest_feature_importance_top20.csv", index=False)
 
 # ----------------------------
+# Save test predictions
+# ----------------------------
+predictions_df = pd.DataFrame({
+    "actual": y_test,
+    "predicted": y_pred,
+    "predicted_probability": y_prob,
+})
+predictions_df.to_csv(f"{results_dir}/random_forest_test_predictions.csv", index=False)
+print(f"Saved test predictions to {results_dir}/random_forest_test_predictions.csv")
+
+# ----------------------------
 # Confusion matrix plot
 # ----------------------------
 plt.figure(figsize=(6, 5))
-plt.imshow(cm, interpolation="nearest")
+plt.imshow(cm, interpolation="nearest", cmap="Blues")
 plt.title("Random Forest Confusion Matrix")
 plt.colorbar()
 plt.xticks([0, 1], ["Pred 0", "Pred 1"])
@@ -175,12 +186,13 @@ plt.close()
 fpr, tpr, _ = roc_curve(y_test, y_prob)
 
 plt.figure(figsize=(6, 5))
-plt.plot(fpr, tpr, label=f"ROC-AUC = {roc_auc:.4f}")
-plt.plot([0, 1], [0, 1], linestyle="--")
+plt.plot(fpr, tpr, label=f"ROC-AUC = {roc_auc:.4f}", linewidth=2)
+plt.plot([0, 1], [0, 1], linestyle="--", color="gray", linewidth=1)
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
 plt.title("Random Forest ROC Curve")
 plt.legend()
+plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(f"{figures_dir}/random_forest_roc_curve.png", dpi=300)
 plt.close()
@@ -191,11 +203,12 @@ plt.close()
 precisions, recalls, _ = precision_recall_curve(y_test, y_prob)
 
 plt.figure(figsize=(6, 5))
-plt.plot(recalls, precisions, label=f"AP = {avg_precision:.4f}")
+plt.plot(recalls, precisions, label=f"AP = {avg_precision:.4f}", linewidth=2)
 plt.xlabel("Recall")
 plt.ylabel("Precision")
 plt.title("Random Forest Precision-Recall Curve")
 plt.legend()
+plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(f"{figures_dir}/random_forest_precision_recall_curve.png", dpi=300)
 plt.close()
