@@ -300,7 +300,9 @@ The model’s ROC-AUC of 0.8117 shows that it provides meaningful discrimination
 
 _Evaluated on 39,095 held-out test samples._
 
-#### 2. | Confusion Matrix | ROC Curve |
+#### 2. Confusion Matrix & ROC Curve
+
+| Confusion Matrix | ROC Curve |
 |---|---|
 | ![](reports/figures/prediction/random_forest_confusion_matrix.png) | ![](reports/figures/prediction/random_forest_roc_curve.png) |
 
@@ -308,7 +310,7 @@ _Evaluated on 39,095 held-out test samples._
 
 | Precision–Recall Curve | Top 20 Feature Importances |
 |---|---|
-| ![](reports/figures/prediction/random_forest_precision_recall_curve.png) | ![](reports/figures/prediction/random_forest_feature_importances_top20.png) |
+| ![](reports/figures/prediction/random_forest_precision_recall_curve.png) | ![](reports/figures/prediction/random_forest_feature_importance_top20.png) |
 
 ### 3.3. XGBoost
 
