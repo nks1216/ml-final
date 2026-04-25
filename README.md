@@ -291,26 +291,24 @@ The model’s ROC-AUC of 0.8117 shows that it provides meaningful discrimination
 
 | Metric               | Value  |
 |----------------------|:------:|
-| Accuracy             | 0.8682 |
-| Precision (Approved) | 0.8752 |
-| Recall (Approved)    | 0.9485 |
-| F1 Score             | 0.9104 |
-| ROC-AUC              | 0.9038 |
-| Average Precision    | 0.9435 |
+| Accuracy             | 0.8151 |
+| Precision (Approved) | 0.9012 |
+| Recall (Approved)    | 0.8289 |
+| F1 Score             | 0.8636 |
+| ROC-AUC              | 0.8907 |
+| Average Precision    | 0.9426 |
 
 _Evaluated on 39,095 held-out test samples._
 
-### Confusion Matrix
-![Confusion Matrix](reports/figures/prediction/rf_confusion_matrix.png)
+#### 2. | Confusion Matrix | ROC Curve |
+|---|---|
+| ![](reports/figures/prediction/random_forest_confusion_matrix.png) | ![](reports/figures/prediction/random_forest_roc_curve.png) |
 
-### ROC Curve
-![ROC Curve](reports/figures/prediction/rf_roc_curve.png)
+#### 3. Precision–Recall Curve & Feature Importance
 
-### Precision-Recall Curve
-![PR Curve](reports/figures/prediction/rf_precision_recall_curve.png)
-
-### Top 20 Feature Importances
-![Feature Importances](reports/figures/prediction/rf_feature_importances.png)
+| Precision–Recall Curve | Top 20 Feature Importances |
+|---|---|
+| ![](reports/figures/prediction/random_forest_precision_recall_curve.png) | ![](reports/figures/prediction/random_forest_feature_importances_top20.png) |
 
 ### 3.3. XGBoost
 
