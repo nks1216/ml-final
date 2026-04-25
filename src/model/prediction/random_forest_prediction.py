@@ -1,131 +1,216 @@
+"""
+Random Forest Prediction Model for HMDA Mortgage Loan Approval
+"""
+
+import os
+import json
 import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import(accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, average_precision_score, confusion_matrix, roc_curve, precision_recall_curve)
-from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
-import seaborn as sns
-import warnings
-warnings.filterwarnings('ignore')
+import numpy as np
 
-train_data = pd.read_csv("data/split/train.csv")
-test_data = pd.read_csv("data/split/test.csv")
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+    average_precision_score,
+    confusion_matrix,
+    classification_report,
+    roc_curve,
+    precision_recall_curve,
+)
 
-X_train = train_data.drop("target", axis=1)
-y_train = train_data["target"]
-X_test = test_data.drop("target", axis=1)
-y_test = test_data["target"]
+# ----------------------------
+# Load data
+# ----------------------------
+train = pd.read_csv("data/split/train.csv")
+test = pd.read_csv("data/split/test.csv")
 
-string_columns = X_train.select_dtypes(include=['object']).columns
+X_train = train.drop(columns=["target"])
+y_train = train["target"]
 
-if len(string_columns) > 0:
-    print(f"   Found {len(string_columns)} text columns that need conversion")
-    
-    for col in string_columns:
-        print(f"\n   Processing column: '{col}'")
-        
-        combined = pd.concat([X_train[col], X_test[col]]).astype(str)
-        unique_values = combined.unique()
-        print(f"     Found {len(unique_values)} unique values")
-        
-        le = LabelEncoder()
-        le.fit(combined)
-        
-        X_train[col] = le.transform(X_train[col].astype(str))
-        X_test[col] = le.transform(X_test[col].astype(str))
-        
-        print(f"     ✓ Converted successfully")
-else:
-    print("   No text columns found - good to go!")
+X_test = test.drop(columns=["target"])
+y_test = test["target"]
 
-print("\n3. Checking for numeric columns stored as text...")
-for col in X_train.columns:
-    if X_train[col].dtype == 'object':
-        try:
-            X_train[col] = pd.to_numeric(X_train[col])
-            X_test[col] = pd.to_numeric(X_test[col])
-            print(f"   Converted '{col}' to numbers")
-        except:
-            pass
+print("Train shape:", train.shape)
+print("Test shape:", test.shape)
 
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+# ----------------------------
+# Encode categorical variables
+# ----------------------------
+categorical_features = X_train.select_dtypes(include=["object"]).columns.tolist()
+
+print("\nNumber of categorical features:", len(categorical_features))
+
+for col in categorical_features:
+    # Combine train and test to handle unseen categories
+    combined = pd.concat([X_train[col], X_test[col]], axis=0).astype(str)
+    le = LabelEncoder()
+    le.fit(combined)
+    X_train[col] = le.transform(X_train[col].astype(str))
+    X_test[col] = le.transform(X_test[col].astype(str))
+
+# ----------------------------
+# Model
+# ----------------------------
+model = RandomForestClassifier(
+    n_estimators=100,
+    max_depth=10,
+    min_samples_split=5,
+    min_samples_leaf=2,
+    class_weight="balanced",
+    random_state=42,
+    n_jobs=-1,
+)
+
+# ----------------------------
+# Train
+# ----------------------------
+print("\nTraining Random Forest model...")
 model.fit(X_train, y_train)
 
+# ----------------------------
+# Predict
+# ----------------------------
 y_pred = model.predict(X_test)
-y_pred_proba = model.predict_proba(X_test)[:, 1]
+y_prob = model.predict_proba(X_test)[:, 1]
 
+# ----------------------------
+# Metrics
+# ----------------------------
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
 f1 = f1_score(y_test, y_pred)
-roc_auc = roc_auc_score(y_test, y_pred_proba)
-avg_precision = average_precision_score(y_test, y_pred_proba)
-
-print("\n" + "="*50)
-print("RESULTS")
-print("="*50)
-print(f"Accuracy:           {accuracy:.4f}")
-print(f"Precision:          {precision:.4f}")
-print(f"Recall:             {recall:.4f}")
-print(f"F1 Score:           {f1:.4f}")
-print(f"ROC-AUC:            {roc_auc:.4f}")
-print(f"Average Precision:  {avg_precision:.4f}")
-
+roc_auc = roc_auc_score(y_test, y_prob)
+avg_precision = average_precision_score(y_test, y_prob)
 cm = confusion_matrix(y_test, y_pred)
-plt.figure(figsize=(6, 5))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-plt.title('Random Forest Confusion Matrix')
-plt.ylabel('Actual')
-plt.xlabel('Predicted')
-plt.savefig("reports/figures/prediction/rf_confusion_matrix.png", dpi=300)
-plt.show()
 
-fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-plt.figure(figsize=(6, 5))
-plt.plot(fpr, tpr, 'b-', label=f'ROC Curve (AUC = {roc_auc:.3f})')
-plt.plot([0, 1], [0, 1], 'r--', label='Random')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('ROC Curve - Random Forest')
-plt.legend()
-plt.savefig("reports/figures/prediction/rf_roc_curve.png", dpi=300)
-plt.show()
+print("\n=== Random Forest Results ===")
+print(f"Accuracy: {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall: {recall:.4f}")
+print(f"F1 Score: {f1:.4f}")
+print(f"ROC-AUC: {roc_auc:.4f}")
+print(f"Average Precision: {avg_precision:.4f}")
 
-precision_curve, recall_curve, _ = precision_recall_curve(y_test, y_pred_proba)
-plt.figure(figsize=(6, 5))
-plt.plot(recall_curve, precision_curve, 'g-', label=f'PR Curve (AP = {avg_precision:.3f})')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-Recall Curve - Random Forest')
-plt.legend()
-plt.savefig("reports/figures/prediction/rf_precision_recall_curve.png", dpi=300)
-plt.show()
+print("\nConfusion Matrix:")
+print(cm)
 
-importances = model.feature_importances_
-indices = np.argsort(importances)[-20:]
+print("\nClassification Report:")
+report = classification_report(y_test, y_pred)
+print(report)
 
-plt.figure(figsize=(10, 8))
-plt.barh(range(20), importances[indices])
-plt.yticks(range(20), [X_train.columns[i] for i in indices])
-plt.xlabel('Importance')
-plt.title('Random Forest Top 20 Feature Importances')
-plt.tight_layout()
-plt.savefig("reports/figures/prediction/rf_feature_importances.png", dpi=300)
-plt.show()
+# ----------------------------
+# Save results
+# ----------------------------
+results_dir = "reports/results/prediction"
+figures_dir = "reports/figures/prediction"
 
-print("\nTop 5 Most Important Features:")
-for i in range(5):
-    idx = indices[-1-i]
-    print(f"   {i+1}. {X_train.columns[idx]}: {importances[idx]:.4f}")
+os.makedirs(results_dir, exist_ok=True)
+os.makedirs(figures_dir, exist_ok=True)
 
-results = {
-    "accuracy": accuracy,
-    "precision": precision,
-    "recall": recall,
-    "f1_score": f1,
-    "roc_auc": roc_auc,
-    "average_precision": avg_precision
+# Save metrics JSON
+metrics = {
+    "accuracy": float(accuracy),
+    "precision": float(precision),
+    "recall": float(recall),
+    "f1_score": float(f1),
+    "roc_auc": float(roc_auc),
+    "average_precision": float(avg_precision),
 }
 
-results_df = pd.DataFrame([results])
-results_df.to_csv("reports/results/prediction/rf_model_metrics.csv", index=False)
+with open(f"{results_dir}/random_forest_metrics.json", "w") as f:
+    json.dump(metrics, f, indent=4)
+
+# Save classification report
+with open(f"{results_dir}/random_forest_classification_report.txt", "w") as f:
+    f.write(report)
+
+# Save confusion matrix CSV
+cm_df = pd.DataFrame(
+    cm,
+    index=["Actual_0", "Actual_1"],
+    columns=["Predicted_0", "Predicted_1"]
+)
+cm_df.to_csv(f"{results_dir}/random_forest_confusion_matrix.csv", index=True)
+
+# Save feature importances (top 20)
+feature_names = X_train.columns.tolist()
+importances = model.feature_importances_
+
+importance_df = pd.DataFrame({
+    "feature": feature_names,
+    "importance": importances,
+})
+importance_df = importance_df.sort_values("importance", ascending=False)
+importance_df.head(20).to_csv(f"{results_dir}/random_forest_feature_importance_top20.csv", index=False)
+
+# ----------------------------
+# Confusion matrix plot
+# ----------------------------
+plt.figure(figsize=(6, 5))
+plt.imshow(cm, interpolation="nearest")
+plt.title("Random Forest Confusion Matrix")
+plt.colorbar()
+plt.xticks([0, 1], ["Pred 0", "Pred 1"])
+plt.yticks([0, 1], ["Actual 0", "Actual 1"])
+
+for i in range(cm.shape[0]):
+    for j in range(cm.shape[1]):
+        plt.text(j, i, str(cm[i, j]), ha="center", va="center")
+
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.tight_layout()
+plt.savefig(f"{figures_dir}/random_forest_confusion_matrix.png", dpi=300)
+plt.close()
+
+# ----------------------------
+# ROC curve
+# ----------------------------
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+
+plt.figure(figsize=(6, 5))
+plt.plot(fpr, tpr, label=f"ROC-AUC = {roc_auc:.4f}")
+plt.plot([0, 1], [0, 1], linestyle="--")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("Random Forest ROC Curve")
+plt.legend()
+plt.tight_layout()
+plt.savefig(f"{figures_dir}/random_forest_roc_curve.png", dpi=300)
+plt.close()
+
+# ----------------------------
+# Precision-Recall curve
+# ----------------------------
+precisions, recalls, _ = precision_recall_curve(y_test, y_prob)
+
+plt.figure(figsize=(6, 5))
+plt.plot(recalls, precisions, label=f"AP = {avg_precision:.4f}")
+plt.xlabel("Recall")
+plt.ylabel("Precision")
+plt.title("Random Forest Precision-Recall Curve")
+plt.legend()
+plt.tight_layout()
+plt.savefig(f"{figures_dir}/random_forest_precision_recall_curve.png", dpi=300)
+plt.close()
+
+# ----------------------------
+# Feature importance plot (top 20)
+# ----------------------------
+top20 = importance_df.head(20).sort_values("importance")
+
+plt.figure(figsize=(10, 8))
+plt.barh(top20["feature"], top20["importance"])
+plt.title("Random Forest Top 20 Feature Importances")
+plt.xlabel("Importance")
+plt.tight_layout()
+plt.savefig(f"{figures_dir}/random_forest_feature_importance_top20.png", dpi=300)
+plt.close()
+
+print("\nSaved random forest results and figures successfully.")
