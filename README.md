@@ -20,24 +20,34 @@ As financial institutions shift toward automated credit scoring, the demand for 
 
 ## 2. Dataset Description
 
-### 2.1. Data Source
+### 2.1. Data Source & Scope
 
-This project utilizes data managed by the Consumer Financial Protection Bureau (CFPB) under the Home Mortgage Disclosure Act (HMDA). HMDA requires nearly all U.S. financial institutions to maintain, report, and publicly disclose loan-level information about mortgages.
+This project utilizes loan-level data provided by the **Consumer Financial Protection Bureau (CFPB)** under the **Home Mortgage Disclosure Act (HMDA)**. HMDA requires U.S. financial institutions to disclose mortgage information to monitor whether they are serving the housing needs of their communities and to identify potential discriminatory lending patterns.
 
-Data is programmatically retrieved through the CFPB HMDA API using the Python `requests` library, ensuring a reproducible and automated data pipeline.
+The dataset focuses on the **2023 calendar year** and covers Texas’s "Big Four" metropolitan counties: **Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
 
-The dataset consists of **310,241 HMDA mortgage applications** from Texas’s four largest counties—**Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
-A total of **109 features** are used to predict a single outcome variable: **loan approval**. 
+## 2.2. Data Acquisition
 
-Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored externally.
+The raw data was retrieved programmatically via the **CFPB HMDA API** using the Python `requests` library. This ensures a fully reproducible and automated pipeline, allowing for consistent data updates and auditing.
 
-Download the dataset from Google Drive:
-https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link
+## 2.3. Raw Dataset Statistics
 
+- **Observations**: 310,241 mortgage applications (Initial raw count).
 
-Please refer to the detailed variable descriptions in  
-👉 [`data/data_dictionary.md`](data/data_dictionary.md)
+- **Features**: 98 variables covering applicant demographics, loan characteristics, property details, and neighborhood-level economic indicators.
 
+- **Target Variable**: loan_approval (Derived from the `action_taken field`).
+
+  [!TIP]
+  **Data Storage & Access**
+  
+  Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored externally. You can access the data in two ways:
+
+  1. **Direct Download**: 👉 [Google Drive Link](https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link)
+
+  2. **Local Acquisition**: Run `python3 src/data/hmda_loader.py` in your terminal.
+
+  Detailed variable descriptions are available in 👉 [`data/data_dictionary.md`](data/data_dictionary.md)
 
 ## 2.2. Data Preprocessing: Feature Selection & Transformation
 
