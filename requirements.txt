@@ -6,3 +6,5 @@ catboost
 matplotlib
 seaborn
 tqdm
+fairlearn
+shap
