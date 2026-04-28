@@ -52,14 +52,6 @@ Please refer to the detailed variable descriptions in
 
 This section summarizes the preprocessing pipeline that reduced the original 109 HMDA variables to a finalized set of **44 modeling features**. The process emphasizes **leakage prevention, fairness analysis, and model interpretability**.
 
----
-
-## 2.2. Data Preprocessing: Feature Selection & Transformation
-
-This section summarizes the preprocessing pipeline that reduced the original 109 HMDA variables to a finalized set of **44 modeling features**. The process emphasizes **leakage prevention, fairness analysis, and model interpretability**.
-
----
-
 ### 2.2.1. Feature Selection: Exclusion Logic
 
 To ensure model integrity, we excluded variables that could lead to data leakage or provide redundant information.
@@ -82,8 +74,6 @@ To ensure model integrity, we excluded variables that could lead to data leakage
 | **Demographics** | `applicant_race-1~5`, `applicant_sex`, `applicant_age_above_62` | Raw demographic inputs; replaced by `derived_race`, `derived_sex`, and `applicant_age`. |
 | **Administrative** | `lei`, `activity_year`, `state_code`, `purchaser_type` | Legal identifiers and constant values with no predictive variance. |
 
----
-
 ### 2.2.2. Data Transformation: Feature Engineering
 
 We applied specific transformations to convert raw HMDA strings into model-ready numerical and categorical inputs.
@@ -99,8 +89,6 @@ We applied specific transformations to convert raw HMDA strings into model-ready
 * **Consistency:** String-based variables (e.g., `loan_purpose`, `property_value`) were retained as categorical dtypes.
 * **Imputation:** Missing categorical entries were explicitly mapped to a new **"Unknown"** category to preserve information about data gaps.
 
----
-
 ### 2.2.3. Target Variable Refinement
 
 The target variable was re-defined to focus strictly on the institution's **credit decision logic**.
@@ -112,8 +100,6 @@ The target variable was re-defined to focus strictly on the institution's **cred
 | **Withdrawn/Incomplete (4, 5)** | **Excluded** | Removed to filter out noise where no definitive decision was made by the bank. |
 
 After filtering for definitive credit decisions (Approved vs. Denied), the dataset size was refined from **310,241** to **195,474** observations. This ensures the model learns strictly from the institution's risk assessment outcomes, excluding administrative noise such as withdrawn or incomplete applications.
-
----
 
 ### 2.3. Variables 
 
@@ -492,7 +478,7 @@ The **SHAP Summary Plot** confirms that the model's top predictors are strictly 
 #### 5.2.7. Detailed Audit Metrics (Appendix)
 
 <details>
-<summary>Click to view raw fairness data</summary>
+<summary>👉 Click to view raw fairness data</summary>
 
 #### Overall Fairness Differences
 | Attribute | Demographic Parity Diff | Equalized Odds Diff |
