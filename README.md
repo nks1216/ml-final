@@ -339,7 +339,30 @@ _Evaluated on 39,095 held-out test samples._
 |:---:|:---:|
 | <img width="420" height="350" alt="xgboost_precision_recall_curve" src="https://github.com/user-attachments/assets/91fd70e4-3500-46b3-8c7e-40d64b824f3e" /> | <img width="420" height="350" alt="xgboost_feature_importance_top20" src="https://github.com/user-attachments/assets/7b199875-898d-47ec-88f5-244c4b8ddf87" />|
 
-### 3.4. CatBoost (new model, can be changed)
+### 3.4. TabPFN
+
+#### 1. Performance Summary
+| Metric               | Value  |
+|----------------------|:------:|
+| Accuracy             | 0.8362 |
+| Precision (Approved) | 0.8491 |
+| Recall (Approved)    | 0.9340 |
+| F1 Score             | 0.8895 |
+| ROC-AUC              | 0.8758 |
+| Average Precision    | 0.9300 |
+
+*Evaluated on 39,095 held-out test samples. Trained on 1,000 stratified-subsampled rows.
+
+#### 2. Confusion Matrix & ROC Curve
+| Confusion Matrix | ROC Curve |
+|:---:|:---:|
+| <img width="420" height="350" alt="tabpfn_confusion_matrix" src="https://github.com/user-attachments/assets/b8e9ea2f-42f8-4082-9d92-33f38b10175b" /> | <img width="420" height="350" alt="tabpfn_roc_curve" src="https://github.com/user-attachments/assets/64704c7f-ee72-4e71-b462-31b5f059306e" /> |
+
+#### 3. Precision–Recall Curve & Feature Importance
+| Precision–Recall Curve | Top 20 Feature Importances |
+|:---:|:---:|
+| <img width="420" height="350" alt="tabpfn_precision_recall_curve" src="https://github.com/user-attachments/assets/f01540ee-a6ac-4926-bd72-c5535fd7504f" /> | <img width="420" height="350" alt="tabpfn_feature_importance_top20" src="https://github.com/user-attachments/assets/fe411258-51dd-47a5-be56-9a1c90157cc2" />|
+
 
 ## 4. Comparative Evaluation of Models
 
