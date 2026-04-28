@@ -1,10 +1,8 @@
-# HMDA Full Data Dictionary (Raw 99 Variables)
+# HMDA Full Data Dictionary 
 
 **Note**: This data dictionary describes the raw HMDA dataset containing **99 variables** (`hmda_raw_2023_TX_big4.csv`) as retrieved via the CFPB API. 
 
 It does **not** apply to the cleaned and split datasets (`hmda_cleaned.csv`, `train.csv`, `test.csv`), as feature selection and transformations were applied during preprocessing.
-
----
 
 ## 1. Institutional & Geographic Metadata (11)
 
