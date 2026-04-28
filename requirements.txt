@@ -3,6 +3,7 @@ numpy
 scikit-learn
 xgboost
 catboost
+tabpfn
 matplotlib
 seaborn
 tqdm
