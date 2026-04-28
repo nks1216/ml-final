@@ -2,28 +2,19 @@
 
 ## 1. Project Overview
 
-- **Develop four classification models** to predict mortgage loan outcomes (Approved vs. Denied) using a comprehensive set of applicant, loan, and neighborhood-level features.
-The models include: (It can be changed.)
+This project predicts mortgage loan outcomes **(Approved vs. Denied)** using the 2023 Home Mortgage Disclosure Act (HMDA) dataset. We compare four models (**Logistic Regression, Random Forest, XGBoost, and TabPFN**) and conduct a post-hoc fairness audit on the best-performing model to ensure equitable lending predictions.
 
-    (1) Logistic Regression (baseline)
+### Motivation
 
-    (2) Random Forest
+As financial institutions shift toward automated credit scoring, the demand for models that achieve both high predictive accuracy and algorithmic fairness is increasing. This study identifies the top-performing model and evaluates whether prioritizing predictive power inadvertently introduces disparate impact across diverse demographic and geographic groups in Texas.
 
-    (3) XGBoost
+### Research Questions
 
-    (4) CatBoost (new model)
+- **Model Performance**: Which model yields the most reliable mortgage approval predictions for key Texas metropolitan markets in 2023?
 
-- **Compare model performance** using appropriate evaluation metrics (e.g., precision, recall, F1-score, ROC-AUC) and address class imbalance if necessary.
+- **Feature Interpretability**: What are the primary financial determinants driving the champion model’s decisions?
 
-- **Identify key predictors** that most strongly influence loan approval outcomes through model-based feature importance and interpretability tools.
-
-- **Assess demographic disparities** by evaluating whether model performance differs across groups defined by race, ethnicity, gender, or age (applied to the best-performing model).
-
-- **Examine geographic variation** by comparing approval patterns and model behavior across the Big Four Texas counties (Travis, Harris, Dallas, Bexar), using the best-performing model.
-
-#### Research Questions (To be updated)
-
-#### Motivation (To be updated)
+- **Algorithmic Fairness & Geography**: Does the selected model exhibit disparities in error or selection rates across protected groups, and do these patterns vary across geographic regions?
 
 ---
 
