@@ -489,7 +489,7 @@ The model satisfies the U.S. **EEOC(Equal Employment Opportunity Commission)’s
 
 - **Fairness Insight**: The lack of significant variance suggests that the model does not exhibit geographic bias (redlining) within these metropolitan areas.
 
-#### 5.2.5. Global Interpretation via SHAP
+#### 5.2.5. Model Interpretation via SHAP
 
 ![Shap Summary](reports/figures/fairness/shap_summary_fairness.png)
 
@@ -499,7 +499,43 @@ The **SHAP Summary Plot** confirms that the model's top predictors are strictly 
 
 2. **Loan-to-Value Ratio (LTV) & Property Value**: Primary risk indicators.
 
-3. **Protected Attributes**: Variables such as derived_race and derived_sex ranked much lower in global importance, further proving that the model relies on economic merit rather than demographic proxies.
+3. **Protected Attributes**: Variables such as `derived_race` and `derived_sex` ranked much lower in global importance, further proving that the model relies on economic merit rather than demographic proxies.
+
+#### 5.2.6. Quantitative Fairness Assessment (DP and EO Diff)
+
+**The Demographic Parity Difference (DP Diff)** and **Equalized Odds Difference (EO Diff)** quantify the fairness gaps between groups.
+
+- **Gender & County**: Showed very low DP Diff (e.g., **0.023** for Gender), confirming near-perfect parity across these attributes.
+
+- **Race & Age**: While showing slightly higher gaps, the model maintains high **True Positive Rates (TPR > 0.95)** across all categories, ensuring that qualified applicants are treated fairly regardless of their group.
+
+- **Legal Standard**: Notably, the model satisfies the **EEOC’s 4/5 Rule**. The selection rate ratio between African American and Asian applicants is **81.6%**, exceeding the 80% threshold for non-discriminatory practices.
+
+#### 5.2.7. Detailed Audit Metrics (Appendix)
+
+<details>
+<summary>Click to view raw fairness data</summary>
+
+#### Overall Fairness Differences
+| Attribute | Demographic Parity Diff | Equalized Odds Diff |
+| :--- | :--- | :--- |
+| **Race** | 0.1504 | 0.0927 |
+| **Age** | 0.1724 | 0.0729 |
+| **Gender** | 0.0235 | 0.0072 |
+| **County** | 0.0257 | 0.0526 |
+
+#### Detailed Metrics by Race and Gender
+| Group | Accuracy | Selection Rate | TPR (Recall) | FPR |
+| :--- | :--- | :--- | :--- | :--- |
+| **African American** | 0.8920 | 0.6724 | 0.9588 | 0.2148 |
+| **White** | 0.9164 | 0.7900 | 0.9820 | 0.2636 |
+| **Asian** | 0.9332 | 0.8228 | 0.9875 | 0.2543 |
+| **Male** | 0.9090 | 0.7335 | 0.9721 | 0.2255 |
+| **Female** | 0.9054 | 0.7100 | 0.9711 | 0.2183 |
+
+*(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/ directory.)*
+</details>
+
 
 ## 6. Reproducibility
 
