@@ -381,9 +381,9 @@ To ensure the mortgage approval model does not perpetuate systemic biases, we co
 
 ### Why Post-hoc Audit? (vs. Fairness through Blindness)
 
-**Fairness through Blindness** simply removes sensitive attributes (e.g., race, gender) from the training data to ensure a fair model. However, this approach is often ineffective due to Proxy Variables. Even if explicit labels are removed, other features like zipcode, loan_amount, or income often correlate strongly with protected attributes. This allows the model to "learn" and perpetuate historical biases indirectly (e.g., digital redlining).
+**Fairness through Blindness** simply removes sensitive attributes (e.g., race, gender) from the training data to ensure a fair model. However, this approach is often ineffective due to **Proxy Variables**. Even if explicit labels are removed, other features like zipcode, loan_amount, or income often correlate strongly with protected attributes. This allows the model to "learn" and perpetuate historical biases indirectly (e.g., digital redlining).
 
-To address this, we adopted the **Post-hoc Fairness Audit** approach. Instead of hiding sensitive information, we include these variables to explicitly measure and audit the model's performance across different demographics. This allows for a more transparent assessment of Disparate Impact and enables us to identify precisely where the model's predictions might deviate from fairness standards.
+To address this, we adopted the **Post-hoc Fairness Audit** approach. Instead of hiding sensitive information, we include these variables to explicitly measure and audit the model's performance across different demographics. This allows for a more transparent assessment of **Disparate Impact** and enables us to identify precisely where the model's predictions might deviate from fairness standards.
 
 ### 5.1. Methodology
 
