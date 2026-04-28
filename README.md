@@ -209,46 +209,32 @@ While the 2023 HMDA dataset provides a comprehensive view of mortgage applicatio
 
 ## 3. Modeling Approach and Individual Model Results
 
-### 3.1. Logistic Regression
+### 3.1 Logistic Regression
 
-#### 1. Performance Summary
+Logistic Regression was used as the main interpretable baseline model for the mortgage approval prediction task. Since the target variable is binary, where 1 represents an approved application and 0 represents a denied application, Logistic Regression provides a natural starting point for classification. Unlike tree-based models, Logistic Regression assumes a more linear relationship between the predictors and the log-odds of approval, making it useful for benchmarking performance and interpreting directional relationships between features and predicted approval outcomes.
+
+Before training the model, numerical variables were scaled and categorical variables were encoded so that the model could process both continuous financial variables and categorical application characteristics. This preprocessing step is important because Logistic Regression is sensitive to variable scale and requires numerical inputs.
+
+#### Performance Summary
 
 | Metric | Value |
 |---|---:|
 | Accuracy | 0.7533 |
-| Precision (Approved) | 0.8632 |
-| Recall (Approved) | 0.7731 |
+| Precision | 0.8632 |
+| Recall | 0.7731 |
 | F1 Score | 0.8156 |
 | ROC-AUC | 0.8117 |
 | Average Precision | 0.9011 |
 
-Evaluated on 39,095 held-out test samples.
+The Logistic Regression model achieved an accuracy of 0.7533 and an ROC-AUC of 0.8117 on the held-out test set. This indicates that the model provides meaningful predictive power and is able to distinguish between approved and denied mortgage applications better than a naive classifier.
 
-#### 2. Confusion Matrix & ROC Curve
+The model performs especially well in terms of precision for approved applications, with a precision score of 0.8632. This means that when the model predicts an application as approved, it is correct a high proportion of the time. However, the recall score of 0.7731 suggests that the model misses some applications that were actually approved. This is expected because Logistic Regression is a linear model and may not fully capture nonlinear relationships or interactions among borrower characteristics, loan features, and property-level variables.
 
-| Confusion Matrix | ROC Curve |
-|---|---|
-| ![](reports/figures/prediction/logistic_confusion_matrix.png) | ![](reports/figures/prediction/logistic_roc_curve.png) |
+#### Interpretation
 
-#### 3. Precision–Recall Curve & Feature Importance
+The Logistic Regression results provide a useful benchmark for the more flexible models. While its performance is weaker than Random Forest and XGBoost, it remains valuable because it is transparent, fast to train, and easier to interpret. Its lower performance relative to tree-based models suggests that mortgage approval decisions in the HMDA data likely involve nonlinear relationships and interaction effects that Logistic Regression cannot fully capture.
 
-| Precision–Recall Curve | Top 20 Coefficients |
-|---|---|
-| ![](reports/figures/prediction/logistic_precision_recall_curve.png) | ![](reports/figures/prediction/logistic_top20_coefficients.png) |
-
-Top 5 drivers (absolute coefficient magnitude):
-
-- multifamily_affordable_units = Exempt
-- reverse_mortgage
-- open-end_line_of_credit
-- applicant_credit_score_type
-- co-applicant_credit_score_type
-
-#### 4. Interpretation
-
-Logistic Regression serves as the interpretable baseline model for the mortgage approval classification task. It performs reasonably well overall, especially in predicting approved loans, with strong precision (0.8632) and a solid F1 score (0.8156). However, its performance is weaker for denied loans, which reflects both class imbalance and the limited flexibility of a linear classifier relative to more complex nonlinear models.
-
-The model’s ROC-AUC of 0.8117 shows that it provides meaningful discrimination between approved and denied applications, but it remains below the XGBoost benchmark currently reported in the project. This is expected, since Logistic Regression assumes a linear relationship between predictors and approval probability, while tree-based methods can capture richer interactions and nonlinearities. Still, Logistic Regression is valuable because it is transparent, fast to estimate, and easy to interpret through coefficient signs and magnitudes.
+Overall, Logistic Regression serves as a strong baseline model, but it is not selected as the champion model. Instead, its role is to provide an interpretable comparison point against more flexible machine learning models.
 
 ### 3.2. Random Forest
 
@@ -328,6 +314,35 @@ _Evaluated on 39,095 held-out test samples._
 |:---:|:---:|
 | <img width="420" height="350" alt="tabpfn_precision_recall_curve" src="https://github.com/user-attachments/assets/f01540ee-a6ac-4926-bd72-c5535fd7504f" /> | <img width="420" height="350" alt="tabpfn_feature_importance_top20" src="https://github.com/user-attachments/assets/fe411258-51dd-47a5-be56-9a1c90157cc2" />|
 
+
+## 4. Comparative Evaluation of Models
+
+This section compares the performance of the four classification models: Logistic Regression, Random Forest, XGBoost, and TabPFN. The goal is to identify which model provides the strongest overall predictive performance on the held-out test set.
+
+### 4.1 Performance Comparison
+
+| Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC | Average Precision |
+|---|---:|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.7533 | 0.8632 | 0.7731 | 0.8156 | 0.8117 | 0.9011 |
+| Random Forest | 0.8151 | 0.9012 | 0.8289 | 0.8636 | 0.8907 | 0.9426 |
+| XGBoost | 0.8471 | 0.9087 | 0.8709 | 0.8894 | 0.9109 | 0.9529 |
+| TabPFN | 0.8362 | 0.8491 | 0.9340 | 0.8895 | 0.8758 | 0.9300 |
+
+### 4.2 Model Comparison
+
+The results show a clear improvement from the baseline Logistic Regression model to the more flexible machine learning models. Logistic Regression achieved the lowest overall performance, with an accuracy of 0.7533 and ROC-AUC of 0.8117. This is expected because Logistic Regression assumes a linear relationship between the predictors and the probability of approval.
+
+Random Forest substantially improves on Logistic Regression, increasing accuracy to 0.8151 and ROC-AUC to 0.8907. This suggests that nonlinear relationships and feature interactions are important in predicting mortgage approval outcomes.
+
+XGBoost produced the strongest overall results. It achieved the highest accuracy, precision, ROC-AUC, and average precision among all models. Its ROC-AUC of 0.9109 indicates strong discrimination between approved and denied applications, while its average precision of 0.9529 shows strong performance in ranking likely approvals.
+
+TabPFN also performed well, especially in recall and F1 score. Its recall of 0.9340 is the highest among all models, meaning it identifies a large share of applications that were actually approved. However, its ROC-AUC and average precision are lower than XGBoost, and the model was trained on a smaller stratified subsample. Therefore, TabPFN is useful as an experimental comparison model but is not selected as the final champion model.
+
+### 4.3 Champion Model Selection
+
+Based on the overall comparison, XGBoost is selected as the champion model. It provides the best balance of accuracy, precision, recall, F1 score, ROC-AUC, and average precision. Compared with Logistic Regression, XGBoost captures more complex nonlinear patterns in the data. Compared with Random Forest, it provides stronger predictive performance across nearly all metrics. Compared with TabPFN, it offers stronger discrimination and ranking performance on the full modeling task.
+
+Therefore, XGBoost is the most reliable model for predicting mortgage approval outcomes in this project.
 
 ## 4. Comparative Evaluation of Models
 
