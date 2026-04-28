@@ -1,4 +1,4 @@
-# Predicting HMDA Mortgage Approvals 
+# Predicting HMDA Mortgage Approvals and Evaluating Demographic Fairness
 
 ## 1. Project Overview
 
@@ -375,7 +375,58 @@ _Evaluated on 39,095 held-out test samples._
 - Most influential predictors  
 - Practical and fairness-related implications  
 
-## 5. Fairness check
+## 5. Evaluation for Demographic Fairness
+
+To ensure the mortgage approval model does not perpetuate systemic biases, we conducted a comprehensive **Post-hoc Fairness Audit** to detect indirect discrimination caused by proxy variables while maintaining the model's predictive power.
+
+### Why Post-hoc Audit? (vs. Fairness through Blindness)
+
+**Fairness through Blindness** simply removes sensitive attributes (e.g., race, gender) from the training data to ensure a fair model. However, this approach is often ineffective due to Proxy Variables. Even if explicit labels are removed, other features like zipcode, loan_amount, or income often correlate strongly with protected attributes. This allows the model to "learn" and perpetuate historical biases indirectly (e.g., digital redlining).
+
+To address this, we adopted the **Post-hoc Fairness Audit** approach. Instead of hiding sensitive information, we include these variables to explicitly measure and audit the model's performance across different demographics. This allows for a more transparent assessment of Disparate Impact and enables us to identify precisely where the model's predictions might deviate from fairness standards.
+
+### 5.1. Methodology
+
+We evaluated our best-performing model (**XGBoost**) across the following four steps:
+
+#### Step 1: Full-Feature Prediction
+
+The model was trained on the complete dataset (including demographic variables) to capture the most accurate representation of the decision-making process.
+
+#### Step 2: Subgroup Definition
+
+We categorized the test data into the following sensitive groups to assess potential disparities:
+
+- Race (`derived_race`): White, Black, and Other (Composite of Asian, Am-Indian, Pacific-Islander, and Joint). Note: 'Unknown' cases were excluded for audit clarity.
+
+- Gender (`derived_sex`): Male, Female. Note: 'Joint' and 'Unknown' were excluded.
+
+- Age (`applicant_age`): Seven ordinal bins (from <25 to >74).
+
+- Region (`county_code`): Four major Texas metropolitan counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio).
+
+#### Step 3: Performance Metrics by Subgroup
+
+For each subgroup, we calculated key performance indicators (KPIs):
+
+- Selection Rate: The proportion of applications predicted as 'Approved'.
+
+- True Positive Rate (TPR): The model's ability to correctly identify qualified applicants within the group.
+
+- False Positive Rate (FPR): The frequency of unqualified applicants being predicted as 'Approved'.
+
+#### Step 4: Fairness Criteria Assessment
+
+We measured fairness using two industry-standard definitions:
+
+- Demographic Parity: Evaluating whether the Selection Rate is consistent across different groups (testing for the 4/5 Rule).
+
+- Equalized Odds: Ensuring that the TPR and FPR are balanced across groups, meaning the model's error profile is not biased against specific demographics.
+
+#### Step 5: Model Explainability (SHAP Analysis)
+
+- Using the SHAP (SHapley Additive exPlanations) library, we analyzed the global feature importance. This step verifies how much weight the model assigns to sensitive attributes versus financial indicators (e.g., DTI, LTV), identifying potential proxy-based discrimination.
+
 
 ## 6. Reproducibility
 
