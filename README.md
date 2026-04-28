@@ -50,102 +50,68 @@ Please refer to the detailed variable descriptions in
 
 ## 2.2. Data Preprocessing: Feature Selection & Transformation
 
-This section summarizes the preprocessing steps applied to reduce the original 109 HMDA variables to a finalized set of 44 modeling features.
-The process emphasizes data **leakage prevention, fairness analysis, and model interpretability**.
+This section summarizes the preprocessing pipeline that reduced the original 109 HMDA variables to a finalized set of **44 modeling features**. The process emphasizes **leakage prevention, fairness analysis, and model interpretability**.
 
-### 2.2.1. Feature Selection: Excluded Variables
+---
 
-### A. Data Leakage (Internal Decision & Post-Decision Markers)
+## 2.2. Data Preprocessing: Feature Selection & Transformation
 
-These variables reflect internal bank processes or information determined after the credit decision. Including them would allow the model to “peek” at the outcome.
+This section summarizes the preprocessing pipeline that reduced the original 109 HMDA variables to a finalized set of **44 modeling features**. The process emphasizes **leakage prevention, fairness analysis, and model interpretability**.
 
-• Internal Decisions
-  - aus-1 ~ aus-5 (Automated Underwriting System results)
-  - initially_payable_to_institution
+---
 
-• Post‑Decision Metadata
-  - denial_reason-1 ~ denial_reason-4
-  - purchaser_type
+### 2.2.1. Feature Selection: Exclusion Logic
 
-• Pricing Metadata (finalized only for approved loans)
-  - interest_rate
-  - rate_spread
-  - total_loan_costs
-  - total_points_and_fees
-  - origination_charges
+To ensure model integrity, we excluded variables that could lead to data leakage or provide redundant information.
 
-• Regulatory Flags
-  - hoepa_status
+#### **A. Logic for Exclusion**
+| Category | Rationale | Descriptions of Excluded Variables |
+| :--- | :--- | :--- |
+| **Data Leakage** | Features determined *after* or during the final credit decision. Including these leads to "cheating" and artificially high accuracy. | **Automated Underwriting (AUS) Results**, **Denial Reasons**, **Pricing Metadata** (Interest rates, fees) |
+| **Post-Decision Markers** | Flags that only exist for loans that have already been approved and progressed through the bank's system. | **Purchaser Type**, **HOEPA Status**, **Initially Payable to Institution** |
+| **Identifiers & Constants** | Variables with zero variance or unique IDs that do not contribute to generalizable patterns. | **Activity Year** (Fixed 2023), **State Code** (Fixed TX), **LEI** (Legal Entity ID) |
+| **Redundancy** | Raw entries replaced by official `derived_*` features for fairness analysis consistency. | **Raw Race/Ethnicity/Sex**, **Observation Flags**, **Binary Age Flags** |
+| **High Cardinality** | Geographic codes that are too granular for general patterns. | **Census Tract** (Aggregated into `county_code`) |
 
-### B. Identifiers and Constants
+#### **B. Detailed Reference of Excluded Variables**
+| Sub-category | Variable Names | Description |
+| :--- | :--- | :--- |
+| **Internal Decisions** | `aus-1` ~ `aus-5` | **Automated Underwriting System Results**; directly indicates if a system recommended approval. |
+| **Decision Metadata** | `denial_reason-1` ~ `4` | Specific reasons for denial; only populated *after* the decision is made. |
+| **Loan Pricing** | `interest_rate`, `rate_spread`, `total_loan_costs`, `origination_charges` | Finalized pricing data; only available for approved/originated loans. |
+| **Demographics** | `applicant_race-1~5`, `applicant_sex`, `applicant_age_above_62` | Raw demographic inputs; replaced by `derived_race`, `derived_sex`, and `applicant_age`. |
+| **Administrative** | `lei`, `activity_year`, `state_code`, `purchaser_type` | Legal identifiers and constant values with no predictive variance. |
 
-Variables with no predictive value or extremely high cardinality.
+---
 
-• Constants
-  - activity_year (fixed at 2023)
-  - state_code (fixed at TX)
+### 2.2.2. Data Transformation: Feature Engineering
 
-• Identifiers
-  - lei (Legal Entity Identifier)
+We applied specific transformations to convert raw HMDA strings into model-ready numerical and categorical inputs.
 
-• High Cardinality
-  - census_tract (replaced by county_code and derived_msa-md)
+#### **A. Numerical & Ordinal Scaling**
+| Feature Type | Transformation Method | Example Mapping |
+| :--- | :--- | :--- |
+| **Age** | **Ordinal Mapping** (Preserves chronological order) | "25-34" $\rightarrow$ 1, "35-44" $\rightarrow$ 2, ">74" $\rightarrow$ 6 |
+| **DTI & Units** | **Range-to-Midpoint** (Converts privacy ranges to continuous values) | "30%-36%" $\rightarrow$ 33.0, "5-24 units" $\rightarrow$ 14.5 |
+| **Missing Values** | **Median Imputation** | Null numerical values $\rightarrow$ Median of the column |
 
-### C. Redundant and Observational Features
+#### **B. Categorical Handling**
+* **Consistency:** String-based variables (e.g., `loan_purpose`, `property_value`) were retained as categorical dtypes.
+* **Imputation:** Missing categorical entries were explicitly mapped to a new **"Unknown"** category to preserve information about data gaps.
 
-• Raw Demographics (replaced by derived_* variables)
-  - applicant_race-1~5
-  - applicant_ethnicity-1~5
-  - applicant_sex
-
-• Observational Metadata
-  - applicant_race_observed
-  - co-applicant_race_observed
-  - applicant_ethnicity_observed
-  - co-applicant_ethnicity_observed
-
-• Binary Age Flags
-  - applicant_age_above_62
-
-### 2.2.2. Data Transformation: Numerical & Categorical
-
-### A. Ordinal Mapping (Age)
-
-Age ranges were converted into ordinal integers (0–6) to preserve chronological ordering.
-
-Example:
-
-"25-34" → 1  
-"35-44" → 2  
-"75+"   → 6
-
-### B. Range-to-Midpoint Conversion (DTI & Units)
-
-HMDA often reports values as ranges for privacy.
-These were converted into continuous numerical midpoints.
-
-Examples:
-
-"30%-36%" → 33.0  
-"5-24 units" → 14.5
-
-Missing values were imputed using the median.
-
-### C. Categorical Encoding
-
-• String-based variables retained as categorical
-
-• Missing values replaced with "Unknown"
+---
 
 ### 2.2.3. Target Variable Refinement
 
-- The `target` variable was derived from `action_taken` to focus exclusively on the institution's credit decision logic:
+The target variable was re-defined to focus strictly on the institution's **credit decision logic**.
 
-- Class 1 (Approved): `action_taken` = 1 (Loan originated)
+| Action Taken | Target Mapping | Rationale |
+| :--- | :---: | :--- |
+| **Loan Originated (1)** | **1 (Approved)** | Success case where credit was granted. |
+| **Application Denied (3)** | **0 (Denied)** | The core failure case for prediction. |
+| **Withdrawn/Incomplete (4, 5)** | **Excluded** | Removed to filter out noise where no definitive decision was made by the bank. |
 
-- Class 0 (Denied): `action_taken` = 3 (Application denied)
-
-- Exclusions: Applications that were withdrawn by the applicant (4) or closed for incompleteness (5) were removed to ensure the model only learns from definitive approval or denial outcomes.
+After filtering for definitive credit decisions (Approved vs. Denied), the dataset size was refined from **310,241** to **195,474** observations. This ensures the model learns strictly from the institution's risk assessment outcomes, excluding administrative noise such as withdrawn or incomplete applications.
 
 ---
 
@@ -229,15 +195,27 @@ Missing values were imputed using the median.
 
 ### 2.4. Train / Test Split
 
-The cleaned dataset is split into training (80%) and testing (20%) sets using scikit-learn to ensure reliable model evaluation.
+The processed dataset is split into training and testing sets to ensure robust model evaluation and prevent overfitting.
 
-- Stratified Sampling: We applied stratification on the target column to maintain the original distribution of approved and denied loans in both sets.
+| Set | Proportion | Observations | Description |
+| :--- | :---: | :---: | :--- |
+| **Training Set** | 80% | 156,379 | Used for model learning and hyperparameter tuning. |
+| **Testing Set** | 20% | 39,095 | Used for final performance and fairness auditing. |
+| **Total** | **100%** | **195,474** | Observations with definitive credit decisions. |
 
-- Reproducibility: A fixed random_state of 42 was used to ensure consistent results across different runs.
-
-- Outputs: The split files are saved as `train.csv` and `test.csv` in the `data/split/` directory.
+#### **Methodology**
+* **Stratified Sampling:** We applied stratification on the `target` column to preserve the original distribution of approved and denied loans in both the training and testing sets. This prevents bias that could arise from class imbalance.
+* **Reproducibility:** A fixed `random_state=42` was used to ensure that the split remains consistent across different environments and runs.
+* **Data Storage:** The split datasets are exported as `train.csv` and `test.csv` in the `data/split/` directory for use in the modeling pipeline.
 
 ### 2.5. Data Limitations
+
+While the 2023 HMDA dataset provides a comprehensive view of mortgage applications, several inherent limitations must be considered when interpreting the model's results:
+
+1. **Absence of Numerical Credit Scores:** HMDA data excludes actual credit scores to protect applicant privacy. Since credit scores are primary determinants of lending risk, their absence may constrain the model's predictive precision and its ability to replicate internal underwriting logic.
+2. **Missing Asset and Wealth Data:** The dataset focuses on applicant income but lacks information on total liquid assets, net worth, or specific down payment sources. An applicant with low income but high assets might still be a low-risk candidate, a nuance the current model cannot capture.
+3. **Macroeconomic Context (2023):** The data reflects the 2023 mortgage market, a period characterized by significant interest rate hikes and inflationary pressure. Consequently, the patterns observed may not perfectly generalize to different economic cycles or low-interest-rate environments.
+4. **Unobserved Qualitative Factors:** Mortgage decisions often rely on "soft information" or qualitative assessments—such as employment stability, long-term banking relationships, or detailed property appraisals, which are not captured in the standardized HMDA variables.
 
 ---
 
