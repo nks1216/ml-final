@@ -519,25 +519,19 @@ cd ml-final
 
 ### 6.3. Data Preparation
 
-Run the scripts in the following order to collect and prepare the dataset:
+Run these commands to prepare the dataset:
 
-1. Download Raw Data: Fetches 2023 HMDA data for Big 4 TX counties.
-
-```
-python3 src/data/hmda_loader.py
-```
-
-2. Clean Data: Performs preprocessing and prevents data leakage.
-
-```
-python3 src/data/clean_hmda.py
+```bash
+python3 src/data/clean_hmda.py    # Downloads (if needed) and cleans data
+python3 src/data/split_data.py    # Splits data: creates train.csv and test.csv in data/split/
 ```
 
-3. Split Data: Creates train.csv and test.csv in data/split/.
+The `clean_hmda.py` script will automatically download raw data from the CFPB API if it's missing.
 
-```
-python3 src/data/split_data.py
-```
+⏱️ **First run:** 2-5 minutes (downloads ~500MB raw data)  
+⏱️ **Subsequent runs:** < 1 minute (uses cached data)
+
+*Note: Raw data is too large for GitHub, so it is downloaded programmatically from the CFPB API on demand.*
 
 ### 6.4 Run the code
 ```
