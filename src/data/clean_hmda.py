@@ -107,7 +107,9 @@ def clean_hmda_data(input_path):
     return df
 
 if __name__ == "__main__":
-    # Robust Path Resolution
+    import subprocess
+    import sys
+    
     current_script_path = os.path.abspath(__file__)
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_script_path)))
     
@@ -115,6 +117,26 @@ if __name__ == "__main__":
     raw_data_path = os.path.join(project_root, 'data/raw/hmda_raw_2023_TX_big4.csv')
     clean_data_dir = os.path.join(project_root, 'data/clean')
     output_data_path = os.path.join(clean_data_dir, 'hmda_cleaned.csv')
+
+    # ===== AUTO-DOWNLOAD IF MISSING =====
+    if not os.path.exists(raw_data_path):
+        print("⚠️  Raw data not found. Downloading from CFPB API...")
+        print("   This may take 2-5 minutes...")
+        
+        hmda_loader_path = os.path.join(project_root, 'src/data/hmda_loader.py')
+        result = subprocess.run(
+            [sys.executable, hmda_loader_path],
+            cwd=project_root
+        )
+        
+        if result.returncode != 0:
+            print("❌ Download failed! Check your internet connection.")
+            sys.exit(1)
+        
+        print("✓ Download complete!")
+    else:
+        print("✓ Raw data found. Proceeding with cleaning...")
+    # ===== END =====
 
     # Ensure output directory exists
     os.makedirs(clean_data_dir, exist_ok=True)
@@ -124,4 +146,4 @@ if __name__ == "__main__":
     if cleaned_df is not None:
         print(f"Step 5: Saving cleaned data to {output_data_path}...")
         cleaned_df.to_csv(output_data_path, index=False)
-        print("Success!")
+        print("✓ Success!") 
