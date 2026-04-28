@@ -317,7 +317,7 @@ _Evaluated on 39,095 held-out test samples._
 
 ## 4. Comparative Evaluation of Models
 
-This section compares the performance of the four classification models: Logistic Regression, Random Forest, XGBoost, and TabPFN. The goal is to identify which model provides the strongest overall predictive performance on the held-out test set.
+This section compares the performance of the four classification models used in this project: Logistic Regression, Random Forest, XGBoost, and TabPFN. The goal is to identify which model provides the strongest overall predictive performance on the held-out test set.
 
 ### 4.1 Performance Comparison
 
@@ -330,53 +330,39 @@ This section compares the performance of the four classification models: Logisti
 
 ### 4.2 Model Comparison
 
-The results show a clear improvement from the baseline Logistic Regression model to the more flexible machine learning models. Logistic Regression achieved the lowest overall performance, with an accuracy of 0.7533 and ROC-AUC of 0.8117. This is expected because Logistic Regression assumes a linear relationship between the predictors and the probability of approval.
+The results show a clear improvement from the baseline Logistic Regression model to the more flexible machine learning models. Logistic Regression achieved the lowest overall performance, with an accuracy of 0.7533 and ROC-AUC of 0.8117. This is expected because Logistic Regression assumes a relatively linear relationship between the predictors and the probability of approval.
 
 Random Forest substantially improves on Logistic Regression, increasing accuracy to 0.8151 and ROC-AUC to 0.8907. This suggests that nonlinear relationships and feature interactions are important in predicting mortgage approval outcomes.
 
 XGBoost produced the strongest overall results. It achieved the highest accuracy, precision, ROC-AUC, and average precision among all models. Its ROC-AUC of 0.9109 indicates strong discrimination between approved and denied applications, while its average precision of 0.9529 shows strong performance in ranking likely approvals.
 
-TabPFN also performed well, especially in recall and F1 score. Its recall of 0.9340 is the highest among all models, meaning it identifies a large share of applications that were actually approved. However, its ROC-AUC and average precision are lower than XGBoost, and the model was trained on a smaller stratified subsample. Therefore, TabPFN is useful as an experimental comparison model but is not selected as the final champion model.
+TabPFN also performed well, especially in recall and F1 score. Its recall of 0.9340 is the highest among all models, meaning it identifies a large share of applications that were actually approved. However, its ROC-AUC and average precision are lower than XGBoost. In addition, TabPFN was trained on a smaller stratified subsample, so it is useful as an experimental comparison model but is not selected as the final champion model.
 
-### 4.3 Champion Model Selection
+### 4.3 Actual vs. Predicted Outcomes
 
-Based on the overall comparison, XGBoost is selected as the champion model. It provides the best balance of accuracy, precision, recall, F1 score, ROC-AUC, and average precision. Compared with Logistic Regression, XGBoost captures more complex nonlinear patterns in the data. Compared with Random Forest, it provides stronger predictive performance across nearly all metrics. Compared with TabPFN, it offers stronger discrimination and ranking performance on the full modeling task.
+Confusion matrices were used to compare each model’s predicted outcomes against the actual approval outcomes. These results show how often each model correctly classified approved and denied applications, as well as where each model made errors.
 
-Therefore, XGBoost is the most reliable model for predicting mortgage approval outcomes in this project.
+Logistic Regression provides a useful baseline but produces more classification errors than the tree-based models. Random Forest improves the overall classification results, while XGBoost provides the strongest balance between correctly identifying approvals and avoiding incorrect predictions. TabPFN performs strongly in recall, but its lower ROC-AUC and average precision make it less reliable as the final model.
 
-## 4. Comparative Evaluation of Models
+The ROC curve and precision-recall curve comparisons also support XGBoost as the strongest overall model. XGBoost maintains the best discrimination between approved and denied applications and provides the strongest ranking performance across prediction thresholds.
 
-### 4.1. Performance Metrics (can be changed)
+### 4.4 Feature Importance Comparison
 
-- Accuracy  
-- Precision  
-- Recall  
-- F1‑Score  
-- ROC‑AUC  
-- Confusion Matrix  
+Feature importance was reviewed to understand which variables contributed most to model predictions. For Logistic Regression, feature importance is based on the absolute size of the estimated coefficients. For Random Forest, feature importance is based on impurity reduction. For XGBoost, feature importance is based on how much each feature improves model splits.
 
-### 4.2. Actual vs Predicted
+Across the models, the most influential predictors are mainly financial and loan-related variables, including debt-to-income ratio, loan-to-value ratio, loan amount, property value, income, and credit score type indicators. This suggests that the models are primarily learning from economically meaningful mortgage application characteristics.
 
-- Confusion Matrix (per model)  
-- ROC Curve Comparison  
-- Precision–Recall Curve Comparison  
+The top 20 feature importances from the best-performing model are used to interpret the main drivers of the final prediction model.
 
-### 4.3. Top 5 Feature Importances
+### 4.5 Key Takeaways and Recommendation
 
-- Logistic Regression: absolute coefficients  
-- Random Forest: Gini importance  
-- XGBoost / CatBoost: gain or split importance  
+Overall, the model comparison supports three main conclusions.
 
-### 4.4. Top 20 Feature Importances
+First, Logistic Regression is a useful interpretable baseline, but it has weaker predictive performance than the more flexible machine learning models.
 
-- Based on the best-performing model  
-- (Optional) SHAP summary plot for interpretability  
+Second, Random Forest and XGBoost outperform Logistic Regression, suggesting that mortgage approval outcomes involve nonlinear relationships and interactions among borrower, loan, and property characteristics.
 
-### 4.5. Key Takeaways and Recommendations
-
-- Comparative performance summary  
-- Most influential predictors  
-- Practical and fairness-related implications  
+Third, XGBoost is the strongest overall model. It achieves the best balance of accuracy, precision, recall, F1 score, ROC-AUC, and average precision. Therefore, XGBoost is selected as the champion model for the final fairness audit and interpretation.
 
 ## 5. Evaluation for Demographic Fairness
 
