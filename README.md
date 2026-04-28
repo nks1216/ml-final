@@ -399,9 +399,9 @@ We categorized the test data into the following sensitive groups to assess poten
 
 - Race (`derived_race`): White, Black, and Other (Composite of Asian, Am-Indian, Pacific-Islander, and Joint). Note: 'Unknown' cases were excluded for audit clarity.
 
-- Gender (`derived_sex`): Male, Female. Note: 'Joint' and 'Unknown' were excluded.
-
 - Age (`applicant_age`): Seven ordinal bins (from <25 to >74).
+
+- Gender (`derived_sex`): Male, Female. Note: 'Joint' and 'Unknown' were excluded.
 
 - Region (`county_code`): Four major Texas metropolitan counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio).
 
@@ -427,6 +427,56 @@ We measured fairness using two industry-standard definitions:
 
 - Using the SHAP (SHapley Additive exPlanations) library, we analyzed the global feature importance. This step verifies how much weight the model assigns to sensitive attributes versus financial indicators (e.g., DTI, LTV), identifying potential proxy-based discrimination.
 
+
+### 5.2. Demographic Fairness Audit Results
+
+We conducted a post-hoc audit to evaluate the model's fairness across four protected attributes. While some disparities in selection rates exist, the **high True Positive Rate (TPR)** and **SHAP explanations** suggest that the model's decisions are primarily driven by legitimate financial factors rather than demographic bias.
+
+#### 5.2.1. Race: High TPR despite Selection Rate Gaps
+
+![Race Selection Rate](reports/figures/fairness/fairness_plot_race.png)
+
+- **Observations**: The **Asian (0.823)** and **White (0.790)** groups showed the highest selection rates, while the **African American (0.672)** group recorded the lowest.
+
+- **Fairness Insight**: Despite the gap in selection rates, the **TPR (Recall) is consistently above 0.95** for all racial groups. This indicates that the model is equally effective at identifying "qualified" applicants across all races. The disparity in selection rates is likely a reflection of historical economic disparities in the underlying data rather than algorithmic discrimination.
+
+The model satisfies the U.S. **EEOC(Equal Employment Opportunity Commission)’s 4/5 rule (80% rule)** for disparate impact. The ratio of selection rates between African American (0.672) and Asian (0.823) applicants is approximately **81.6%**, which exceeds the 80% threshold.
+
+#### 5.2.2. Age: Peak Performance in Early-to-Mid Career
+
+![Age Selection Rate](reports/figures/fairness/fairness_plot_age.png)
+
+- **Observations**: Selection rates peak in the **25-34 (0.833)** age group and gradually decline as age increases, reaching a minimum of **0.661 for the >74** group.
+
+- **Fairness Insight**: Error rates (TPR/FPR) remain stable across all age bins. The lower selection rates for older applicants may correlate with mortgage terms and retirement income structures, which the model captures through financial variables.
+
+#### 5.2.3. Gender: Minimal Disparity
+
+![Gender Selection Rate](reports/figures/fairness/fairness_plot_gender.png)
+
+- **Observations**: The selection rate for **Male (0.734)** applicants is slightly higher than for **Female (0.710)** applicants.
+
+- **Fairness Insight**: The difference is marginal (approx. 2.4%), and the error profiles (TPR/FPR) are nearly identical. The model demonstrates high demographic parity regarding gender.
+
+#### 5.2.4. County: Geographic Consistency (No Redlining)
+
+![County Selection Rate](reports/figures/fairness/fairness_plot_county.png)
+
+- **Observations**: Selection rates across the four major Texas counties are remarkably stable, ranging from **0.752 (Dallas)** to **0.778 (Travis)**.
+
+- **Fairness Insight**: The lack of significant variance suggests that the model does not exhibit geographic bias (redlining) within these metropolitan areas.
+
+#### 5.2.5. Global Interpretation via SHAP
+
+![Shap Summary](reports/figures/fairness/shap_summary_fairness.png)
+
+The **SHAP Summary Plot** confirms that the model's top predictors are strictly financial and risk-related:
+
+1. **Debt-to-Income Ratio (DTI)**: The most influential feature.
+
+2. **Loan-to-Value Ratio (LTV) & Property Value**: Primary risk indicators.
+
+3. **Protected Attributes**: Variables such as derived_race and derived_sex ranked much lower in global importance, further proving that the model relies on economic merit rather than demographic proxies.
 
 ## 6. Reproducibility
 
