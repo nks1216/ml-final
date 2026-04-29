@@ -183,16 +183,38 @@ def run_shap_analysis(model, X_test):
 # 5. Main Execution
 # --------------------------------------------------------------------------- #
 def main():
+    # 1. Load and preprocess data
+    # Uses the existing load_and_preprocess function to ensure consistent feature engineering.
     X_test, y_test, full_test_df = load_and_preprocess()
     
-    print("[2/5] Training model for audit...")
-    model = xgb.XGBClassifier(tree_method="hist", enable_categorical=True, random_state=RANDOM_STATE)
-    model.fit(X_test, y_test)
+    # 2. Load pre-trained model instead of retraining
+    # This ensures we are auditing the actual production model and avoids data leakage.
+    MODEL_PATH = PROJECT_ROOT / "reports" / "results" / "prediction" / "xgboost_model.json"
     
+    print(f"[2/5] Loading pre-trained XGBoost model from: {MODEL_PATH}")
+    
+    # Initialize the model object with parameters consistent with the prediction script
+    model = xgb.XGBClassifier(
+        tree_method="hist", 
+        enable_categorical=True, 
+        random_state=RANDOM_STATE
+    )
+    
+    # Check for the model file and load it
+    if MODEL_PATH.exists():
+        model.load_model(str(MODEL_PATH))
+        print("Model loaded successfully. Starting post-hoc fairness audit...")
+    else:
+        print(f"Error: Model file not found at {MODEL_PATH}")
+        print("Please ensure that xgboost_prediction.py is executed before running the audit.")
+        return
+    
+    # 3. Perform Fairness Audit and SHAP Analysis
+    # Auditing the frozen model provides a true reflection of its real-world bias.
     run_fairness_audit(model, X_test, y_test, full_test_df)
     run_shap_analysis(model, X_test)
     
-    print("\n[5/5] Fairness Audit Successful. All 5 plots saved to reports/.")
+    print("\n[5/5] Fairness Audit Successful. All plots and results saved to reports/.")
 
 if __name__ == "__main__":
     main()

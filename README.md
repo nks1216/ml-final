@@ -366,7 +366,7 @@ Third, XGBoost is the strongest overall model. It achieves the best balance of a
 
 ## 5. Evaluation for Demographic Fairness
 
-To ensure the mortgage approval model does not perpetuate systemic biases, we conducted a comprehensive **Post-hoc Fairness Audit** to detect indirect discrimination caused by proxy variables while maintaining the model's predictive power.
+To ensure the mortgage approval model does not continue systemic biases, we conducted a comprehensive **Post-hoc Fairness Audit** to detect indirect discrimination caused by proxy variables while maintaining the model's predictive power.
 
 ### Why Post-hoc Audit? (vs. Fairness through Blindness)
 
