@@ -477,7 +477,48 @@ The **SHAP Summary Plot** confirms that the model's top predictors are strictly 
 
 - **Legal Standard**: Notably, the model satisfies the **EEOC’s 4/5 Rule**. The selection rate ratio between African American and Asian applicants is **81.6%**, exceeding the 80% threshold for non-discriminatory practices.
 
-#### 5.2.7. Detailed Audit Metrics (Appendix)
+#### 5.2.8. Intersectional Fairness: Race × Gender & Race × Age
+
+**Key Finding:** Single-dimension fairness analysis misses compound discrimination.
+
+##### Race × Gender Intersections:
+
+The model exhibits **clear intersectional bias**:
+
+| Intersection | Selection Rate | Accuracy | TPR |
+|---|---|---|---|
+| **Asian Male** | 76.1% | 0.886 | 0.921 |
+| Asian Female | 73.2% | 0.874 | 0.919 |
+| White Male | 67.5% | 0.840 | 0.865 |
+| White Female | 64.1% | 0.832 | 0.844 |
+| Black Male | 55.3% | 0.812 | 0.803 |
+| **Black Female** | **53.0%** | **0.805** | **0.783** |
+
+**Critical Insight:** Black women face the LOWEST approval rate (53%), a **14.5 percentage point gap** vs. White men (67.5%). This compound bias is invisible in single-dimension analysis.
+
+##### Race × Age Intersections:
+
+Elderly applicants show severe disparities:
+
+| Intersection | Selection Rate | Notes |
+|---|---|---|
+| White >74 | 59.9% | Moderate disparity |
+| Asian >74 | 55.0% | Moderate disparity |
+| **Black >74** | **31.9%** | **Severe disparity** |
+
+Younger applicants see better outcomes:
+- Asian <25: 86.5% (highest)
+- White <25: 80.1%
+- Black <25: 64.9%
+
+**Implications:**
+- Model accuracy is lower for disadvantaged intersections (Black Female: 80.5% vs Asian Male: 88.6%)
+- Intersectionality reveals bias that aggregate metrics mask
+- Policy recommendation: Monitor and remediate approval disparities for Black women and elderly Black applicants
+
+**See:** `reports/results/fairness/intersectional_*.csv` and `reports/figures/fairness/intersectional_*.png`
+
+#### 5.2.9. Detailed Audit Metrics (Appendix)
 
 <details>
 <summary>👉 Click to view raw fairness data</summary>
