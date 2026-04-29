@@ -430,15 +430,17 @@ For each subgroup, we calculated key performance indicators (KPIs):
 
 #### Step 4: Fairness Criteria Assessment
 
-We measured fairness using two industry-standard definitions:
+We measured global fairness using two quantitative metrics to provide a rigorous, mathematical verdict on the model's performance:
 
-- **Demographic Parity Difference** (DP_diff): Evaluating whether the Selection Rate is consistent across different groups (testing for the **4/5 Rule**).
+- **Demographic Parity Difference (DP Diff)**: Evaluates whether the Selection Rate is consistent across different groups. It measures the maximum gap in approval rates between any two groups.
 
-  *Note: We follow the U.S. EEOC (Equal Employment Opportunity Commission)’s 4/5 Rule, which serves as a legal benchmark; it states that the selection rate of any group should be at least 80% of the highest-performing group to avoid disparate impact.*
+  - *Note: We follow the **U.S. EEOC (Equal Employment Opportunity Commission)’s 4/5 Rule**, which serves as a legal benchmark; it states that the selection rate of any group should be at least **80%** of the highest-performing group to avoid disparate impact.*
 
-- **Equalized Odds Difference** (EO_diff): Ensuring that the TPR and FPR are balanced across groups, meaning the model's error profile is not biased against specific demographics.
+- **Equalized Odds Difference (EO Diff)**: Assesses whether the model provides **"Equal Opportunity"** by ensuring its error patterns are consistent across all groups. It monitors whether the model is unintentionally stricter or more lenient toward specific demographics.
 
-- **Result**: Consolidated in the `reports/results/fairness/fairness_summary_metrics.csv` table.
+  - Calculated as the **maximum difference** in either the **True Positive Rate (TPR)** or the **False Positive Rate (FPR)** across all subgroups.
+
+- **Result**: These metrics are consolidated in the `fairness_summary_metrics.csv` table, providing a high-level summary of the model's compliance with fairness standards.
 
 #### Step 5: Model Explainability (SHAP Analysis)
 
@@ -466,7 +468,9 @@ We conducted a post-hoc audit to evaluate the model's fairness across four prote
 
 - **Observations**: Selection rates peak in the **25-34 (0.800)** age group and show a consistent downward trend as age increases, reaching a minimum of **0.541 for the >74** group.
 
-- **Fairness Insight**: Error rates (TPR/FPR) show that the model maintains predictive accuracy across age bins. The lower selection rates for older applicants likely correlate with mortgage term constraints relative to retirement age and differences in income stability, which the model evaluates through objective financial risk variables.
+- **Fairness Insight**: The audit reveals a noticeable **decline in TPR (from 0.947 to 0.753)** as the applicant's age increases. This indicates that the model becomes increasingly conservative with older cohorts, potentially misclassifying qualified senior applicants as high-risk.
+
+- **Risk Interpretation**: This performance decay likely reflects the inherent difficulty in assessing long-term mortgage risk for seniors. As loan terms (e.g., 30-year mortgages) extend beyond typical retirement ages or life expectancy, the model may prioritize strict risk mitigation over equal opportunity. This suggests that while the model captures objective age-related risks, there is a clear trade-off between credit accessibility for seniors and the model's predictive sensitivity.
 
 #### 5.2.3. Gender: Moderate Demographic Parity
 
@@ -502,17 +506,6 @@ The **SHAP Summary Plot** confirms that the model's decisions are primarily driv
 
 **The Demographic Parity Difference (DP Diff)** and **Equalized Odds Difference (EO Diff)** quantify the fairness gaps between groups, where lower values indicate a more equitable model.
 
-- **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. 
-
-- **Race & Age**: These categories exhibited higher gaps (DP Diff: **0.211** for Race and **0.263** for Age). However, the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups, suggesting that the model remains effective at identifying qualified applicants within each demographic.
-
-- **Legal Standard (The 4/5 Rule)**: The selection rate ratio between **Black (0.566)** and **Asian (0.777)** applicants is approximately **72.8%**.
-
-  - **Analysis**: Although this result falls below the **EEOC’s 80% threshold**, it provides a transparent view of how systemic socio-economic disparities (captured via proxies like DTI and loan-to-value ratios) are reflected in the model’s outputs. This highlights the necessity of the audit in identifying areas for future bias mitigation and model recalibration.
-
-<details>
-<summary>👉 Click to view Quantitative Fairness Assessment data </summary>
-
 #### Overall Fairness Differences
 | Attribute | Demographic Parity Diff | Equalized Odds Diff |
 | :--- | :--- | :--- |
@@ -531,8 +524,21 @@ The **SHAP Summary Plot** confirms that the model's decisions are primarily driv
 | **Female** | 0.8302 | 0.6053 | 0.8333 | 0.1758 |
 
 *(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/ directory.)*
-</details>
 
+
+- **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. 
+
+- **Race**: While there is a selection gap (DP_Diff: **0.211**), the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups. This suggests that the model is still effective at identifying qualified applicants within each racial demographic, and the approval gap is likely driven by external socio-economic factors.
+
+- **Age**: This category exhibited the highest disparity (DP_Diff): **0.263**). Notably, we observe a **performance decay in TPR**, which drops from **0.947** (Age 25-34) to **0.753** (Age >74). This indicates that the model is significantly more conservative when evaluating older applicants, resulting in a higher rate of "False Negatives" (qualified seniors being denied) compared to younger cohorts.
+
+- **Legal Standard (The 4/5 Rule)**: 
+
+  - **Race**: The selection rate ratio between **Black (0.566)** and **Asian (0.777)** is **72.8%**.
+
+  - **Age**: The ratio between the **>74 (0.541)** and **25-34 (0.800)** groups is **67.6%**.
+
+  - **Analysis**: Both Race and Age metrics fall below the **EEOC’s 80% threshold**. While the racial gap shows consistent TPR, the age gap shows a decline in both approval rates and predictive sensitivity. This highlights a critical area for future model recalibration, particularly in how the algorithm weighs age-related financial risks versus equal credit access.
 
 #### 5.2.7. Intersectional Fairness: Race × Gender & Race × Age
 
