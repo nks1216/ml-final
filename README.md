@@ -618,6 +618,34 @@ Younger applicants see better outcomes:
 
 **See:** `reports/results/fairness/intersectional_*.csv` and `reports/figures/fairness/intersectional_*.png`
 
+#### 5.2.8. Fairness Through Blindness: Why Feature Removal Helps But Isn't Enough
+
+**Finding:** Removing race/gender features REDUCES but does NOT eliminate disparities.
+
+**Results:**
+
+| Metric | Full Model | Blind Model | Change |
+|---|---|---|---|
+| **Black Approval Rate** | 56.6% | 71.2% | +14.6pp ↑ |
+| **White Approval Rate** | 70.7% | 78.4% | +7.7pp ↑ |
+| **White-Black Gap** | 14.1pp | 7.2pp | -6.9pp ↓ **(Better)** |
+
+**Why This Matters:**
+- Blind model removes explicit race/gender features
+- Model becomes more generous overall (can't be conservative about minorities)
+- BUT: Racial gaps still exist because **proxy variables** (income, DTI, property value) still encode racial information
+- This proves: Blindness reduces but doesn't solve bias
+
+**Conclusion:** 
+Fairness Through Blindness is helpful but insufficient. Post-hoc Audit with Awareness is superior because it:
+- ✓ Detects all disparities (direct AND proxy-based)
+- ✓ Allows targeted remediation
+- ✓ Enables transparent accountability
+
+vs Blindness which:
+- ✗ Hides bias, doesn't eliminate it
+- ✗ Prevents diagnosis and intervention
+
 
 ## 6. Reproducibility
 
