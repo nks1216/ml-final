@@ -314,7 +314,7 @@ _Evaluated on 39,095 held-out test samples._
 | ROC-AUC              | 0.8758 |
 | Average Precision    | 0.9300 |
 
-*Evaluated on 39,095 held-out test samples. Trained on 1,000 stratified-subsampled rows.
+_Evaluated on 39,095 held-out test samples. Trained on 1,000 stratified-subsampled rows._
 
 #### 2. Confusion Matrix & ROC Curve
 | Confusion Matrix | ROC Curve |
