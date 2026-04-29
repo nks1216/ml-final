@@ -414,8 +414,8 @@ For each subgroup, we calculated key performance indicators (KPIs):
 | Metric | Definition | Key Insight & Interpretation |
 | :--- | :--- | :--- |
 | **Selection Rate** | $\frac{\text{Approved Predictions}}{\text{Total Applications}}$ | Measures **Demographic Parity**. Significant gaps indicate the model grants approvals at different rates regardless of historical merit. |
-| **TPR** (True Positive Rate) | $\frac{\text{Correctly Predicted "Approved"}}{\text{Historically Approved Applications}}$ | Measures **Opportunity Equity**. A lower TPR suggests the model fails to identify successful candidates, leading to missed opportunities. |
-| **FPR** (False Positive Rate) | $\frac{\text{Incorrectly Predicted "Approved"}}{\text{Historically Denied Applications}}$ | Measures **Risk Equity**. A higher FPR indicates unintended leniency or higher risk by approving applications that the historical record rejected. |
+| **TPR** (True Positive Rate) | $\frac{\text{Correctly Pred. "Approved"}}{\text{Historically Approved App.}}$ | Measures **Opportunity Equity**. A lower TPR suggests the model fails to identify successful candidates, leading to missed opportunities. |
+| **FPR** (False Positive Rate) | $\frac{\text{Incorrectly Pred. "Approved"}}{\text{Historically Denied App.}}$ | Measures **Risk Equity**. A higher FPR indicates unintended leniency or higher risk by approving applications that the historical record rejected. |
 
 - **Result**: Generated 4 detailed tables (metrics_by_{group}.csv) and 4 parity plots.
 
