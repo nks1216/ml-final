@@ -400,29 +400,22 @@ The model was already trained on the complete dataset (including demographic var
 
 We categorized the test data into the following sensitive groups to assess potential disparities:
 
-- **Race** (`derived_race`): White, Black, Asian, and Other (Composite of Am-Indian, Pacific-Islander, and Joint). (*Note: 'Unknown' cases were excluded for audit clarity.*)
-
-- **Age** (`applicant_age`): Seven ordinal bins (from <25 to >74).
-
-- **Gender** (`derived_sex`): Male, Female. (*Note: 'Joint' and 'Unknown' were excluded.*)
-
-- **Region** (`county_code`): Four major Texas metropolitan counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio).
+| Category | Column Name | Subgroups & Details |
+| :--- | :--- | :--- |
+| **Race** | `derived_race` | White, Black, Asian, and Other (Am-Indian, Pacific-Islander, Joint). <br>*(Note: 'Unknown' cases excluded)* |
+| **Age** | `applicant_age` | Seven ordinal bins (from <25 to >74) |
+| **Gender** | `derived_sex` | Male, Female. <br>*(Note: 'Joint' and 'Unknown' excluded)* |
+| **Region** | `county_code` | Texas Metro Counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio) |
 
 #### Step 3: Performance Metrics by Subgroup
 
 For each subgroup, we calculated key performance indicators (KPIs):
 
-- **Selection Rate (Approval Rate)**: The ratio of 'Approved' predictions to the total number of applications in each group.
-
-  - A significant gap in selection rates between groups indicates a lack of **Demographic Parity**, meaning the model grants approvals at different rates regardless of historical merit.
-
-- **True Positive Rate (TPR)**: The ratio of **correctly** predicted 'Approved' cases to the total number of **historically approved** applications.
-
-  - A lower TPR for a specific group suggests the model is failing to identify successful candidates as effectively as it does for others, leading to **missed opportunities** for qualified individuals.
-
-- **False Positive Rate (FPR)**: The ratio of **incorrectly** predicted 'Approved' cases to the total number of **historically denied** applications.
-
-  - A higher FPR for a specific group indicates the model might be granting approvals to historically denied candidates more frequently, potentially leading to **unintended leniency or higher risk** within that demographic.
+| Metric | Definition | Key Insight & Interpretation |
+| :--- | :--- | :--- |
+| **Selection Rate** | $\frac{\text{Approved Predictions}}{\text{Total Applications}}$ | Measures **Demographic Parity**. Significant gaps indicate the model grants approvals at different rates regardless of historical merit. |
+| **TPR** (True Positive Rate) | $\frac{\text{Correctly Predicted "Approved"}}{\text{Historically Approved Applications}}$ | Measures **Opportunity Equity**. A lower TPR suggests the model fails to identify successful candidates, leading to missed opportunities. |
+| **FPR** (False Positive Rate) | $\frac{\text{Incorrectly Predicted "Approved"}}{\text{Historically Denied Applications}}$ | Measures **Risk Equity**. A higher FPR indicates unintended leniency or higher risk by approving applications that the historical record rejected. |
 
 - **Result**: Generated 4 detailed tables (metrics_by_{group}.csv) and 4 parity plots.
 
@@ -430,15 +423,14 @@ For each subgroup, we calculated key performance indicators (KPIs):
 
 We measured global fairness using two quantitative metrics to provide a rigorous, mathematical verdict on the model's performance:
 
-- **Demographic Parity Difference (DP Diff)**: Evaluates whether the Selection Rate is consistent across different groups. It measures the maximum gap in approval rates between any two groups.
+| Criterion | Calculation Logic | Interpretation & Benchmark |
+| :--- | :--- | :--- |
+| **DP Difference** | Max gap in Selection Rates between any two groups | **U.S. EEOC 4/5 Rule**: The selection rate of any group should be $\geq 80\%$ of the highest-performing group to avoid disparate impact. |
+| **EO Difference** | Max difference in either **TPR** or **FPR** across all groups | **Equal Opportunity**: Monitors whether the model is unintentionally stricter or more lenient toward specific demographics. |
 
-  - *Note: We follow the **U.S. EEOC (Equal Employment Opportunity Commission)’s 4/5 Rule**, which serves as a legal benchmark; it states that the selection rate of any group should be at least **80%** of the highest-performing group to avoid disparate impact.*
+(*EEOC: Equal Employment Opportunity Commission*)
 
-- **Equalized Odds Difference (EO Diff)**: Assesses whether the model provides **"Equal Opportunity"** by ensuring its error patterns are consistent across all groups. It monitors whether the model is unintentionally stricter or more lenient toward specific demographics.
-
-  - Calculated as the **maximum difference** in either the **True Positive Rate (TPR)** or the **False Positive Rate (FPR)** across all subgroups.
-
-- **Result**: These metrics are consolidated in the `fairness_summary_metrics.csv` table, providing a high-level summary of the model's compliance with fairness standards.
+- **Result**: Consolidated in `fairness_summary_metrics.csv`.
 
 #### Step 5: Model Explainability (SHAP Analysis)
 
