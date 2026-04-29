@@ -446,7 +446,7 @@ We conducted a post-hoc audit to evaluate the model's fairness across four prote
 
 - **Fairness Insight**: Despite the variation in selection rates, the **TPR (Recall) remains robust (ranging from 0.806 to 0.927)** across all groups. This suggests the model reliably identifies "qualified" applicants regardless of race. The disparity in selection rates is likely a reflection of systemic socio-economic factors (e.g., credit history, debt levels) captured by the model's financial features rather than intentional algorithmic discrimination.
 
-- **Regulatory Note**: The ratio of selection rates between Black (0.566) and Asian (0.777) applicants is approximately **72.8%**. This falls below the U.S. EEOC(Equal Employment Opportunity Commission)’s **4/5 rule (80% threshold)**, indicating a potential disparate impact. This finding highlights the importance of post-hoc audits in identifying indirect bias that may persist even when protected attributes are not directly used in training.
+- **Regulatory Note**: The ratio of selection rates between Black (0.566) and Asian (0.777) applicants is approximately **72.8%**. This falls below the U.S. EEOC(Equal Employment Opportunity Commission)’s **4/5 rule (80% threshold)**, indicating a potential disparate impact. This finding highlights the importance of Audit with Awareness in identifying how a model's reliance on various features can result in unintended bias, even when the goal is to maximize predictive power.
 
 #### 5.2.2. Age: Peak Performance in Early-to-Mid Career
 
@@ -490,13 +490,13 @@ The **SHAP Summary Plot** confirms that the model's decisions are primarily driv
 
 **The Demographic Parity Difference (DP Diff)** and **Equalized Odds Difference (EO Diff)** quantify the fairness gaps between groups, where lower values indicate a more equitable model.
 
-- **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. The model treats applicants consistently regardless of their sex or geographic location within the monitored Texas counties.
+- **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. 
 
-- **Race & Age**: These categories exhibited higher gaps (DP Diff: **0.211** for Race and **0.263** for Age). However, the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups. This suggests that while there is a disparity in overall approval volumes, the model remains effective at identifying qualified applicants within each demographic.
+- **Race & Age**: These categories exhibited higher gaps (DP Diff: **0.211** for Race and **0.263** for Age). However, the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups, suggesting that the model remains effective at identifying qualified applicants within each demographic.
 
-- **Legal Standard (The 4/5 Rule)**: Under the strict post-hoc audit using the pre-trained model, the selection rate ratio between **Black (0.566)** and **Asian (0.777)** applicants is approximately **72.9%**.
+- **Legal Standard (The 4/5 Rule)**: The selection rate ratio between **Black (0.566)** and **Asian (0.777)** applicants is approximately **72.8%**.
 
-  - **Analysis**: Although this result falls below the EEOC’s 80% threshold, it provides a transparent view of how systemic socio-economic disparities (captured via proxies like DTI and loan-to-value ratios) are reflected in the model’s outputs. This highlights the necessity of the audit in identifying areas for future bias mitigation and model recalibration.
+  - **Analysis**: Although this result falls below the **EEOC’s 80% threshold**, it provides a transparent view of how systemic socio-economic disparities (captured via proxies like DTI and loan-to-value ratios) are reflected in the model’s outputs. This highlights the necessity of the audit in identifying areas for future bias mitigation and model recalibration.
 
 <details>
 <summary>👉 Click to view Quantitative Fairness Assessment data </summary>
