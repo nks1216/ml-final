@@ -65,8 +65,24 @@ def load_and_preprocess():
         return np.nan
     test_df['audit_race'] = test_df['derived_race'].map(map_race)
 
+    # Gender mapping
+    def map_gender(s):
+        if s == "Male": return "Male"
+        if s == "Female": return "Female"
+        return np.nan
+    test_df['audit_gender'] = test_df['derived_sex'].map(map_gender)
+
+    # County mapping
+    county_labels = {
+        48029: "Bexar",
+        48113: "Dallas",
+        48201: "Harris",
+        48453: "Travis"
+    }
+    test_df['audit_county'] = test_df['county_code'].map(county_labels)
+
     X_train = train_df.drop(columns=[TARGET_COL])
-    X_test = test_df.drop(columns=[TARGET_COL, 'audit_age', 'audit_race'])
+    X_test = test_df.drop(columns=[TARGET_COL, 'audit_age', 'audit_race', 'audit_gender', 'audit_county'])
     
     # Categorical encoding
     cat_cols = X_train.select_dtypes(include="object").columns.tolist()
@@ -123,14 +139,15 @@ def get_predictions(full_model, blind_model, X_test):
     return full_pred, blind_pred
 
 # --------------------------------------------------------------------------- #
-# 5. Compare Fairness Across Race & Age
+# 5. Compare Fairness Across Race, Age, Gender & County
 # --------------------------------------------------------------------------- #
 def compare_fairness(full_pred, blind_pred, y_test, full_test_df):
-    print("[4/6] Comparing fairness metrics (Race & Age)...")
+    print("[4/6] Comparing fairness metrics (Race, Age, Gender, County)...")
     
     comparison_results = {}
     
-    for attribute, col_name in [('Race', 'audit_race'), ('Age', 'audit_age')]:
+    for attribute, col_name in [('Race', 'audit_race'), ('Age', 'audit_age'), 
+                                 ('Gender', 'audit_gender'), ('County', 'audit_county')]:
         mask = full_test_df[col_name].notna()
         y_t = y_test[mask]
         full_p = full_pred[mask]
@@ -140,7 +157,9 @@ def compare_fairness(full_pred, blind_pred, y_test, full_test_df):
         # Order groups
         orders = {
             'Race': ['White', 'Black', 'Asian', 'Other'],
-            'Age': ["<25", "25-34", "35-44", "45-54", "55-64", "65-74", ">74"]
+            'Age': ["<25", "25-34", "35-44", "45-54", "55-64", "65-74", ">74"],
+            'Gender': ['Male', 'Female'],
+            'County': ["Bexar", "Dallas", "Harris", "Travis"]
         }
         
         # Full model metrics
