@@ -247,10 +247,10 @@ The ROC curve and precision-recall curve comparisons also support XGBoost as the
 
 Each model uses a different importance metric, so absolute values are not comparable, but the qualitative agreement is informative.
 
-Logistic Regression flags `multifamily_affordable_units_Exempt`, `reverse_mortgage`, and `open-end_line_of_credit` as the strongest signals — primarily binary regulatory flags that the linear model can directly leverage.  
-Random Forest centers on financial-fundamental variables: `debt_to_income_ratio`, `loan_purpose`, `loan_amount`, and `income`. This is the most "intuitive" set of drivers from a credit-decision perspective.  
-XGBoost highlights structural property features: `derived_dwelling_category`, `manufactured_home_secured_property_type`, and `construction_method`. These are highly correlated proxies for "manufactured vs. site-built housing", which carries strong predictive signal in HMDA.  
-TabPFN identifies `debt_to_income_ratio` as overwhelmingly dominant (drop in ROC-AUC ≈ 0.18), followed by `loan_purpose` and `property_value`. This aligns with what a human underwriter would prioritize.  
+- Logistic Regression flags `multifamily_affordable_units_Exempt`, `reverse_mortgage`, and `open-end_line_of_credit` as the strongest signals — primarily binary regulatory flags that the linear model can directly leverage.  
+- Random Forest centers on financial-fundamental variables: `debt_to_income_ratio`, `loan_purpose`, `loan_amount`, and `income`. This is the most "intuitive" set of drivers from a credit-decision perspective.  
+- XGBoost highlights structural property features: `derived_dwelling_category`, `manufactured_home_secured_property_type`, and `construction_method`. These are highly correlated proxies for "manufactured vs. site-built housing", which carries strong predictive signal in HMDA.  
+- TabPFN identifies `debt_to_income_ratio` as overwhelmingly dominant (drop in ROC-AUC ≈ 0.18), followed by `loan_purpose` and `property_value`. This aligns with what a human underwriter would prioritize.  
 
 The fact that **DTI appears in the top features of three of the four models** strongly suggests it is the most decision-relevant variable in the dataset, with structural housing features serving as a complementary signal that tree-based ensembles exploit especially well.
 
