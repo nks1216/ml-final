@@ -402,10 +402,12 @@ We categorized the test data into the following sensitive groups to assess poten
 
 | Category | Column Name | Subgroups & Details |
 | :--- | :--- | :--- |
-| **Race** | `derived_race` | White, Black, Asian, and Other (Am-Indian, Pacific-Islander, Joint). <br>*(Note: 'Unknown' cases excluded)* |
+| **Race** | `derived_race` | White, Black, Asian, and Other (Am-Indian, Pacific-Islander, Joint) |
 | **Age** | `applicant_age` | Seven ordinal bins (from <25 to >74) |
-| **Gender** | `derived_sex` | Male, Female. <br>*(Note: 'Joint' and 'Unknown' excluded)* |
-| **Region** | `county_code` | Texas Metro Counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio) |
+| **Gender** | `derived_sex` | Male, Female |
+| **Region** | `county_code` | Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio) |
+
+*(Race: 'Unknown' cases excluded. / Gender: 'Joint' and 'Unknown' excluded)*
 
 #### Step 3: Performance Metrics by Subgroup
 
@@ -443,71 +445,42 @@ Using the **SHAP (SHapley Additive exPlanations)** library, we analyzed the glob
 
 ### 5.2. Demographic Fairness Audit Results
 
-We conducted a post-hoc audit to evaluate the model's fairness across four protected attributes. While some disparities in selection rates exist, the **high True Positive Rate (TPR)** and **SHAP explanations** suggest that the model's decisions are primarily driven by legitimate financial factors rather than demographic bias.
+We evaluated the model's fairness across four protected attributes. While Gender and County maintain high parity, significant disparities in Race and Age highlight the impact of socio-economic proxies and performance decay in senior cohorts.
 
-#### 5.2.1. Race: High TPR despite Selection Rate Gaps
+#### 5.2.1. Global Fairness Overview
+| Attribute | DP Difference | EO Difference | Status (80% Rule) |
+| :--- | :--- | :--- | :--- |
+| **Gender** | 0.0396 | 0.0242 | ✅ Pass |
+| **County** | 0.0578 | 0.0481 | ✅ Pass |
+| **Race** | 0.2107 | 0.1210 | ⚠️ Fail (72.8%) |
+| **Age** | 0.2628 | 0.1939 | ⚠️ Fail (67.6%) |
 
-![Race Selection Rate](reports/figures/fairness/fairness_plot_race.png)
+#### 5.2.2. Subgroup Analysis: Race & Age (Critical Areas)
 
-- **Observations**: The **Asian (0.777)** and **White (0.707)** groups showed the highest selection rates, while the **Black (0.566)** group recorded the lowest.
+**A. Race: Disparate Impact vs. Robust TPR**
+![Race Plot](reports/figures/fairness/fairness_plot_race.png)
+- **Finding**: The selection rate ratio between **Black (0.566)** and **Asian (0.777)** applicants is approximately **72.8%**. This falls below the **U.S. EEOC’s 4/5 rule (80% threshold)**, indicating a potential disparate impact.
+- **Insight**: Despite the selection gap, **TPR (True Positive Rate)** remains **relatively robust (ranging from 0.806 to 0.927)** across all races. This suggests the disparity is likely driven by systemic socio-economic factors (proxies) captured in financial features rather than direct algorithmic bias.
 
-- **Fairness Insight**: Despite the variation in selection rates, the **TPR (Recall) remains robust (ranging from 0.806 to 0.927)** across all groups. This suggests the model reliably identifies "qualified" applicants regardless of race. The disparity in selection rates is likely a reflection of systemic socio-economic factors (e.g., credit history, debt levels) captured by the model's financial features rather than intentional algorithmic discrimination.
+**B. Age: Performance Decay in Senior Cohorts**
+![Age Plot](reports/figures/fairness/fairness_plot_age.png)
+- **Finding**: Selection rates peak at **25-34 (0.800)** and drop sharply to **0.541 for >74**.
+- **Insight**: Unlike Race, Age shows a **significant TPR decay ($0.947 \rightarrow 0.753$)**. As loan terms (e.g., 30-year mortgages) extend beyond typical retirement ages or life expectancy, the model may prioritize strict risk mitigation over equal opportunity. This reflects a clear **trade-off** between risk mitigation and credit accessibility, where the model becomes increasingly conservative with older cohorts.
 
-- **Regulatory Note**: The ratio of selection rates between Black (0.566) and Asian (0.777) applicants is approximately **72.8%**. This falls below the U.S. EEOC(Equal Employment Opportunity Commission)’s **4/5 rule (80% threshold)**, indicating a potential disparate impact. This finding highlights the importance of Audit with Awareness in identifying how a model's reliance on various features can result in unintended bias, even when the goal is to maximize predictive power.
+#### 5.2.3. Subgroup Analysis: Gender & County (Stable Areas)
 
-#### 5.2.2. Age: Peak Performance in Early-to-Mid Career
+**A. Gender: Strong parity**
+![Gender Plot](reports/figures/fairness/fairness_plot_gender.png)
+- **Finding & Insight**: A minimal **4.0% gap** in selection rates with nearly identical error profiles (TPR/FPR), confirming strong demographic parity.
 
-![Age Selection Rate](reports/figures/fairness/fairness_plot_age.png)
+**B. County: Strong parity**
+![County Plot](reports/figures/fairness/fairness_plot_county.png)
+- **Finding & Insight**: High consistency across Texas metros (6% range). **Travis County (0.716)** shows the highest approval, likely reflecting local market strength.
 
-- **Observations**: Selection rates peak in the **25-34 (0.800)** age group and show a consistent downward trend as age increases, reaching a minimum of **0.541 for the >74** group.
+#### 5.2.4. Detailed Metrics by Race and Gender
 
-- **Fairness Insight**: The audit reveals a noticeable **decline in TPR (from 0.947 to 0.753)** as the applicant's age increases. This indicates that the model becomes increasingly conservative with older cohorts, potentially misclassifying qualified senior applicants as high-risk.
+The table below provides the raw performance metrics used for the fairness audit. 
 
-- **Risk Interpretation**: This performance decay likely reflects the inherent difficulty in assessing long-term mortgage risk for seniors. As loan terms (e.g., 30-year mortgages) extend beyond typical retirement ages or life expectancy, the model may prioritize strict risk mitigation over equal opportunity. This suggests that while the model captures objective age-related risks, there is a clear trade-off between credit accessibility for seniors and the model's predictive sensitivity.
-
-#### 5.2.3. Gender: Moderate Demographic Parity
-
-![Gender Selection Rate](reports/figures/fairness/fairness_plot_gender.png)
-
-- **Observations**: The selection rate for **Male (0.645)** applicants is slightly higher than for **Female (0.605)** applicants.
-
-- **Fairness Insight**: The difference is relatively small (**4.0% gap**), and the error profiles (TPR/FPR) are very similar. The model demonstrates a reasonable level of demographic parity regarding gender, reflecting the slight male-leaning trend present in the underlying loan approval data.
-
-#### 5.2.4. County: Geographic Consistency
-
-![County Selection Rate](reports/figures/fairness/fairness_plot_county.png)
-
-- **Observations**: Selection rates across the four major Texas counties are stable, ranging from **0.658 (Dallas)** to **0.716 (Travis)**.
-
-- **Fairness Insight**: **Travis County** exhibits the highest approval rate, which may reflect the specific economic and real estate market conditions of the Austin area. The overall consistency (within a 6% range) suggests the model does not exhibit significant geographic bias (redlining) within these metropolitan regions.
-
-#### 5.2.5. Model Interpretation via SHAP
-
-![Shap Summary](reports/figures/fairness/shap_summary_fairness.png)
-
-The **SHAP Summary Plot** confirms that the model's decisions are primarily driven by risk-related financial metrics:
-
-1. **Debt-to-Income Ratio (DTI)**: The most influential feature; lower DTI values are strongly associated with higher approval probabilities.
-
-2. **Loan Purpose & Property Value**: Primary indicators of the collateral's risk and the intent of the loan.
-
-3. **Loan-to-Value Ratio (LTV)**: A critical factor in assessing default risk.
-
-4. **Protected Attributes**: Variables such as `derived_race` and `derived_sex` appear at the bottom of the importance ranking. This demonstrates that the model relies on economic merit and financial risk factors rather than relying on demographic proxies for its predictions.
-
-#### 5.2.6. Quantitative Fairness Assessment (DP and EO Diff)
-
-**The Demographic Parity Difference (DP Diff)** and **Equalized Odds Difference (EO Diff)** quantify the fairness gaps between groups, where lower values indicate a more equitable model.
-
-#### Overall Fairness Differences
-| Attribute | Demographic Parity Diff | Equalized Odds Diff |
-| :--- | :--- | :--- |
-| **Race** | 0.2107 | 0.1210 |
-| **Age** | 0.2628 | 0.1939 |
-| **Gender** | 0.0396 | 0.0242 |
-| **County** | 0.0578 | 0.0481 |
-
-#### Detailed Metrics by Race and Gender
 | Group | Accuracy | Selection Rate | TPR (Recall) | FPR |
 | :--- | :--- | :--- | :--- | :--- |
 | **Black** | 0.8108 | 0.5661 | 0.8065 | 0.1821 |
@@ -518,22 +491,21 @@ The **SHAP Summary Plot** confirms that the model's decisions are primarily driv
 
 *(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/ directory.)*
 
+#### 5.2.5. Why? - SHAP Explainability Analysis
 
-- **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. 
+![SHAP Plot](reports/figures/fairness/shap_summary_fairness.png)
 
-- **Race**: While there is a selection gap (DP_Diff: **0.211**), the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups. This suggests that the model is still effective at identifying qualified applicants within each racial demographic, and the approval gap is likely driven by external socio-economic factors.
+*The **Y-axis** ranks features by their overall importance, while the **X-axis (SHAP value)** indicates whether a specific feature value pushed the model's prediction toward approval (right) or denial (left).*
 
-- **Age**: This category exhibited the highest disparity (DP_Diff): **0.263**). Notably, we observe a **performance decay in TPR**, which drops from **0.947** (Age 25-34) to **0.753** (Age >74). This indicates that the model is significantly more conservative when evaluating older applicants, resulting in a higher rate of "False Negatives" (qualified seniors being denied) compared to younger cohorts.
+The SHAP analysis confirms that the model's "Fairness Gaps" are primarily unintended consequences of its reliance on financial risk proxies:
 
-- **Legal Standard (The 4/5 Rule)**: 
+1. **Financial Primacy**: Top drivers are DTI, Loan Purpose, Property Value, and LTV. These core risk indicators show the widest SHAP value distribution.
 
-  - **Race**: The selection rate ratio between **Black (0.566)** and **Asian (0.777)** is **72.8%**.
+2. **Secondary Impact of Demographic Attributes**: While `derived_race` ranks in the middle of the importance list, its global impact is significantly lower than that of the top financial metrics.
 
-  - **Age**: The ratio between the **>74 (0.541)** and **25-34 (0.800)** groups is **67.6%**.
+3. **Conclusion**: The disparities identified in the audit are primarily driven by the model's heavy reliance on financial indicators, which may act as socio-economic proxies, rather than a direct reliance on demographic features themselves.
 
-  - **Analysis**: Both Race and Age metrics fall below the **EEOC’s 80% threshold**. While the racial gap shows consistent TPR, the age gap shows a decline in both approval rates and predictive sensitivity. This highlights a critical area for future model recalibration, particularly in how the algorithm weighs age-related financial risks versus equal credit access.
-
-#### 5.2.7. Intersectional Fairness: Race × Gender & Race × Age
+#### 5.2.6. Intersectional Fairness: Race × Gender & Race × Age
 
 **Key Finding:** Single-dimension fairness analysis misses compound discrimination.
 
