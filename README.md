@@ -366,56 +366,73 @@ Third, XGBoost is the strongest overall model. It achieves the best balance of a
 
 ## 5. Evaluation for Demographic Fairness
 
-To ensure the mortgage approval model does not continue systemic biases, we conducted a comprehensive **Post-hoc Fairness Audit** to detect indirect discrimination caused by proxy variables while maintaining the model's predictive power.
+To ensure the mortgage approval model remains ethical and objective, we conducted a comprehensive **Post-hoc Fairness Audit**. Our approach uses **Fairness with Awareness**, meaning the model was trained using all available features—including **Race, Gender, Age, and County**—to maintain full transparency and predictive power.
 
-### Why Post-hoc Audit? (vs. Fairness through Blindness)
+### Why Audit with Awareness? (vs. Fairness through Blindness)
 
-**Fairness through Blindness** simply removes sensitive attributes (e.g., race, gender) from the training data to ensure a fair model. However, this approach is often ineffective due to **Proxy Variables**. Even if explicit labels are removed, other features like zipcode, loan_amount, or income often correlate strongly with protected attributes. This allows the model to "learn" and perpetuate historical biases indirectly (e.g., digital redlining).
+Many traditional models use **Fairness through Blindness**, which simply hides sensitive attributes from the training data. However, we intentionally rejected this approach for two reasons:
 
-To address this, we adopted the **Post-hoc Fairness Audit** approach. Instead of hiding sensitive information, we include these variables to explicitly measure and audit the model's performance across different demographics. This allows for a more transparent assessment of **Disparate Impact** and enables us to identify precisely where the model's predictions might deviate from fairness standards.
+1. **Ineffectiveness of Hiding Data**: Even if we hide "Race," the model often finds **Proxy Variables** (like zip codes or specific occupations) that act as "stunt doubles" for that information, leading to hidden bias.
+
+2. **The Need for Transparency**: By including these attributes directly in the 43 features, we can explicitly monitor and control how much weight the model gives to them compared to financial factors.
+
+### Advantages of Audit with Awareness (vs. Fairness through Blindness)
+
+While our project evaluates multiple strategies, including **Fairness through Blindness**, we identified two key advantages of the **Audit with Awareness** approach:
+
+1. **Countering Hidden Bias** (Proxy Variables): Unlike the "blind" approach, which can be unintentionally bypassed by **Proxy Variables** (e.g., zip codes or debt-to-income ratios that correlate with race), "Awareness" allows us to explicitly track and mitigate these hidden correlations.
+
+2. **Enhanced Model Transparency**: By including all 43 features, we gain the ability to explicitly monitor and control the model's weight distribution. This ensures that the model’s predictive power is derived from **Financial Merit** rather than sensitive demographic factors.
 
 ### 5.1. Methodology
 
-We evaluated our best-performing model (**XGBoost**) across the following four steps:
+We evaluated our best-performing model (**XGBoost**) across the following five steps:
 
 #### Step 1: Full-Feature Prediction
 
-The model was trained on the complete dataset (including demographic variables) to capture the most accurate representation of the decision-making process.
+The model was already trained on the complete dataset (including demographic variables) in the previous stage to capture the most accurate representation of the decision-making process.
 
 #### Step 2: Subgroup Definition
 
 We categorized the test data into the following sensitive groups to assess potential disparities:
 
-- Race (`derived_race`): White, Black, and Other (Composite of Asian, Am-Indian, Pacific-Islander, and Joint). Note: 'Unknown' cases were excluded for audit clarity.
+- **Race** (`derived_race`): White, Black, Asian, and Other (Composite of Am-Indian, Pacific-Islander, and Joint). (*Note: 'Unknown' cases were excluded for audit clarity.*)
 
-- Age (`applicant_age`): Seven ordinal bins (from <25 to >74).
+- **Age** (`applicant_age`): Seven ordinal bins (from <25 to >74).
 
-- Gender (`derived_sex`): Male, Female. Note: 'Joint' and 'Unknown' were excluded.
+- **Gender** (`derived_sex`): Male, Female. (*Note: 'Joint' and 'Unknown' were excluded.*)
 
-- Region (`county_code`): Four major Texas metropolitan counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio).
+- **Region** (`county_code`): Four major Texas metropolitan counties: Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio).
 
 #### Step 3: Performance Metrics by Subgroup
 
 For each subgroup, we calculated key performance indicators (KPIs):
 
-- Selection Rate: The proportion of applications predicted as 'Approved'.
+- **Selection Rate** (Approval Rate): The proportion of applications predicted as 'Approved'.
 
-- True Positive Rate (TPR): The model's ability to correctly identify qualified applicants within the group.
+- **True Positive Rate** (TPR): The model's ability to correctly identify qualified applicants within the group.
 
-- False Positive Rate (FPR): The frequency of unqualified applicants being predicted as 'Approved'.
+- **False Positive Rate** (FPR): The frequency of unqualified applicants being predicted as 'Approved'.
+
+- **Result**: Generated 4 detailed tables (metrics_by_{group}.csv) and 4 parity plots.
 
 #### Step 4: Fairness Criteria Assessment
 
 We measured fairness using two industry-standard definitions:
 
-- Demographic Parity: Evaluating whether the Selection Rate is consistent across different groups (testing for the 4/5 Rule).
+- **Demographic Parity Difference** (DP_diff): Evaluating whether the Selection Rate is consistent across different groups (testing for the **4/5 Rule**).
 
-- Equalized Odds: Ensuring that the TPR and FPR are balanced across groups, meaning the model's error profile is not biased against specific demographics.
+  *Note: We follow the U.S. EEOC (Equal Employment Opportunity Commission)’s 4/5 Rule, which serves as a legal benchmark; it states that the selection rate of any group should be at least 80% of the highest-performing group to avoid disparate impact.*
+
+- **Equalized Odds Difference** (EO_diff): Ensuring that the TPR and FPR are balanced across groups, meaning the model's error profile is not biased against specific demographics.
+
+- **Result**: Consolidated in the `reports/results/fairness/fairness_summary_metrics.csv` table.
 
 #### Step 5: Model Explainability (SHAP Analysis)
 
-- Using the SHAP (SHapley Additive exPlanations) library, we analyzed the global feature importance. This step verifies how much weight the model assigns to sensitive attributes versus financial indicators (e.g., DTI, LTV), identifying potential proxy-based discrimination.
+Using the **SHAP (SHapley Additive exPlanations)** library, we analyzed the global feature importance. This step verifies how much weight the model assigns to sensitive attributes versus financial indicators (e.g., DTI, LTV), identifying potential proxy-based discrimination.
 
+- **Result**: Visualized in `reports/figures/fairness/shap_summary_fairness.png`.
 
 ### 5.2. Demographic Fairness Audit Results
 
