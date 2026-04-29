@@ -380,14 +380,6 @@ Third, XGBoost is the strongest overall model. It achieves the best balance of a
 
 To evaluate whether the mortgage approval model exhibits performance or selection-rate disparities across demographic and geographic groups, we conducted a comprehensive **Post-hoc Fairness Audit**. Our approach uses **Fairness with Awareness**, meaning the model was trained using all available features—including **Race, Gender, Age, and County**—to maintain full transparency and predictive power.
 
-### Why Audit with Awareness? (vs. Fairness through Blindness)
-
-Many traditional models use **Fairness through Blindness**, which simply hides sensitive attributes from the training data. However, we intentionally rejected this approach for two reasons:
-
-1. **Ineffectiveness of Hiding Data**: Even if we hide "Race," the model often finds **Proxy Variables** (like zip codes or specific occupations) that act as "stunt doubles" for that information, leading to hidden bias.
-
-2. **The Need for Transparency**: By including these attributes directly in the 43 features, we can explicitly monitor and control how much weight the model gives to them compared to financial factors.
-
 ### Advantages of Audit with Awareness (vs. Fairness through Blindness)
 
 While our project evaluates multiple strategies, including **Fairness through Blindness**, we identified two key advantages of the **Audit with Awareness** approach:
@@ -420,11 +412,17 @@ We categorized the test data into the following sensitive groups to assess poten
 
 For each subgroup, we calculated key performance indicators (KPIs):
 
-- **Selection Rate** (Approval Rate): The proportion of applications predicted as 'Approved'.
+- **Selection Rate (Approval Rate)**: The ratio of 'Approved' predictions to the total number of applications in each group.
 
-- **True Positive Rate** (TPR): The model's ability to correctly identify historically approved applications within the group.
+  - A significant gap in selection rates between groups indicates a lack of **Demographic Parity**, meaning the model grants approvals at different rates regardless of historical merit.
 
-- **False Positive Rate** (FPR): The frequency of unhistorically approved applications being predicted as 'Approved'.
+- **True Positive Rate (TPR)**: The ratio of **correctly** predicted 'Approved' cases to the total number of **historically approved** applications.
+
+  - A lower TPR for a specific group suggests the model is failing to identify successful candidates as effectively as it does for others, leading to **missed opportunities** for qualified individuals.
+
+- **False Positive Rate (FPR)**: The ratio of **incorrectly** predicted 'Approved' cases to the total number of **historically denied** applications.
+
+  - A higher FPR for a specific group indicates the model might be granting approvals to historically denied candidates more frequently, potentially leading to **unintended leniency or higher risk** within that demographic.
 
 - **Result**: Generated 4 detailed tables (metrics_by_{group}.csv) and 4 parity plots.
 
