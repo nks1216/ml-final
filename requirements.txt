@@ -3,9 +3,10 @@ numpy
 scikit-learn
 xgboost
 catboost
-tabpfn
+tabpfn       # Note: Requires ~2GB model download during first run
 matplotlib
 seaborn
 tqdm
 fairlearn
 shap
+
