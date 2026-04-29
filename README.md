@@ -43,7 +43,7 @@ The raw data was retrieved programmatically via the **CFPB HMDA API** using the 
   
   Due to GitHub’s 100MB file size limit, the raw HMDA dataset is stored externally. You can access the data in two ways:
 
-  1. **Direct Download**: 👉 [Google Drive Link](https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link)
+  1. **Direct Download**: 👉 [Google drive link](https://drive.google.com/drive/folders/1y5r9Sv6s_8ITIrgsAzXTee7e0a_xjZtS?usp=drive_link)
 
   2. **Local Acquisition**: Run `python3 src/data/hmda_loader.py` in your terminal.
 
