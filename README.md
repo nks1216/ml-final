@@ -207,30 +207,42 @@ While the 2023 HMDA dataset provides a comprehensive view of mortgage applicatio
 ---
 
 
-## 3. Modeling Approach and Individual Model Results
-
 ### 3.1 Logistic Regression
 
-Logistic Regression was used as the main interpretable baseline model for the mortgage approval prediction task. Since the target variable is binary, where 1 represents an approved application and 0 represents a denied application, Logistic Regression provides a natural starting point for classification. Unlike tree-based models, Logistic Regression assumes a more linear relationship between the predictors and the log-odds of approval, making it useful for benchmarking performance and interpreting directional relationships between features and predicted approval outcomes.
+Logistic Regression was used as the main interpretable baseline model for the mortgage approval prediction task. Since the target variable is binary, where **1 represents an approved application** and **0 represents a denied application**, Logistic Regression provides a natural starting point for classification. Unlike tree-based models, Logistic Regression assumes a more linear relationship between the predictors and the log-odds of approval, making it useful for benchmarking performance and interpreting directional relationships between features and predicted approval outcomes.
 
 Before training the model, numerical variables were scaled and categorical variables were encoded so that the model could process both continuous financial variables and categorical application characteristics. This preprocessing step is important because Logistic Regression is sensitive to variable scale and requires numerical inputs.
 
-#### Performance Summary
+#### 1. Performance Summary
 
 | Metric | Value |
 |---|---:|
 | Accuracy | 0.7533 |
-| Precision | 0.8632 |
-| Recall | 0.7731 |
+| Precision (Approved) | 0.8632 |
+| Recall (Approved) | 0.7731 |
 | F1 Score | 0.8156 |
 | ROC-AUC | 0.8117 |
 | Average Precision | 0.9011 |
 
-The Logistic Regression model achieved an accuracy of 0.7533 and an ROC-AUC of 0.8117 on the held-out test set. This indicates that the model provides meaningful predictive power and is able to distinguish between approved and denied mortgage applications better than a naive classifier.
+_Evaluated on 39,095 held-out test samples._
 
-The model performs especially well in terms of precision for approved applications, with a precision score of 0.8632. This means that when the model predicts an application as approved, it is correct a high proportion of the time. However, the recall score of 0.7731 suggests that the model misses some applications that were actually approved. This is expected because Logistic Regression is a linear model and may not fully capture nonlinear relationships or interactions among borrower characteristics, loan features, and property-level variables.
+The Logistic Regression model achieved an accuracy of **0.7533** and an ROC-AUC of **0.8117** on the held-out test set. This indicates that the model provides meaningful predictive power and is able to distinguish between approved and denied mortgage applications better than a naive classifier.
 
-#### Interpretation
+The model performs especially well in terms of precision for approved applications, with a precision score of **0.8632**. This means that when the model predicts an application as approved, it is correct a high proportion of the time. However, the recall score of **0.7731** suggests that the model misses some applications that were actually approved. This is expected because Logistic Regression is a linear model and may not fully capture nonlinear relationships or interactions among borrower characteristics, loan features, and property-level variables.
+
+#### 2. Confusion Matrix & ROC Curve
+
+| Confusion Matrix | ROC Curve |
+|:---:|:---:|
+| <img width="420" height="350" alt="logistic_confusion_matrix" src="reports/figures/prediction/logistic_confusion_matrix.png" /> | <img width="420" height="350" alt="logistic_roc_curve" src="reports/figures/prediction/logistic_roc_curve.png" /> |
+
+#### 3. Precision–Recall Curve & Feature Importance
+
+| Precision–Recall Curve | Top 20 Feature Importances |
+|:---:|:---:|
+| <img width="420" height="350" alt="logistic_precision_recall_curve" src="reports/figures/prediction/logistic_precision_recall_curve.png" /> | <img width="420" height="350" alt="logistic_top20_feature_importance" src="reports/figures/prediction/logistic_top20_feature_importance.png" /> |
+
+#### 4. Interpretation
 
 The Logistic Regression results provide a useful benchmark for the more flexible models. While its performance is weaker than Random Forest and XGBoost, it remains valuable because it is transparent, fast to train, and easier to interpret. Its lower performance relative to tree-based models suggests that mortgage approval decisions in the HMDA data likely involve nonlinear relationships and interaction effects that Logistic Regression cannot fully capture.
 
