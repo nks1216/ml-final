@@ -505,7 +505,7 @@ The **SHAP Summary Plot** confirms that the model's decisions are primarily driv
 </details>
 
 
-#### 5.2.8. Intersectional Fairness: Race × Gender & Race × Age
+#### 5.2.7. Intersectional Fairness: Race × Gender & Race × Age
 
 **Key Finding:** Single-dimension fairness analysis misses compound discrimination.
 
@@ -561,6 +561,8 @@ cd ml-final
 - Activate the virtual environment: `source venv/bin/activate`
 - Install all required packages: `pip install -r requirements.txt`
 
+> **Note:** Installing the required packages includes the `tabpfn` library, which requires downloading pre-trained models (approximately 2GB). Please ensure you have sufficient disk space and a stable internet connection before proceeding.
+
 ### 6.3. Data Preparation
 
 Run these commands to prepare the dataset:
@@ -577,23 +579,25 @@ The `clean_hmda.py` script will automatically download raw data from the CFPB AP
 
 *Note: Raw data is too large for GitHub, so it is downloaded programmatically from the CFPB API on demand.*
 
-*Note: If you want to get raw data (hmda_raw_2023_TX_big4.csv), run the following command.*
-```
-python3 src/data/hmda_loader.py
-```
 
-### 6.4 Run the code
+### 6.4 Execution Guide
 
-< Prediction >
-```
-python3 
-```
-For convenience, individual model scripts are provided.
+#### **A. Run Prediction Models**
+For convenience, individual scripts are provided for each model. They save results to `reports/results/prediction/`
 
-< Fairness >
 ```bash
-python3 src/model/fairness/fairness_audit.py   
-# This will generate reports/figures/fairness/five graphs and reports/results/fairness/five tables.
+python3 src/model/prediction/logistic_prediction.py
+python3 src/model/prediction/random_forest_prediction.py
+python3 src/model/prediction/xgboost_prediction.py
+python3 src/model/prediction/tabpfn_prediction.py
+```
+
+#### **B. Run Fairness Audit**
+Perform post-hoc and intersectional fairness evaluations. They save results to `reports/figures/fairness/` and `reports/results/fairness/`
+
+```bash
+python3 src/model/fairness/fairness_audit.py
+python3 src/model/fairness/fairness_intersectional.py 
 ```
 
 ---
@@ -604,6 +608,12 @@ python3 src/model/fairness/fairness_audit.py
 
 **Future Improvements**
 
+- Data quality and missingness analysis
+
+- Class imbalance handling
+
+- Train/validation/test split strategy
+
 ---
 
 ## 8. Collaboration and Workflow
@@ -613,17 +623,3 @@ python3 src/model/fairness/fairness_audit.py
 - The repository contains more than 30 commits across multiple contributors.
 - All code and documentation were merged into the main branch before submission.
 
-
-## Further Feasible Extensions:
-
-- Data quality and missingness analysis
-
-- Fairness metrics (e.g., demographic parity, equal opportunity)
-
-- Explainability using SHAP or permutation importance
-
-- County‑level heterogeneity analysis
-
-- Class imbalance handling
-
-- Train/validation/test split strategy
