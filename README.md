@@ -425,57 +425,85 @@ We conducted a post-hoc audit to evaluate the model's fairness across four prote
 
 ![Race Selection Rate](reports/figures/fairness/fairness_plot_race.png)
 
-- **Observations**: The **Asian (0.823)** and **White (0.790)** groups showed the highest selection rates, while the **African American (0.672)** group recorded the lowest.
+- **Observations**: The **Asian (0.777)** and **White (0.707)** groups showed the highest selection rates, while the **Black (0.566)** group recorded the lowest.
 
-- **Fairness Insight**: Despite the gap in selection rates, the **TPR (Recall) is consistently above 0.95** for all racial groups. This indicates that the model is equally effective at identifying "qualified" applicants across all races. The disparity in selection rates is likely a reflection of historical economic disparities in the underlying data rather than algorithmic discrimination.
+- **Fairness Insight**: Despite the variation in selection rates, the **TPR (Recall) remains robust (ranging from 0.806 to 0.927)** across all groups. This suggests the model reliably identifies "qualified" applicants regardless of race. The disparity in selection rates is likely a reflection of systemic socio-economic factors (e.g., credit history, debt levels) captured by the model's financial features rather than intentional algorithmic discrimination.
 
-The model satisfies the U.S. **EEOC(Equal Employment Opportunity Commission)’s 4/5 rule (80% rule)** for disparate impact. The ratio of selection rates between African American (0.672) and Asian (0.823) applicants is approximately **81.6%**, which exceeds the 80% threshold.
+- **Regulatory Note**: The ratio of selection rates between Black (0.566) and Asian (0.777) applicants is approximately **72.8%**. This falls below the U.S. EEOC(Equal Employment Opportunity Commission)’s **4/5 rule (80% threshold)**, indicating a potential disparate impact. This finding highlights the importance of post-hoc audits in identifying indirect bias that may persist even when protected attributes are not directly used in training.
 
 #### 5.2.2. Age: Peak Performance in Early-to-Mid Career
 
 ![Age Selection Rate](reports/figures/fairness/fairness_plot_age.png)
 
-- **Observations**: Selection rates peak in the **25-34 (0.833)** age group and gradually decline as age increases, reaching a minimum of **0.661 for the >74** group.
+- **Observations**: Selection rates peak in the **25-34 (0.800)** age group and show a consistent downward trend as age increases, reaching a minimum of **0.541 for the >74** group.
 
-- **Fairness Insight**: Error rates (TPR/FPR) remain stable across all age bins. The lower selection rates for older applicants may correlate with mortgage terms and retirement income structures, which the model captures through financial variables.
+- **Fairness Insight**: Error rates (TPR/FPR) show that the model maintains predictive accuracy across age bins. The lower selection rates for older applicants likely correlate with mortgage term constraints relative to retirement age and differences in income stability, which the model evaluates through objective financial risk variables.
 
-#### 5.2.3. Gender: Minimal Disparity
+#### 5.2.3. Gender: Moderate Demographic Parity
 
 ![Gender Selection Rate](reports/figures/fairness/fairness_plot_gender.png)
 
-- **Observations**: The selection rate for **Male (0.734)** applicants is slightly higher than for **Female (0.710)** applicants.
+- **Observations**: The selection rate for **Male (0.645)** applicants is slightly higher than for **Female (0.605)** applicants.
 
-- **Fairness Insight**: The difference is marginal (approx. 2.4%), and the error profiles (TPR/FPR) are nearly identical. The model demonstrates high demographic parity regarding gender.
+- **Fairness Insight**: The difference is relatively small (**4.0% gap**), and the error profiles (TPR/FPR) are very similar. The model demonstrates a reasonable level of demographic parity regarding gender, reflecting the slight male-leaning trend present in the underlying loan approval data.
 
-#### 5.2.4. County: Geographic Consistency (No Redlining)
+#### 5.2.4. County: Geographic Consistency
 
 ![County Selection Rate](reports/figures/fairness/fairness_plot_county.png)
 
-- **Observations**: Selection rates across the four major Texas counties are remarkably stable, ranging from **0.752 (Dallas)** to **0.778 (Travis)**.
+- **Observations**: Selection rates across the four major Texas counties are stable, ranging from **0.658 (Dallas)** to **0.716 (Travis)**.
 
-- **Fairness Insight**: The lack of significant variance suggests that the model does not exhibit geographic bias (redlining) within these metropolitan areas.
+- **Fairness Insight**: **Travis County** exhibits the highest approval rate, which may reflect the specific economic and real estate market conditions of the Austin area. The overall consistency (within a 6% range) suggests the model does not exhibit significant geographic bias (redlining) within these metropolitan regions.
 
 #### 5.2.5. Model Interpretation via SHAP
 
 ![Shap Summary](reports/figures/fairness/shap_summary_fairness.png)
 
-The **SHAP Summary Plot** confirms that the model's top predictors are strictly financial and risk-related:
+The **SHAP Summary Plot** confirms that the model's decisions are primarily driven by risk-related financial metrics:
 
-1. **Debt-to-Income Ratio (DTI)**: The most influential feature.
+1. **Debt-to-Income Ratio (DTI)**: The most influential feature; lower DTI values are strongly associated with higher approval probabilities.
 
-2. **Loan-to-Value Ratio (LTV) & Property Value**: Primary risk indicators.
+2. **Loan Purpose & Property Value**: Primary indicators of the collateral's risk and the intent of the loan.
 
-3. **Protected Attributes**: Variables such as `derived_race` and `derived_sex` ranked much lower in global importance, further proving that the model relies on economic merit rather than demographic proxies.
+3. **Loan-to-Value Ratio (LTV)**: A critical factor in assessing default risk.
+
+4. **Protected Attributes**: Variables such as `derived_race` and `derived_sex` appear at the bottom of the importance ranking. This demonstrates that the model relies on economic merit and financial risk factors rather than relying on demographic proxies for its predictions.
 
 #### 5.2.6. Quantitative Fairness Assessment (DP and EO Diff)
 
-**The Demographic Parity Difference (DP Diff)** and **Equalized Odds Difference (EO Diff)** quantify the fairness gaps between groups.
+**The Demographic Parity Difference (DP Diff)** and **Equalized Odds Difference (EO Diff)** quantify the fairness gaps between groups, where lower values indicate a more equitable model.
 
-- **Gender & County**: Showed very low DP Diff (e.g., **0.023** for Gender), confirming near-perfect parity across these attributes.
+- **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. The model treats applicants consistently regardless of their sex or geographic location within the monitored Texas counties.
 
-- **Race & Age**: While showing slightly higher gaps, the model maintains high **True Positive Rates (TPR > 0.95)** across all categories, ensuring that qualified applicants are treated fairly regardless of their group.
+- **Race & Age**: These categories exhibited higher gaps (DP Diff: **0.211** for Race and **0.263** for Age). However, the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups. This suggests that while there is a disparity in overall approval volumes, the model remains effective at identifying qualified applicants within each demographic.
 
-- **Legal Standard**: Notably, the model satisfies the **EEOC’s 4/5 Rule**. The selection rate ratio between African American and Asian applicants is **81.6%**, exceeding the 80% threshold for non-discriminatory practices.
+- **Legal Standard (The 4/5 Rule)**: Under the strict post-hoc audit using the pre-trained model, the selection rate ratio between **Black (0.566)** and **Asian (0.777)** applicants is approximately **72.9%**.
+
+  - **Analysis**: Although this result falls below the EEOC’s 80% threshold, it provides a transparent view of how systemic socio-economic disparities (captured via proxies like DTI and loan-to-value ratios) are reflected in the model’s outputs. This highlights the necessity of the audit in identifying areas for future bias mitigation and model recalibration.
+
+<details>
+<summary>👉 Click to view Quantitative Fairness Assessment data </summary>
+
+#### Overall Fairness Differences
+| Attribute | Demographic Parity Diff | Equalized Odds Diff |
+| :--- | :--- | :--- |
+| **Race** | 0.2107 | 0.1210 |
+| **Age** | 0.2628 | 0.1939 |
+| **Gender** | 0.0396 | 0.0242 |
+| **County** | 0.0578 | 0.0481 |
+
+#### Detailed Metrics by Race and Gender
+| Group | Accuracy | Selection Rate | TPR (Recall) | FPR |
+| :--- | :--- | :--- | :--- | :--- |
+| **Black** | 0.8108 | 0.5661 | 0.8065 | 0.1821 |
+| **White** | 0.8504 | 0.7065 | 0.8800 | 0.2308 |
+| **Asian** | 0.8861 | 0.7769 | 0.9275 | 0.2569 |
+| **Male** | 0.8416 | 0.6449 | 0.8575 | 0.1923 |
+| **Female** | 0.8302 | 0.6053 | 0.8333 | 0.1758 |
+
+*(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/ directory.)*
+</details>
+
 
 #### 5.2.8. Intersectional Fairness: Race × Gender & Race × Age
 
@@ -518,31 +546,6 @@ Younger applicants see better outcomes:
 
 **See:** `reports/results/fairness/intersectional_*.csv` and `reports/figures/fairness/intersectional_*.png`
 
-#### 5.2.9. Detailed Audit Metrics (Appendix)
-
-<details>
-<summary>👉 Click to view raw fairness data</summary>
-
-#### Overall Fairness Differences
-| Attribute | Demographic Parity Diff | Equalized Odds Diff |
-| :--- | :--- | :--- |
-| **Race** | 0.1504 | 0.0927 |
-| **Age** | 0.1724 | 0.0729 |
-| **Gender** | 0.0235 | 0.0072 |
-| **County** | 0.0257 | 0.0526 |
-
-#### Detailed Metrics by Race and Gender
-| Group | Accuracy | Selection Rate | TPR (Recall) | FPR |
-| :--- | :--- | :--- | :--- | :--- |
-| **African American** | 0.8920 | 0.6724 | 0.9588 | 0.2148 |
-| **White** | 0.9164 | 0.7900 | 0.9820 | 0.2636 |
-| **Asian** | 0.9332 | 0.8228 | 0.9875 | 0.2543 |
-| **Male** | 0.9090 | 0.7335 | 0.9721 | 0.2255 |
-| **Female** | 0.9054 | 0.7100 | 0.9711 | 0.2183 |
-
-*(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/ directory.)*
-</details>
-
 
 ## 6. Reproducibility
 
@@ -574,11 +577,24 @@ The `clean_hmda.py` script will automatically download raw data from the CFPB AP
 
 *Note: Raw data is too large for GitHub, so it is downloaded programmatically from the CFPB API on demand.*
 
-### 6.4 Run the code
+*Note: If you want to get raw data (hmda_raw_2023_TX_big4.csv), run the following command.*
+```
+python3 src/data/hmda_loader.py
 ```
 
+### 6.4 Run the code
+
+< Prediction >
+```
+python3 
 ```
 For convenience, individual model scripts are provided.
+
+< Fairness >
+```bash
+python3 src/model/fairness/fairness_audit.py   
+# This will generate reports/figures/fairness/five graphs and reports/results/fairness/five tables.
+```
 
 ---
 
