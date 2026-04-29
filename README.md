@@ -205,142 +205,20 @@ While the 2023 HMDA dataset provides a comprehensive view of mortgage applicatio
 4. **Unobserved Qualitative Factors:** Mortgage decisions often rely on "soft information" or qualitative assessments—such as employment stability, long-term banking relationships, or detailed property appraisals, which are not captured in the standardized HMDA variables.
 
 ---
-## 3. Modeling Approach and Individual Model Results
-
-### 3.1 Logistic Regression
-
-Logistic Regression was used as the main interpretable baseline model for the mortgage approval prediction task. Since the target variable is binary, where **1 represents an approved application** and **0 represents a denied application**, Logistic Regression provides a natural starting point for classification. Unlike tree-based models, Logistic Regression assumes a more linear relationship between the predictors and the log-odds of approval, making it useful for benchmarking performance and interpreting directional relationships between features and predicted approval outcomes.
-
-Before training the model, numerical variables were scaled and categorical variables were encoded so that the model could process both continuous financial variables and categorical application characteristics. This preprocessing step is important because Logistic Regression is sensitive to variable scale and requires numerical inputs.
-
-#### 1. Performance Summary
-
-| Metric | Value |
-|---|---:|
-| Accuracy | 0.7533 |
-| Precision (Approved) | 0.8632 |
-| Recall (Approved) | 0.7731 |
-| F1 Score | 0.8156 |
-| ROC-AUC | 0.8117 |
-| Average Precision | 0.9011 |
-
-_Evaluated on 39,095 held-out test samples._
-
-The Logistic Regression model achieved an accuracy of **0.7533** and an ROC-AUC of **0.8117** on the held-out test set. This indicates that the model provides meaningful predictive power and is able to distinguish between approved and denied mortgage applications better than a naive classifier.
-
-The model performs especially well in terms of precision for approved applications, with a precision score of **0.8632**. This means that when the model predicts an application as approved, it is correct a high proportion of the time. However, the recall score of **0.7731** suggests that the model misses some applications that were actually approved. This is expected because Logistic Regression is a linear model and may not fully capture nonlinear relationships or interactions among borrower characteristics, loan features, and property-level variables.
-
-#### 2. Confusion Matrix & ROC Curve
-
-| Confusion Matrix | ROC Curve |
-|:---:|:---:|
-| <img width="420" height="350" alt="logistic_confusion_matrix" src="reports/figures/prediction/logistic_confusion_matrix.png" /> | <img width="420" height="350" alt="logistic_roc_curve" src="reports/figures/prediction/logistic_roc_curve.png" /> |
-
-#### 3. Precision–Recall Curve & Feature Importance
-
-| Precision–Recall Curve | Top 20 Feature Importances |
-|:---:|:---:|
-| <img width="420" height="350" alt="logistic_precision_recall_curve" src="reports/figures/prediction/logistic_precision_recall_curve.png" /> | <img width="420" height="350" alt="logistic_top20_feature_importance" src="reports/figures/prediction/logistic_top20_feature_importance.png" /> |
-
-#### 4. Interpretation
-
-The Logistic Regression results provide a useful benchmark for the more flexible models. While its performance is weaker than Random Forest and XGBoost, it remains valuable because it is transparent, fast to train, and easier to interpret. Its lower performance relative to tree-based models suggests that mortgage approval decisions in the HMDA data likely involve nonlinear relationships and interaction effects that Logistic Regression cannot fully capture.
-
-Overall, Logistic Regression serves as a strong baseline model, but it is not selected as the champion model. Instead, its role is to provide an interpretable comparison point against more flexible machine learning models.
-
-### 3.2. Random Forest
-
-#### 1. Performance Summary
-
-| Metric               | Value  |
-|----------------------|:------:|
-| Accuracy             | 0.8151 |
-| Precision (Approved) | 0.9012 |
-| Recall (Approved)    | 0.8289 |
-| F1 Score             | 0.8636 |
-| ROC-AUC              | 0.8907 |
-| Average Precision    | 0.9426 |
-
-_Evaluated on 39,095 held-out test samples._
-
-#### 2. Confusion Matrix & ROC Curve
-
-| Confusion Matrix | ROC Curve |
-|---|---|
-| ![](reports/figures/prediction/random_forest_confusion_matrix.png) | ![](reports/figures/prediction/random_forest_roc_curve.png) |
-
-#### 3. Precision–Recall Curve & Feature Importance
-
-| Precision–Recall Curve | Top 20 Feature Importances |
-|---|---|
-| ![](reports/figures/prediction/random_forest_precision_recall_curve.png) | ![](reports/figures/prediction/random_forest_feature_importance_top20.png) |
-
-### 3.3. XGBoost
-
-#### 1. Performance Summary
-
-| Metric               | Value  |
-|----------------------|:------:|
-| Accuracy             | 0.8471 |
-| Precision (Approved) | 0.9087 |
-| Recall (Approved)    | 0.8709 |
-| F1 Score             | 0.8894 |
-| ROC-AUC              | 0.9109 |
-| Average Precision    | 0.9529 |
-
-_Evaluated on 39,095 held-out test samples._
-
-#### 2. Confusion Matrix & ROC Curve
-
-| Confusion Matrix | ROC Curve |
-|:---:|:---:|
-| <img width="420" height="350" alt="xgboost_confusion_matrix" src="https://github.com/user-attachments/assets/03bd43bd-fda5-4f97-8469-61d12387da67" /> | <img width="420" height="350" alt="xgboost_roc_curve" src="https://github.com/user-attachments/assets/91f420aa-971f-4a1a-9346-6b3c9cd7dc84" /> |
-
-#### 3. Precision–Recall Curve & Feature Importance
-
-| Precision–Recall Curve | Top 20 Feature Importances |
-|:---:|:---:|
-| <img width="420" height="350" alt="xgboost_precision_recall_curve" src="https://github.com/user-attachments/assets/91fd70e4-3500-46b3-8c7e-40d64b824f3e" /> | <img width="420" height="350" alt="xgboost_feature_importance_top20" src="https://github.com/user-attachments/assets/7b199875-898d-47ec-88f5-244c4b8ddf87" />|
-
-### 3.4. TabPFN
-
-#### 1. Performance Summary
-| Metric               | Value  |
-|----------------------|:------:|
-| Accuracy             | 0.8362 |
-| Precision (Approved) | 0.8491 |
-| Recall (Approved)    | 0.9340 |
-| F1 Score             | 0.8895 |
-| ROC-AUC              | 0.8758 |
-| Average Precision    | 0.9300 |
-
-_Evaluated on 39,095 held-out test samples. Trained on 1,000 stratified-subsampled rows._
-
-#### 2. Confusion Matrix & ROC Curve
-| Confusion Matrix | ROC Curve |
-|:---:|:---:|
-| <img width="420" height="350" alt="tabpfn_confusion_matrix" src="https://github.com/user-attachments/assets/b8e9ea2f-42f8-4082-9d92-33f38b10175b" /> | <img width="420" height="350" alt="tabpfn_roc_curve" src="https://github.com/user-attachments/assets/64704c7f-ee72-4e71-b462-31b5f059306e" /> |
-
-#### 3. Precision–Recall Curve & Feature Importance
-| Precision–Recall Curve | Top 20 Feature Importances |
-|:---:|:---:|
-| <img width="420" height="350" alt="tabpfn_precision_recall_curve" src="https://github.com/user-attachments/assets/f01540ee-a6ac-4926-bd72-c5535fd7504f" /> | <img width="420" height="350" alt="tabpfn_feature_importance_top20" src="https://github.com/user-attachments/assets/fe411258-51dd-47a5-be56-9a1c90157cc2" />|
-
-
-## 4. Comparative Evaluation of Models
+## 3. Comparative Evaluation of Models
 
 This section compares the performance of the four classification models used in this project: Logistic Regression, Random Forest, XGBoost, and TabPFN. The goal is to identify which model provides the strongest overall predictive performance on the held-out test set.
 
-### 4.1 Performance Comparison
+### 3.1. Performance Summary
 
-| Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC | Average Precision |
-|---|---:|---:|---:|---:|---:|---:|
-| Logistic Regression | 0.7533 | 0.8632 | 0.7731 | 0.8156 | 0.8117 | 0.9011 |
-| Random Forest | 0.8151 | 0.9012 | 0.8289 | 0.8636 | 0.8907 | 0.9426 |
-| XGBoost | 0.8471 | 0.9087 | 0.8709 | 0.8894 | 0.9109 | 0.9529 |
-| TabPFN | 0.8362 | 0.8491 | 0.9340 | 0.8895 | 0.8758 | 0.9300 |
+| Model               | Accuracy | Precision | Recall | F1 Score | ROC-AUC | AP |
+|---------------------|:--------:|:---------:|:------:|:--------:|:-------:|:------:|
+| Logistic Regression | 0.7533   | 0.8632    | 0.7731 | 0.8156   | 0.8117  | 0.9011 |
+| Random Forest       | 0.8151   | 0.9012    | 0.8289 | 0.8636   | 0.8907  | 0.9426 |
+| **XGBoost**         | **0.8469** | **0.9094** | 0.8697 | **0.8891** | **0.9111** | **0.9530** |
+| TabPFN              | 0.8362   | 0.8491    | **0.9340** | 0.8895 | 0.8758  | 0.9300 |
 
-### 4.2 Model Comparison
+### 3.2. ROC Curve Comparison
 
 The results show a clear improvement from the baseline Logistic Regression model to the more flexible machine learning models. Logistic Regression achieved the lowest overall performance, with an accuracy of 0.7533 and ROC-AUC of 0.8117. This is expected because Logistic Regression assumes a relatively linear relationship between the predictors and the probability of approval.
 
@@ -348,9 +226,12 @@ Random Forest substantially improves on Logistic Regression, increasing accuracy
 
 XGBoost produced the strongest overall results. It achieved the highest accuracy, precision, ROC-AUC, and average precision among all models. Its ROC-AUC of 0.9109 indicates strong discrimination between approved and denied applications, while its average precision of 0.9529 shows strong performance in ranking likely approvals.
 
-TabPFN also performed well, especially in recall and F1 score. Its recall of 0.9340 is the highest among all models, meaning it identifies a large share of applications that were actually approved. However, its ROC-AUC and average precision are lower than XGBoost. In addition, TabPFN was trained on a smaller stratified subsample, so it is useful as an experimental comparison model but is not selected as the final champion model.
+TabPFN also performed well, especially in recall and F1 score. However, its ROC-AUC and average precision are lower than XGBoost. In addition, TabPFN was trained on a smaller stratified subsample (1,000), so it is useful as an experimental comparison model but is not selected as the final champion model.
 
-### 4.3 Actual vs. Predicted Outcomes
+<img width="1350" height="1050" alt="combined_roc_curve" src="https://github.com/user-attachments/assets/5af7de62-dc8f-4f74-b300-ecc1139caa09" />
+
+
+### 3.3. Confusion Matrix & Precision–Recall Curve Comparison
 
 Confusion matrices were used to compare each model’s predicted outcomes against the actual approval outcomes. These results show how often each model correctly classified approved and denied applications, as well as where each model made errors.
 
@@ -358,15 +239,24 @@ Logistic Regression provides a useful baseline but produces more classification 
 
 The ROC curve and precision-recall curve comparisons also support XGBoost as the strongest overall model. XGBoost maintains the best discrimination between approved and denied applications and provides the strongest ranking performance across prediction thresholds.
 
-### 4.4 Feature Importance Comparison
+<img width="1350" height="1050" alt="combined_precision_recall_curve" src="https://github.com/user-attachments/assets/f65a82b8-42bb-4743-87df-1be77ccf1abe" />
+<img width="1633" height="1355" alt="combined_confusion_matrix" src="https://github.com/user-attachments/assets/0b5b5f4b-2d39-41f7-a399-2ba569eb450c" />
 
-Feature importance was reviewed to understand which variables contributed most to model predictions. For Logistic Regression, feature importance is based on the absolute size of the estimated coefficients. For Random Forest, feature importance is based on impurity reduction. For XGBoost, feature importance is based on how much each feature improves model splits.
 
-Across the models, the most influential predictors are mainly financial and loan-related variables, including debt-to-income ratio, loan-to-value ratio, loan amount, property value, income, and credit score type indicators. This suggests that the models are primarily learning from economically meaningful mortgage application characteristics.
+### 3.4. Feature Importance Comparison
 
-The top 20 feature importances from the best-performing model are used to interpret the main drivers of the final prediction model.
+Each model uses a different importance metric, so absolute values are not comparable, but the qualitative agreement is informative.
 
-### 4.5 Key Takeaways and Recommendation
+- Logistic Regression flags `multifamily_affordable_units_Exempt`, `reverse_mortgage`, and `open-end_line_of_credit` as the strongest signals — primarily binary regulatory flags that the linear model can directly leverage.  
+- Random Forest centers on financial-fundamental variables: `debt_to_income_ratio`, `loan_purpose`, `loan_amount`, and `income`. This is the most "intuitive" set of drivers from a credit-decision perspective.  
+- XGBoost highlights structural property features: `derived_dwelling_category`, `manufactured_home_secured_property_type`, and `construction_method`. These are highly correlated proxies for "manufactured vs. site-built housing", which carries strong predictive signal in HMDA.  
+- TabPFN identifies `debt_to_income_ratio` as overwhelmingly dominant (drop in ROC-AUC ≈ 0.18), followed by `loan_purpose` and `property_value`. This aligns with what a human underwriter would prioritize.  
+
+The fact that **DTI appears in the top features of three of the four models** strongly suggests it is the most decision-relevant variable in the dataset, with structural housing features serving as a complementary signal that tree-based ensembles exploit especially well.
+
+<img width="2383" height="2105" alt="combined_feature_importance" src="https://github.com/user-attachments/assets/346b19b0-1695-4eb9-bbc5-8ab739e8a336" />
+
+### 3.5. Key Takeaways and Recommendation
 
 Overall, the model comparison supports three main conclusions.
 
