@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This project predicts mortgage loan outcomes **(Approved vs. Denied)** using the 2023 Home Mortgage Disclosure Act (HMDA) dataset. We compare four models (**Logistic Regression, Random Forest, XGBoost, and TabPFN**) and conduct a post-hoc fairness audit on the best-performing model to ensure equitable lending predictions.
+This project predicts mortgage loan outcomes **(Approved vs. Denied)** using the 2023 Home Mortgage Disclosure Act (HMDA) dataset. We compare four models (**Logistic Regression, Random Forest, XGBoost, and TabPFN**) and conduct mainly a post-hoc fairness audit on the best-performing model to ensure equitable lending predictions.
 
 ### Motivation
 
@@ -14,7 +14,7 @@ As financial institutions shift toward automated credit scoring, the demand for 
 
 - **Feature Interpretability**: What are the primary financial determinants driving the champion model’s decisions?
 
-- **Algorithmic Fairness & Geography**: Does the selected model exhibit disparities in error or selection rates across protected groups, and do these patterns vary across geographic regions?
+- **Demographic & Geographic Fairness**: Does the selected model exhibit disparities in error or selection rates across protected groups, and do these patterns vary across geographic regions?
 
 ---
 
@@ -199,7 +199,7 @@ The processed dataset is split into training and testing sets to ensure robust m
 
 While the 2023 HMDA dataset provides a comprehensive view of mortgage applications, several inherent limitations must be considered when interpreting the model's results:
 
-1. **Absence of Numerical Credit Scores:** HMDA data excludes actual credit scores to protect applicant privacy. Since credit scores are primary determinants of lending risk, their absence may constrain the model's predictive precision and its ability to replicate internal underwriting logic.
+1. **Absence of Numerical Credit Scores:** Even though HMDA data includes the types of credit score model, it excludes actual credit scores to protect applicant privacy. Since credit scores are primary determinants of lending risk, their absence may constrain the model's predictive precision and its ability to replicate internal underwriting logic.
 2. **Missing Asset and Wealth Data:** The dataset focuses on applicant income but lacks information on total liquid assets, net worth, or specific down payment sources. An applicant with low income but high assets might still be a low-risk candidate, a nuance the current model cannot capture.
 3. **Macroeconomic Context (2023):** The data reflects the 2023 mortgage market, a period characterized by significant interest rate hikes and inflationary pressure. Consequently, the patterns observed may not perfectly generalize to different economic cycles or low-interest-rate environments.
 4. **Unobserved Qualitative Factors:** Mortgage decisions often rely on "soft information" or qualitative assessments—such as employment stability, long-term banking relationships, or detailed property appraisals, which are not captured in the standardized HMDA variables.
@@ -266,7 +266,7 @@ Second, Random Forest and XGBoost outperform Logistic Regression, suggesting tha
 
 Third, XGBoost is the strongest overall model. It achieves the best balance of accuracy, precision, recall, F1 score, ROC-AUC, and average precision. Therefore, XGBoost is selected as the champion model for the final fairness audit and interpretation.
 
-## 5. Evaluation for Demographic Fairness
+## 4. Evaluation for Demographic Fairness
 
 To evaluate whether the mortgage approval model exhibits performance or selection-rate disparities across demographic and geographic groups, we conducted a comprehensive **Post-hoc Fairness Audit**. Our approach uses **Fairness with Awareness**, meaning the model was trained using all available features—including **Race, Gender, Age, and County**—to maintain full transparency and predictive power.
 
@@ -274,11 +274,11 @@ To evaluate whether the mortgage approval model exhibits performance or selectio
 
 While our project evaluates multiple strategies, including **Fairness through Blindness**, we identified two key advantages of the **Audit with Awareness** approach:
 
-1. **Countering Hidden Bias** (Proxy Variables): Unlike the "blind" approach, which can be unintentionally bypassed by **Proxy Variables** (e.g., zip codes or debt-to-income ratios that correlate with race), "Awareness" allows us to explicitly track and mitigate these hidden correlations.
+1. **Reduce Hidden Bias** (Proxy Variables): Unlike the "blind" approach, which can be unintentionally bypassed by **Proxy Variables** (e.g., zip codes or debt-to-income ratios that correlate with race), "Awareness" allows us to explicitly track and mitigate these hidden correlations.
 
-2. **Enhanced Model Transparency**: By including all 43 features, we gain the ability to explicitly monitor and control the model's weight distribution. This ensures that the model’s predictive power is derived from **Financial Merit** rather than sensitive demographic factors.
+2. **Enhance Model Transparency**: By including all 43 features, we gain the ability to explicitly monitor and control the model's weight distribution. This ensures that the model’s predictive power is derived from **Financial Merit** rather than sensitive demographic factors.
 
-### 5.1. Methodology
+### 4.1. Methodology
 
 We evaluated our best-performing model (**XGBoost**) across the following five steps:
 
@@ -333,11 +333,11 @@ Using the **SHAP (SHapley Additive exPlanations)** library, we analyzed the glob
 
 - **Result**: Visualized in `reports/figures/fairness/shap_summary_fairness.png`.
 
-### 5.2. Demographic Fairness Audit Results
+### 4.2. Demographic Fairness Audit Results
 
 We evaluated the model's fairness across four protected attributes. While Gender and County maintain high parity, significant disparities in Race and Age highlight the impact of socio-economic proxies and performance decay in senior cohorts.
 
-#### 5.2.1. Global Fairness Overview
+#### 4.2.1. Global Fairness Overview
 | Attribute | DP Difference | EO Difference | Status (80% Rule) |
 | :--- | :--- | :--- | :--- |
 | **Gender** | 0.0396 | 0.0242 | ✅ Pass |
@@ -345,7 +345,7 @@ We evaluated the model's fairness across four protected attributes. While Gender
 | **Race** | 0.2107 | 0.1210 | ⚠️ Fail (72.8%) |
 | **Age** | 0.2628 | 0.1939 | ⚠️ Fail (67.6%) |
 
-#### 5.2.2. Subgroup Analysis: Race & Age (Critical Areas)
+#### 4.2.2. Subgroup Analysis: Race & Age (Critical Areas)
 
 **A. Race: Disparate Impact vs. Robust TPR**
 ![Race Plot](reports/figures/fairness/fairness_plot_race.png)
@@ -357,7 +357,7 @@ We evaluated the model's fairness across four protected attributes. While Gender
 - **Finding**: Selection rates peak at **25-34 (0.800)** and drop sharply to **0.541 for >74**.
 - **Insight**: Unlike Race, Age shows a **significant TPR decay ($0.947 \rightarrow 0.753$)**. As loan terms (e.g., 30-year mortgages) extend beyond typical retirement ages or life expectancy, the model may prioritize strict risk mitigation over equal opportunity. This reflects a clear **trade-off** between risk mitigation and credit accessibility, where the model becomes increasingly conservative with older cohorts.
 
-#### 5.2.3. Subgroup Analysis: Gender & County (Stable Areas)
+#### 4.2.3. Subgroup Analysis: Gender & County (Stable Areas)
 
 **A. Gender: Strong parity**
 ![Gender Plot](reports/figures/fairness/fairness_plot_gender.png)
@@ -367,7 +367,7 @@ We evaluated the model's fairness across four protected attributes. While Gender
 ![County Plot](reports/figures/fairness/fairness_plot_county.png)
 - **Finding & Insight**: High consistency across Texas metros (6% range). **Travis County (0.716)** shows the highest approval, likely reflecting local market strength.
 
-#### 5.2.4. Detailed Metrics by Race and Gender
+#### 4.2.4. Detailed Metrics by Race and Gender
 
 The table below provides the raw performance metrics used for the fairness audit. 
 
@@ -379,9 +379,9 @@ The table below provides the raw performance metrics used for the fairness audit
 | **Male** | 0.8416 | 0.6449 | 0.8575 | 0.1923 |
 | **Female** | 0.8302 | 0.6053 | 0.8333 | 0.1758 |
 
-*(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/ directory.)*
+*(Note: Full results for all Age bins and Counties are available in the reports/results/fairness/directory.)*
 
-#### 5.2.5. Why? - SHAP Explainability Analysis
+#### 4.2.5. Why? - SHAP Explainability Analysis
 
 ![SHAP Plot](reports/figures/fairness/shap_summary_fairness.png)
 
@@ -395,7 +395,7 @@ The SHAP analysis confirms that the model's "Fairness Gaps" are primarily uninte
 
 3. **Conclusion**: The disparities identified in the audit are primarily driven by the model's heavy reliance on financial indicators, which may act as socio-economic proxies, rather than a direct reliance on demographic features themselves.
 
-#### 5.2.6. Intersectional Fairness: Race × Gender & Race × Age
+#### 4.2.6. Intersectional Fairness: Race × Gender & Race × Age
 
 **Key Finding:** Single-dimension fairness analysis misses compound discrimination.
 
@@ -436,7 +436,7 @@ Younger applicants see better outcomes:
 
 **See:** `reports/results/fairness/intersectional_*.csv` and `reports/figures/fairness/intersectional_*.png`
 
-#### 5.2.7. Fairness Through Blindness
+#### 4.2.7. Fairness Through Blindness
 
 **Finding:** Removing race/gender features REDUCES but does NOT eliminate disparities.
 
@@ -465,15 +465,15 @@ vs Blindness which:
 - ✗ Prevents diagnosis and intervention
 
 
-## 6. Reproducibility
+## 5. Reproducibility
 
-### 6.1. Clone the repository  
+### 5.1. Clone the repository  
 ```
 git clone https://github.com/nks1216/ml-final.git
 cd ml-final
 ```
 
-### 6.2. Setting up the Virtual Environment
+### 5.2. Setting up the Virtual Environment
 
 - Create a virtual environment: `python3 -m venv venv`
 - Activate the virtual environment: `source venv/bin/activate`
@@ -481,7 +481,7 @@ cd ml-final
 
 > **Note:** Installing the required packages includes the `tabpfn` library, which requires downloading pre-trained models (approximately 2GB). Please ensure you have sufficient disk space and a stable internet connection before proceeding.
 
-### 6.3. Data Preparation
+### 5.3. Data Preparation
 
 Run these commands to prepare the dataset:
 
@@ -497,8 +497,7 @@ The `clean_hmda.py` script will automatically download raw data from the CFPB AP
 
 *Note: Raw data is too large for GitHub, so it is downloaded programmatically from the CFPB API on demand.*
 
-
-### 6.4 Execution Guide
+### 5.4 Execution Guide
 
 #### **A. Run Prediction Models**
 For convenience, individual scripts are provided for each model. They save results to `reports/results/prediction/`
@@ -520,9 +519,13 @@ python3 src/model/fairness/fairness_intersectional.py
 
 ---
 
-## 7. Limitations and Future Improvements
+## 6. Limitations and Future Improvements
 
-This project has several limitations. First, HMDA does not include actual numerical credit scores, liquid assets, employment stability, or detailed underwriting information. As a result, the models should be interpreted as predicting observed historical approval outcomes rather than making a complete credit-risk assessment. Second, the analysis is limited to 2023 mortgage applications from four major Texas counties, so the results may not generalize to other states, smaller markets, or different interest-rate environments. Third, although the fairness audit identifies selection-rate and error-rate disparities across demographic groups, these results should be interpreted as diagnostic evidence rather than proof of legal compliance or discrimination.
+This project has several limitations. First, HMDA does not include actual numerical credit scores, liquid assets, employment stability, or detailed underwriting information. As a result, the models should be interpreted as predicting observed historical approval outcomes rather than making a complete credit-risk assessment. 
+
+Second, the analysis is limited to 2023 mortgage applications from four major Texas counties, so the results may not generalize to other states, smaller markets, or different interest-rate environments. 
+
+Third, although the fairness audit identifies selection-rate and error-rate disparities across demographic groups, these results should be interpreted as diagnostic evidence rather than proof of legal compliance or discrimination.
 
 Future improvements could include adding validation data from additional years, conducting a deeper missingness analysis, testing class-imbalance adjustments, comparing results under fairness-through-blindness and fairness-with-awareness approaches, and applying model calibration methods to improve probability estimates.
 
