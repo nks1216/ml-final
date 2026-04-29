@@ -26,17 +26,17 @@ This project utilizes loan-level data provided by the **Consumer Financial Prote
 
 The dataset focuses on the **2023 calendar year** and covers Texas’s "Big Four" metropolitan counties: **Travis (Austin), Harris (Houston), Dallas (Dallas), and Bexar (San Antonio)**.
 
-## 2.2. Data Acquisition
+### 2.2. Data Acquisition
 
 The raw data was retrieved programmatically via the **CFPB HMDA API** using the Python `requests` library. This ensures a fully reproducible and automated pipeline, allowing for consistent data updates and auditing.
 
-## 2.3. Raw Dataset Statistics
+### 2.3. Raw Dataset Statistics
 
 - **Observations**: 310,241 mortgage applications (Initial raw count).
 
 - **Features**: 98 variables covering applicant demographics, loan characteristics, property details, and neighborhood-level economic indicators.
 
-- **Target Variable**: loan_approval (Derived from the `action_taken field`).
+- **Target Variable:** `loan_approval`, derived from the `action_taken` field.
 
   [!TIP]
   **Data Storage & Access**
@@ -49,11 +49,11 @@ The raw data was retrieved programmatically via the **CFPB HMDA API** using the 
 
   Detailed variable descriptions are available in 👉 [`data/data_dictionary.md`](data/data_dictionary.md)
 
-## 2.2. Data Preprocessing: Feature Selection & Transformation
+### 2.4 Data Preprocessing: Feature Selection & Transformation
 
-This section summarizes the preprocessing pipeline that reduced the original 109 HMDA variables to a finalized set of **44 modeling features**. The process emphasizes **leakage prevention, fairness analysis, and model interpretability**.
+This section summarizes the preprocessing pipeline that reduced the original 109 HMDA variables to a finalized set of **43 modeling features**. The process emphasizes **leakage prevention, fairness analysis, and model interpretability**.
 
-### 2.2.1. Feature Selection: Exclusion Logic
+### 2.4.1. Feature Selection: Exclusion Logic
 
 To ensure model integrity, we excluded variables that could lead to data leakage or provide redundant information.
 
@@ -75,7 +75,7 @@ To ensure model integrity, we excluded variables that could lead to data leakage
 | **Demographics** | `applicant_race-1~5`, `applicant_sex`, `applicant_age_above_62` | Raw demographic inputs; replaced by `derived_race`, `derived_sex`, and `applicant_age`. |
 | **Administrative** | `lei`, `activity_year`, `state_code`, `purchaser_type` | Legal identifiers and constant values with no predictive variance. |
 
-### 2.2.2. Data Transformation: Feature Engineering
+### 2.4.2. Data Transformation: Feature Engineering
 
 We applied specific transformations to convert raw HMDA strings into model-ready numerical and categorical inputs.
 
@@ -90,7 +90,7 @@ We applied specific transformations to convert raw HMDA strings into model-ready
 * **Consistency:** String-based variables (e.g., `loan_purpose`, `property_value`) were retained as categorical dtypes.
 * **Imputation:** Missing categorical entries were explicitly mapped to a new **"Unknown"** category to preserve information about data gaps.
 
-### 2.2.3. Target Variable Refinement
+### 2.4.3. Target Variable Refinement
 
 The target variable was re-defined to focus strictly on the institution's **credit decision logic**.
 
@@ -102,7 +102,7 @@ The target variable was re-defined to focus strictly on the institution's **cred
 
 After filtering for definitive credit decisions (Approved vs. Denied), the dataset size was refined from **310,241** to **195,474** observations. This ensures the model learns strictly from the institution's risk assessment outcomes, excluding administrative noise such as withdrawn or incomplete applications.
 
-### 2.3. Variables 
+### 2.5 Variables
 
 #### Target Variable (1)
 | Variable Name | Description | Values / Range |
@@ -180,7 +180,7 @@ After filtering for definitive credit decisions (Approved vs. Denied), the datas
 | `tract_one_to_four_family_homes` | 1-4 family home count | Numeric (Continuous) |
 | `tract_median_age_of_housing_units` | Median housing age | Numeric (Years) |
 
-### 2.4. Train / Test Split
+### 2.6 Train / Test Split
 
 The processed dataset is split into training and testing sets to ensure robust model evaluation and prevent overfitting.
 
@@ -195,7 +195,7 @@ The processed dataset is split into training and testing sets to ensure robust m
 * **Reproducibility:** A fixed `random_state=42` was used to ensure that the split remains consistent across different environments and runs.
 * **Data Storage:** The split datasets are exported as `train.csv` and `test.csv` in the `data/split/` directory for use in the modeling pipeline.
 
-### 2.5. Data Limitations
+### 2.7 Data Limitations
 
 While the 2023 HMDA dataset provides a comprehensive view of mortgage applications, several inherent limitations must be considered when interpreting the model's results:
 
@@ -378,7 +378,7 @@ Third, XGBoost is the strongest overall model. It achieves the best balance of a
 
 ## 5. Evaluation for Demographic Fairness
 
-To ensure the mortgage approval model remains ethical and objective, we conducted a comprehensive **Post-hoc Fairness Audit**. Our approach uses **Fairness with Awareness**, meaning the model was trained using all available features—including **Race, Gender, Age, and County**—to maintain full transparency and predictive power.
+To evaluate whether the mortgage approval model exhibits performance or selection-rate disparities across demographic and geographic groups, we conducted a comprehensive **Post-hoc Fairness Audit**. Our approach uses **Fairness with Awareness**, meaning the model was trained using all available features—including **Race, Gender, Age, and County**—to maintain full transparency and predictive power.
 
 ### Why Audit with Awareness? (vs. Fairness through Blindness)
 
@@ -422,9 +422,9 @@ For each subgroup, we calculated key performance indicators (KPIs):
 
 - **Selection Rate** (Approval Rate): The proportion of applications predicted as 'Approved'.
 
-- **True Positive Rate** (TPR): The model's ability to correctly identify qualified applicants within the group.
+- **True Positive Rate** (TPR): The model's ability to correctly identify historically approved applications within the group.
 
-- **False Positive Rate** (FPR): The frequency of unqualified applicants being predicted as 'Approved'.
+- **False Positive Rate** (FPR): The frequency of unhistorically approved applications being predicted as 'Approved'.
 
 - **Result**: Generated 4 detailed tables (metrics_by_{group}.csv) and 4 parity plots.
 
@@ -543,7 +543,7 @@ The **SHAP Summary Plot** confirms that the model's decisions are primarily driv
 
 - **Gender & County**: These attributes showed very low DP Diff (**0.040** for Gender and **0.058** for County), confirming strong demographic parity. 
 
-- **Race**: While there is a selection gap (DP_Diff: **0.211**), the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups. This suggests that the model is still effective at identifying qualified applicants within each racial demographic, and the approval gap is likely driven by external socio-economic factors.
+- **Race**: While there is a selection gap (DP_Diff: **0.211**), the model maintains a solid **True Positive Rate (TPR > 0.80)** for all racial groups. This suggests that the model is still effective at identifying historically approved applications within each racial demographic, and the approval gap is likely driven by external socio-economic factors.
 
 - **Age**: This category exhibited the highest disparity (DP_Diff): **0.263**). Notably, we observe a **performance decay in TPR**, which drops from **0.947** (Age 25-34) to **0.753** (Age >74). This indicates that the model is significantly more conservative when evaluating older applicants, resulting in a higher rate of "False Negatives" (qualified seniors being denied) compared to younger cohorts.
 
@@ -654,15 +654,9 @@ python3 src/model/fairness/fairness_intersectional.py
 
 ## 7. Limitations and Future Improvements
 
-**Modeling Limitations**
+This project has several limitations. First, HMDA does not include actual numerical credit scores, liquid assets, employment stability, or detailed underwriting information. As a result, the models should be interpreted as predicting observed historical approval outcomes rather than making a complete credit-risk assessment. Second, the analysis is limited to 2023 mortgage applications from four major Texas counties, so the results may not generalize to other states, smaller markets, or different interest-rate environments. Third, although the fairness audit identifies selection-rate and error-rate disparities across demographic groups, these results should be interpreted as diagnostic evidence rather than proof of legal compliance or discrimination.
 
-**Future Improvements**
-
-- Data quality and missingness analysis
-
-- Class imbalance handling
-
-- Train/validation/test split strategy
+Future improvements could include adding validation data from additional years, conducting a deeper missingness analysis, testing class-imbalance adjustments, comparing results under fairness-through-blindness and fairness-with-awareness approaches, and applying model calibration methods to improve probability estimates.
 
 ---
 
