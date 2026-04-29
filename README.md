@@ -205,7 +205,7 @@ While the 2023 HMDA dataset provides a comprehensive view of mortgage applicatio
 4. **Unobserved Qualitative Factors:** Mortgage decisions often rely on "soft information" or qualitative assessments—such as employment stability, long-term banking relationships, or detailed property appraisals, which are not captured in the standardized HMDA variables.
 
 ---
-
+## 3. Modeling Approach and Individual Model Results
 
 ### 3.1 Logistic Regression
 
