@@ -464,17 +464,50 @@ Elderly applicants show **severe disparities**:
 
 ![Age: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_age.png)
 
+| Age Group | Full Approval | Blind Approval | Change | TPR Full | TPR Blind |
+|-----------|---|---|---|---|---|
+| <25 | 75.4% | 79.2% | +3.8pp | 94.7% | 97.2% |
+| 25-34 | 80.0% | 84.1% | +4.1pp | 94.7% | 97.9% |
+| 35-44 | 70.6% | 78.6% | +8.0pp | 88.5% | 95.4% |
+| 45-54 | 59.8% | 71.9% | +12.1pp | 81.4% | 92.7% |
+| 55-64 | 55.1% | 68.9% | +13.8pp | 77.9% | 91.4% |
+| 65-74 | 53.7% | 70.1% | +16.4pp | 75.5% | 91.6% |
+| >74 | 54.1% | 69.5% | +15.4pp | 75.3% | 92.4% |
+
+
 ##### By County:
 
 ![County: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_county.png)
+
+| County | Full Approval | Blind Approval | Change | TPR Full | TPR Blind |
+|--------|---|---|---|---|---|
+| Bexar | 68.7% | 77.5% | +8.8pp | 87.8% | 95.2% |
+| Dallas | 65.8% | 76.3% | +10.5pp | 85.3% | 94.3% |
+| Harris | 66.3% | 75.7% | +9.4pp | 86.2% | 94.8% |
+| Travis | 71.6% | 78.3% | +6.7pp | 90.1% | 95.7% |
+
 
 ##### By Gender:
 
 ![Gender: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_gender.png)
 
+| Gender | Full Approval | Blind Approval | Change | TPR Full | TPR Blind |
+|--------|---|---|---|---|---|
+| Male | 64.5% | 74.4% | +9.9pp | 85.8% | 94.4% |
+| Female | 60.5% | 70.8% | +10.3pp | 83.3% | 93.5% |
+
+
+
 ##### By Race:
 
 ![Race: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_race.png)
+
+| Race | Full Approval | Blind Approval | Change | TPR Full | TPR Blind |
+|------|---|---|---|---|---|
+| White | 70.7% | 78.4% | +7.7pp | 88.0% | 94.8% |
+| Black | 56.6% | 71.2% | +14.6pp | 80.6% | 94.1% |
+| Asian | 77.7% | 83.1% | +5.4pp | 92.7% | 97.2% |
+| Other | 71.1% | 79.0% | +7.9pp | 89.6% | 96.4% |
 
 **Why This Matters:**
 - Blind model removes explicit race/gender features
