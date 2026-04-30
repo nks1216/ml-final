@@ -241,7 +241,7 @@ Logistic Regression provides a useful baseline but produces more classification 
 The ROC curve and precision-recall curve comparisons also support XGBoost as the strongest overall model. XGBoost maintains the best discrimination between approved and denied applications and provides the strongest ranking performance across prediction thresholds.
 
 <img width="1350" height="1050" alt="combined_precision_recall_curve" src="https://github.com/user-attachments/assets/f65a82b8-42bb-4743-87df-1be77ccf1abe" />
-<img width="1633" height="1355" alt="combined_confusion_matrix" src="https://github.com/user-attachments/assets/0b5b5f4b-2d39-41f7-a399-2ba569eb450c" />
+<img width="1633" height="1355" alt="combined_confusion_matrix" src="https://github.com/user-attachments/assets/83a55885-24cc-4c65-9708-4c2826d26bc0" />
 
 
 ### 3.4. Feature Importance Comparison
