@@ -585,7 +585,7 @@ Calibration is a **silent fairness metric**. A model can pass demographic parity
 - ✗ Loan pricing ("increase rate 1% per 10pp drop in confidence")
 - ✗ Offer terms ("reduce loan amount if P < 0.5")
 
-...underconfidence becomes **systematic discrimination**.
+So underconfidence becomes **systematic discrimination**.
 
 **Example:** Black women approved at 53% rates (Section 4.2.6) may receive systematically worse loan terms due to the 10.3pp calibration gap, even if approval counts are comparable.
 
