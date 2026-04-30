@@ -415,7 +415,7 @@ The model exhibits **clear intersectional bias**:
 | Black Male | 55.3% | 0.812 | 0.803 |
 | **Black Female** | **53.0%** | **0.805** | **0.783** |
 
-**Critical Insight:** Black women face the LOWEST approval rate (53%), a **14.5 percentage point gap** vs. White men (67.5%). This compound bias is invisible in single-dimension analysis.
+**Critical Insight:** Asian males face a 76.1% approval rate, while Black women face only 53%, a 23.1 percentage point gap. This compound bias is invisible in single-dimension analysis.
 
 ![Race × Gender Intersectional Fairness](reports/figures/fairness/intersectional_race_gender.png)
 
