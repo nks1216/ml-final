@@ -415,27 +415,36 @@ The model exhibits **clear intersectional bias**:
 
 **Critical Insight:** Black women face the LOWEST approval rate (53%), a **14.5 percentage point gap** vs. White men (67.5%). This compound bias is invisible in single-dimension analysis.
 
-##### Race × Age Intersections:
-
-Elderly applicants show severe disparities:
-
-| Intersection | Selection Rate | Notes |
-|---|---|---|
-| White >74 | 59.9% | Moderate disparity |
-| Asian >74 | 55.0% | Moderate disparity |
-| **Black >74** | **31.9%** | **Severe disparity** |
-
-Younger applicants see better outcomes:
-- Asian <25: 86.5% (highest)
-- White <25: 80.1%
-- Black <25: 64.9%
+![Race × Gender Intersectional Fairness](reports/figures/fairness/intersectional_race_gender.png)
 
 **Implications:**
 - Model accuracy is lower for disadvantaged intersections (Black Female: 80.5% vs Asian Male: 88.6%)
 - Intersectionality reveals bias that aggregate metrics mask
 - Policy recommendation: Monitor and remediate approval disparities for Black women and elderly Black applicants
 
-**See:** `reports/results/fairness/intersectional_*.csv` and `reports/figures/fairness/intersectional_*.png`
+---
+
+##### Race × Age Intersections:
+
+Elderly applicants show **severe disparities**:
+
+| Intersection | Selection Rate | Notes |
+|---|---|---|
+| **Asian <25** | **86.5%** | **Highest** |
+| White <25 | 80.1% | Good |
+| Black <25 | 64.9% | Disparity begins |
+| ... | ... | ... |
+| White >74 | 59.9% | Moderate disparity |
+| Asian >74 | 55.0% | Moderate disparity |
+| **Black >74** | **31.9%** | **Severe disparity** |
+
+**Critical Insight:** Black applicants age >74 face the WORST approval rate (31.9%), a **55 percentage point gap** vs. young Asian applicants <25 (86.5%).
+
+![Race × Age Intersectional Fairness](reports/figures/fairness/intersectional_race_age.png)
+
+**See also:** 
+- `reports/results/fairness/intersectional_race_gender_metrics.csv`
+- `reports/results/fairness/intersectional_race_age_metrics.csv`
 
 #### 4.2.7. Fairness Through Blindness
 
@@ -448,6 +457,22 @@ Younger applicants see better outcomes:
 | **Black Approval Rate** | 56.6% | 71.2% | +14.6pp ↑ |
 | **White Approval Rate** | 70.7% | 78.4% | +7.7pp ↑ |
 | **White-Black Gap** | 14.1pp | 7.2pp | -6.9pp ↓ **(Better)** |
+
+##### By Age:
+
+![Age: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_age.png)
+
+##### By County:
+
+![County: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_county.png)
+
+##### By Gender:
+
+![Gender: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_gender.png)
+
+##### By Race:
+
+![Race: Selection Rate (Full vs Blind Model)](reports/figures/fairness/blindness_vs_audit_race.png)
 
 **Why This Matters:**
 - Blind model removes explicit race/gender features
@@ -464,6 +489,111 @@ Fairness Through Blindness is helpful but insufficient. Post-hoc Audit with Awar
 vs Blindness which:
 - ✗ Hides bias, doesn't eliminate it
 - ✗ Prevents diagnosis and intervention
+
+**See also:** 
+- `reports/results/fairness/blindness_comparison_age.csv`
+- `reports/results/fairness/blindness_comparison_county.csv`
+- `reports/results/fairness/blindness_comparison_gender.csv`
+- `reports/results/fairness/blindness_comparison_race.csv`
+
+---
+
+#### 4.2.8. Calibration Fairness Analysis: Probability Confidence Across Groups
+
+A well-calibrated model assigns probability estimates that match actual approval rates. This analysis examines whether predicted approval probabilities align with real outcomes across demographic groups.
+
+##### Methodology
+
+**Expected Calibration Error (ECE):** Average absolute difference between predicted probability and actual approval rate. Lower ECE = better calibration.
+
+**Brier Score:** Mean squared error between predicted probability and actual outcome. Lower Brier = more accurate probability estimates.
+
+---
+
+##### Key Findings by Demographic Group
+
+**By Age:**
+
+Finding: Elderly applicants (65-74) show the **LARGEST calibration gap (ECE = 0.122)**. The model is systematically underconfident—predicting lower approval chances than historical data supports.
+
+![Age Calibration Curve](reports/figures/fairness/calibration_age.png)
+
+| Age Group | ECE Score | Interpretation |
+|-----------|----------|-----------------|
+| 25-34 | 0.059 | ✓ Well-calibrated |
+| 35-44 | 0.075 | ✓ Good calibration |
+| 55-64 | 0.106 | ⚠️ Underconfident |
+| **65-74** | **0.122** | **⚠️ Severe underconfidence** |
+| >74 | 0.103 | ⚠️ Underconfident |
+
+**Insight:** Elderly applicants (65-74) face the largest fairness penalty. The model is overly conservative: it predicts lower approval probabilities than warranted. This may reflect actuarial risk (longer loan terms beyond typical lifespan) rather than pure credit merit, creating age-based disparate impact.
+
+---
+
+**By Race:**
+
+Finding: Black applicants face a calibration gap (**ECE = 0.103**). When the model predicts 50% approval for a Black applicant, actual approval is ~60%.
+
+![Race Calibration Curve](reports/figures/fairness/calibration_race.png)
+
+| Race | ECE Score | Insight |
+|------|----------|---------|
+| Asian | 0.057 | ✓ Well-calibrated |
+| White | 0.095 | ⚠️ Underconfident by 9.5pp |
+| **Black** | **0.103** | **⚠️ Underconfident by 10.3pp** |
+| Other | 0.096 | ⚠️ Underconfident by 9.6pp |
+
+**Insight:** Black applicants face a calibration penalty. The model systematically under-utilizes positive financial indicators for this group, creating systematic underestimation of approval chances and compounding selection-rate disparities.
+
+---
+
+**By Gender:**
+
+Finding: Female applicants face a calibration penalty (**ECE = 0.104** vs. Male 0.097), despite comparable financial merit and strong demographic parity in selection rates (Section 4.2.3).
+
+![Gender Calibration Curve](reports/figures/fairness/calibration_gender.png)
+
+**Insight:** While females show near-parity in approval rates (60.5% vs. 64.5% for males), the model is less confident in their profiles. This creates hidden disparate impact: females approved at the same rates receive systematically lower confidence scores, affecting loan pricing and terms.
+
+---
+
+**By County:**
+
+Finding: **Travis County (Austin)** shows the best calibration (**ECE = 0.085**), reflecting a stronger local lending market and more predictable approval patterns.
+
+![County Calibration Curve](reports/figures/fairness/calibration_county.png)
+
+| County | ECE Score | Interpretation |
+|--------|----------|-----------------|
+| Travis | 0.085 | ✓ Best calibration |
+| Bexar | 0.087 | ✓ Good |
+| Dallas | 0.099 | ⚠️ Moderate |
+| Harris | 0.101 | ⚠️ Weakest |
+
+**Insight:** Regional variation suggests the model has learned regional-specific approval patterns. Houston (Harris) shows the weakest calibration, possibly due to market volatility or higher data variance.
+
+---
+
+##### Why Calibration Matters for Fairness
+
+Calibration is a **silent fairness metric**. A model can pass demographic parity tests while systematically underestimating approval chances for protected groups.
+
+**Compounding disparate impact:** When lenders use miscalibrated probabilities to set:
+- ✗ Approval thresholds ("approve if P > 0.7")
+- ✗ Loan pricing ("increase rate 1% per 10pp drop in confidence")
+- ✗ Offer terms ("reduce loan amount if P < 0.5")
+
+...underconfidence becomes **systematic discrimination**.
+
+**Example:** Black women approved at 53% rates (Section 4.2.6) may receive systematically worse loan terms due to the 10.3pp calibration gap, even if approval counts are comparable.
+
+---
+
+##### Recommendation
+
+Future fairness work should implement **calibration post-processing** (e.g., temperature scaling, Platt scaling, isotonic regression) to equalize ECE across demographic groups. This ensures all segments receive appropriately confident predictions.
+
+**See also:** `reports/results/fairness/calibration_fairness_metrics.csv`
 
 
 ## 5. Reproducibility
