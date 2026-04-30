@@ -646,16 +646,23 @@ This is a model-level calibration issue, not demographic-specific bias.
 - Black: 10.3pp underconfident (most)
 - Disparity: 2pp gap between Asian and Black = compounding bias
 
-**Recommendation:** Apply calibration post-processing (temperature scaling) uniformly to all groups to baseline-correct, then monitor residual demographic disparities.
+**See also:** `reports/results/fairness/calibration_fairness_metrics.csv`
 
 ---
 
-##### Recommendation
+## Recommendations for Equitable Mortgage Approval
 
-Future fairness work should implement **calibration post-processing** (e.g., temperature scaling, Platt scaling, isotonic regression) to equalize ECE across demographic groups. This ensures all segments receive appropriately confident predictions.
+Our fairness audit reveals systematic bias across intersectional groups, persistent disparities despite demographic blindness, and miscalibration favoring advantaged applicants. We recommend:
 
-**See also:** `reports/results/fairness/calibration_fairness_metrics.csv`
+**1. Monitor intersectional fairness:** Track approval rates for race × gender and race × age combinations, not just single dimensions
 
+**2. Address root causes:** Audit proxy variables (income, debt-to-income, neighborhood) that encode demographic information; maintain transparency over blindness
+
+**3. Correct calibration:** Apply temperature scaling or similar techniques to equalize model confidence across all demographic groups and prevent hidden discrimination in loan pricing
+
+These interventions ensure equal treatment in both approval rates AND loan terms.
+
+---
 
 ## 5. Reproducibility
 
