@@ -636,8 +636,6 @@ So underconfidence becomes **systematic discrimination**.
 - Female: ECE = 0.104
 - Male: ECE = 0.097
 
-This is a model-level calibration issue, not demographic-specific bias.
-
 **Root Cause:** XGBoost was optimized for accuracy (ROC-AUC 0.9109), not calibration. The training objective rewards correct predictions but penalizes extreme confidence values, pushing all predictions toward conservative estimates.
 
 **Disparate Impact:** While all groups suffer underconfidence, the gap WIDENS for minorities:
