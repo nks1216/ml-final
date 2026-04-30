@@ -55,7 +55,7 @@ This section summarizes the preprocessing pipeline that reduced the original 109
 
 ### 2.4.1. Feature Selection: Exclusion Logic
 
-To ensure model integrity, we excluded variables that could lead to data leakage or provide redundant information.
+To ensure model integrity, we excluded variables that could lead to data leakage or provide redundant information. Features were selected based on **Ex-ante** information available at the time of application. **Ex-post** markers (e.g., interest rates, total loan costs) and post-decision identifiers were excluded to prevent **data leakage** and focus strictly on the predictive factors of the credit decision.
 
 #### **A. Logic for Exclusion**
 | Category | Rationale | Descriptions of Excluded Variables |
@@ -96,8 +96,9 @@ The target variable was re-defined to focus strictly on the institution's **cred
 
 | Action Taken | Target Mapping | Rationale |
 | :--- | :---: | :--- |
-| **Loan Originated (1)** | **1 (Approved)** | Success case where credit was granted. |
-| **Application Denied (3)** | **0 (Denied)** | The core failure case for prediction. |
+| **Loan Originated (1)** | **1 (Approved)** | Success case where credit was granted and the loan was issued. |
+| **Approved but Not Accepted (2)** | **Excluded** | We excluded ambiguous cases to focus on a clear contrast between finalized loans and official rejections. |
+| **Application Denied (3)** | **0 (Denied)** | The core failure case where the bank formally rejected the application. |
 | **Withdrawn/Incomplete (4, 5)** | **Excluded** | Removed to filter out noise where no definitive decision was made by the bank. |
 
 After filtering for definitive credit decisions (Approved vs. Denied), the dataset size was refined from **310,241** to **195,474** observations. This ensures the model learns strictly from the institution's risk assessment outcomes, excluding administrative noise such as withdrawn or incomplete applications.
@@ -515,6 +516,8 @@ Perform post-hoc and intersectional fairness evaluations. They save results to `
 ```bash
 python3 src/model/fairness/fairness_audit.py
 python3 src/model/fairness/fairness_intersectional.py 
+python3 src/model/fairness/fairness_blindness.py
+python3 src/model/fairness/fairness_calibration.py
 ```
 
 ---
