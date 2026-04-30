@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This project predicts mortgage loan outcomes **(Approved vs. Denied)** using the 2023 Home Mortgage Disclosure Act (HMDA) dataset. We compare four models (**Logistic Regression, Random Forest, XGBoost, and TabPFN**) and conduct mainly a post-hoc fairness audit on the best-performing model to ensure equitable lending predictions.
+This project predicts mortgage loan outcomes **(Approved vs. Denied)** using the 2023 Home Mortgage Disclosure Act (HMDA) dataset. We compare four models (**Logistic Regression, Random Forest, XGBoost, and TabPFN**) and conduct multiple **fairness evaluations** (post-hoc, intersectional, blindness, and calibration audits) on the best-performing model to ensure equitable lending predictions.
 
 ### Motivation
 
@@ -273,7 +273,7 @@ To evaluate whether the mortgage approval model exhibits performance or selectio
 
 ### Advantages of Audit with Awareness (vs. Fairness through Blindness)
 
-While our project evaluates multiple strategies, including **Fairness through Blindness**, we identified two key advantages of the **Audit with Awareness** approach:
+While our project evaluates multiple strategies, including **Fairness through Blindness**, we identified two key advantages of the **Audit with Awareness (Post-hoc Audit)** approach:
 
 1. **Reduce Hidden Bias** (Proxy Variables): Unlike the "blind" approach, which can be unintentionally bypassed by **Proxy Variables** (e.g., zip codes or debt-to-income ratios that correlate with race), "Awareness" allows us to explicitly track and mitigate these hidden correlations.
 
@@ -395,6 +395,8 @@ The SHAP analysis confirms that the model's "Fairness Gaps" are primarily uninte
 2. **Secondary Impact of Demographic Attributes**: While `derived_race` ranks in the middle of the importance list, its global impact is significantly lower than that of the top financial metrics.
 
 3. **Conclusion**: The disparities identified in the audit are primarily driven by the model's heavy reliance on financial indicators, which may act as socio-economic proxies, rather than a direct reliance on demographic features themselves.
+
+---
 
 #### 4.2.6. Intersectional Fairness: Race × Gender & Race × Age
 
