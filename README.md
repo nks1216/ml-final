@@ -516,7 +516,7 @@ A well-calibrated model assigns probability estimates that match actual approval
 
 **By Age:**
 
-Finding: Elderly applicants (65-74) show the **LARGEST calibration gap (ECE = 0.122)**. The model is systematically underconfident—predicting lower approval chances than historical data supports.
+Finding: Elderly applicants (65-74) show the **LARGEST calibration gap (ECE = 0.122)**. The model is systematically underconfident, predicting lower approval chances than historical data supports.
 
 ![Age Calibration Curve](reports/figures/fairness/calibration_age.png)
 
