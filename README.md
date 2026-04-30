@@ -522,11 +522,13 @@ Finding: Elderly applicants (65-74) show the **LARGEST calibration gap (ECE = 0.
 
 | Age Group | ECE Score | Interpretation |
 |-----------|----------|-----------------|
-| 25-34 | 0.059 | ✓ Well-calibrated |
-| 35-44 | 0.075 | ✓ Good calibration |
-| 55-64 | 0.106 | ⚠️ Underconfident |
+| <25 | 0.079 | ✓ Well-calibrated |
+| 25-34 | 0.076 | ✓ Well-calibrated |
+| 35-44 | 0.095 | ⚠️ Underconfident |
+| 45-54 | 0.105 | ⚠️ Underconfident |
+| 55-64 | 0.115 | ⚠️ Underconfident |
 | **65-74** | **0.122** | **⚠️ Severe underconfidence** |
-| >74 | 0.103 | ⚠️ Underconfident |
+| >74 | 0.105 | ⚠️ Underconfident |
 
 **Insight:** Elderly applicants (65-74) face the largest fairness penalty. The model is overly conservative: it predicts lower approval probabilities than warranted. This may reflect actuarial risk (longer loan terms beyond typical lifespan) rather than pure credit merit, creating age-based disparate impact.
 
@@ -540,7 +542,7 @@ Finding: Black applicants face a calibration gap (**ECE = 0.103**). When the mod
 
 | Race | ECE Score | Insight |
 |------|----------|---------|
-| Asian | 0.057 | ✓ Well-calibrated |
+| Asian | 0.083 | ⚠️ Underconfident by 8.3pp |
 | White | 0.095 | ⚠️ Underconfident by 9.5pp |
 | **Black** | **0.103** | **⚠️ Underconfident by 10.3pp** |
 | Other | 0.096 | ⚠️ Underconfident by 9.6pp |
@@ -551,7 +553,12 @@ Finding: Black applicants face a calibration gap (**ECE = 0.103**). When the mod
 
 **By Gender:**
 
-Finding: Female applicants face a calibration penalty (**ECE = 0.104** vs. Male 0.097), despite comparable financial merit and strong demographic parity in selection rates (Section 4.2.3).
+Finding: Female applicants face a calibration penalty (ECE = 0.104 vs. Male 0.097), despite comparable financial merit and strong demographic parity in selection rates (Section 4.2.3).
+
+| Gender | ECE Score | Interpretation |
+|--------|----------|-----------------|
+| Male | 0.097 | ⚠️ Underconfident |
+| Female | 0.104 | ⚠️ Underconfident |
 
 ![Gender Calibration Curve](reports/figures/fairness/calibration_gender.png)
 
@@ -568,7 +575,7 @@ Finding: **Travis County (Austin)** shows the best calibration (**ECE = 0.085**)
 | County | ECE Score | Interpretation |
 |--------|----------|-----------------|
 | Travis | 0.085 | ✓ Best calibration |
-| Bexar | 0.087 | ✓ Good |
+| Bexar | 0.092 | ✓ Good |
 | Dallas | 0.099 | ⚠️ Moderate |
 | Harris | 0.101 | ⚠️ Weakest |
 
