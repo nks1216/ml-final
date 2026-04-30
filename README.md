@@ -229,7 +229,7 @@ XGBoost produced the strongest overall results. It achieved the highest accuracy
 
 TabPFN also performed well, especially in recall and F1 score. However, its ROC-AUC and average precision are lower than XGBoost. In addition, TabPFN was trained on a smaller stratified subsample (1,000), so it is useful as an experimental comparison model but is not selected as the final champion model.
 
-<img width="1350" height="1050" alt="combined_roc_curve" src="https://github.com/user-attachments/assets/5af7de62-dc8f-4f74-b300-ecc1139caa09" />
+<img width="1350" height="1050" alt="combined_roc_curve" src="https://github.com/user-attachments/assets/93b5d165-f14e-422b-8b5c-2c2dec7e6141" />
 
 
 ### 3.3. Confusion Matrix & Precision–Recall Curve Comparison
