@@ -341,10 +341,10 @@ We evaluated the model's fairness across four protected attributes. While Gender
 #### 4.2.1. Global Fairness Overview
 | Attribute | DP Difference | EO Difference | Status (80% Rule) |
 | :--- | :--- | :--- | :--- |
-| **Gender** | 0.0396 | 0.0242 | ✅ Pass |
-| **County** | 0.0578 | 0.0481 | ✅ Pass |
 | **Race** | 0.2107 | 0.1210 | ⚠️ Fail (72.8%) |
 | **Age** | 0.2628 | 0.1939 | ⚠️ Fail (67.6%) |
+| **Gender** | 0.0396 | 0.0242 | ✅ Pass |
+| **County** | 0.0578 | 0.0481 | ✅ Pass |
 
 #### 4.2.2. Subgroup Analysis: Race & Age (Critical Areas)
 
