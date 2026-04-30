@@ -629,6 +629,25 @@ So underconfidence becomes **systematic discrimination**.
 
 **Example:** Black women approved at 53% rates (Section 4.2.6) may receive systematically worse loan terms due to the 10.3pp calibration gap, even if approval counts are comparable.
 
+**Finding:** The model exhibits baseline underconfidence across ALL demographic groups:
+- Asian: ECE = 0.083
+- White: ECE = 0.095  
+- Black: ECE = 0.103
+- Female: ECE = 0.104
+- Male: ECE = 0.097
+
+This is a model-level calibration issue, not demographic-specific bias.
+
+**Root Cause:** XGBoost was optimized for accuracy (ROC-AUC 0.9109), not calibration. The training objective rewards correct predictions but penalizes extreme confidence values, pushing all predictions toward conservative estimates.
+
+**Disparate Impact:** While all groups suffer underconfidence, the gap WIDENS for minorities:
+- Asian: 8.3pp underconfident (least)
+- White: 9.5pp underconfident  
+- Black: 10.3pp underconfident (most)
+- Disparity: 2pp gap between Asian and Black = compounding bias
+
+**Recommendation:** Apply calibration post-processing (temperature scaling) uniformly to all groups to baseline-correct, then monitor residual demographic disparities.
+
 ---
 
 ##### Recommendation
