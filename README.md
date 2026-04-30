@@ -60,16 +60,16 @@ To ensure model integrity, we excluded variables that could lead to data leakage
 #### **A. Logic for Exclusion**
 | Category | Rationale | Descriptions of Excluded Variables |
 | :--- | :--- | :--- |
-| **Data Leakage** | Features determined *after* or during the final credit decision. Including these leads to "cheating" and artificially high accuracy. | **Automated Underwriting (AUS) Results**, **Denial Reasons**, **Pricing Metadata** (Interest rates, fees) |
-| **Post-Decision Markers** | Flags that only exist for loans that have already been approved and progressed through the bank's system. | **Purchaser Type**, **HOEPA Status**, **Initially Payable to Institution** |
-| **Identifiers & Constants** | Variables with zero variance or unique IDs that do not contribute to generalizable patterns. | **Activity Year** (Fixed 2023), **State Code** (Fixed TX), **LEI** (Legal Entity ID) |
-| **Redundancy** | Raw entries replaced by official `derived_*` features for fairness analysis consistency. | **Raw Race/Ethnicity/Sex**, **Observation Flags**, **Binary Age Flags** |
-| **High Cardinality** | Geographic codes that are too granular for general patterns. | **Census Tract** (Aggregated into `county_code`) |
+| **Data Leakage** | Features determined *after* or during the final credit decision. Including these leads to "cheating" and artificially high accuracy. | Automated Underwriting (AUS) Results, Denial Reasons, Pricing Metadata (Interest rates, fees) |
+| **Post-Decision Markers** | Flags that only exist for loans that have already been approved and progressed through the bank's system. | Purchaser Type, HOEPA Status, Initially Payable to Institution |
+| **Identifiers & Constants** | Variables with zero variance or unique IDs that do not contribute to generalizable patterns. | Activity Year (Fixed 2023), State Code (Fixed TX), LEI (Legal Entity ID) |
+| **Redundancy** | Raw entries replaced by official `derived_*` features for fairness analysis consistency. | Raw Race/Ethnicity/Sex, Observation Flags, Binary Age Flags |
+| **High Cardinality** | Geographic codes that are too granular for general patterns. | Census Tract (Aggregated into `county_code`) |
 
 #### **B. Detailed Reference of Excluded Variables**
 | Sub-category | Variable Names | Description |
 | :--- | :--- | :--- |
-| **Internal Decisions** | `aus-1` ~ `aus-5` | **Automated Underwriting System Results**; directly indicates if a system recommended approval. |
+| **Internal Decisions** | `aus-1` ~ `aus-5` | Automated Underwriting System Results; directly indicates if a system recommended approval. |
 | **Decision Metadata** | `denial_reason-1` ~ `4` | Specific reasons for denial; only populated *after* the decision is made. |
 | **Loan Pricing** | `interest_rate`, `rate_spread`, `total_loan_costs`, `origination_charges` | Finalized pricing data; only available for approved/originated loans. |
 | **Demographics** | `applicant_race-1~5`, `applicant_sex`, `applicant_age_above_62` | Raw demographic inputs; replaced by `derived_race`, `derived_sex`, and `applicant_age`. |
