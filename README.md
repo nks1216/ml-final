@@ -215,7 +215,7 @@ This section compares the performance of the four classification models used in 
 | Model               | Accuracy | Precision | Recall | F1 Score | ROC-AUC | AP |
 |---------------------|:--------:|:---------:|:------:|:--------:|:-------:|:------:|
 | Logistic Regression | 0.7533   | 0.8632    | 0.7731 | 0.8156   | 0.8117  | 0.9011 |
-| Random Forest       | 0.8151   | 0.9012    | 0.8289 | 0.8636   | 0.8907  | 0.9426 |
+| Random Forest       | 0.8165   | 0.9007    | 0.8319 | 0.8649   | 0.8919  | 0.9431 |
 | **XGBoost**         | **0.8469** | **0.9094** | 0.8697 | **0.8891** | **0.9111** | **0.9530** |
 | TabPFN              | 0.8362   | 0.8491    | **0.9340** | 0.8895 | 0.8758  | 0.9300 |
 
@@ -223,7 +223,7 @@ This section compares the performance of the four classification models used in 
 
 The results show a clear improvement from the baseline Logistic Regression model to the more flexible machine learning models. Logistic Regression achieved the lowest overall performance, with an accuracy of 0.7533 and ROC-AUC of 0.8117. This is expected because Logistic Regression assumes a relatively linear relationship between the predictors and the probability of approval.
 
-Random Forest substantially improves on Logistic Regression, increasing accuracy to 0.8151 and ROC-AUC to 0.8907. This suggests that nonlinear relationships and feature interactions are important in predicting mortgage approval outcomes.
+Random Forest substantially improves on Logistic Regression, increasing accuracy to 0.8165 and ROC-AUC to 0.8919. This suggests that nonlinear relationships and feature interactions are important in predicting mortgage approval outcomes.
 
 XGBoost produced the strongest overall results. It achieved the highest accuracy, precision, ROC-AUC, and average precision among all models. Its ROC-AUC of 0.9109 indicates strong discrimination between approved and denied applications, while its average precision of 0.9529 shows strong performance in ranking likely approvals.
 
