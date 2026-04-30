@@ -534,10 +534,10 @@ Future improvements could include adding validation data from additional years, 
 
 ---
 
-## 8. Collaboration and Workflow
+## 7. Collaboration and Workflow
 
 - All team members worked through GitHub Issues and feature branches, following a branch‑per‑issue workflow.
 - Each member opened pull requests for their work and merged them after review and testing.
-- The repository contains more than 30 commits across multiple contributors.
+- The repository contains more than 30 commits from each contributor.
 - All code and documentation were merged into the main branch before submission.
 
