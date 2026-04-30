@@ -2,15 +2,17 @@
 Random Forest Prediction Model for HMDA Mortgage Loan Approval
 ===============================================================
 
-This module trains a Random Forest classifier to predict mortgage loan approval.
+Trains a Random Forest classifier and evaluates its performance.
+Uses OrdinalEncoder for categorical features (appropriate for tree-based models)
+and wraps all preprocessing in a scikit-learn Pipeline.
 """
 
 import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
@@ -24,163 +26,33 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
 )
-from sklearn.preprocessing import LabelEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 
+# ---------------------------------------------------------------------------
 # Constants
+# ---------------------------------------------------------------------------
 RANDOM_STATE = 42
-N_ESTIMATORS = 100
-MAX_DEPTH = 10
 TARGET_COL = "target"
 TRAIN_PATH = Path("data/split/train.csv")
 TEST_PATH = Path("data/split/test.csv")
 RESULTS_DIR = Path("reports/results/prediction")
 FIGURES_DIR = Path("reports/figures/prediction")
 
-
-def load_data(train_path: Path, test_path: Path) -> tuple:
-    """
-    Load train and test datasets from CSV files.
-
-    Args:
-        train_path: Path to training data CSV file
-        test_path: Path to test data CSV file
-
-    Returns:
-        Tuple of (X_train, y_train, X_test, y_test)
-    """
-    train_data = pd.read_csv(train_path)
-    test_data = pd.read_csv(test_path)
-
-    X_train = train_data.drop(columns=[TARGET_COL])
-    y_train = train_data[TARGET_COL].astype(int)
-    X_test = test_data.drop(columns=[TARGET_COL])
-    y_test = test_data[TARGET_COL].astype(int)
-
-    return X_train, y_train, X_test, y_test
-
-
-def encode_categorical(X_train: pd.DataFrame, X_test: pd.DataFrame) -> tuple:
-    """
-    Encode categorical features using LabelEncoder.
-
-    Args:
-        X_train: Training features
-        X_test: Test features
-
-    Returns:
-        Tuple of (X_train_encoded, X_test_encoded)
-    """
-    categorical_cols = X_train.select_dtypes(include=["object"]).columns.tolist()
-    
-    for col in categorical_cols:
-        # Combine train and test to handle unseen categories
-        combined = pd.concat([X_train[col], X_test[col]], axis=0).astype(str)
-        le = LabelEncoder()
-        le.fit(combined)
-        X_train[col] = le.transform(X_train[col].astype(str))
-        X_test[col] = le.transform(X_test[col].astype(str))
-    
-    return X_train, X_test
-
-
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestClassifier:
-    """
-    Train a Random Forest classifier.
-
-    Args:
-        X_train: Training features
-        y_train: Training target
-
-    Returns:
-        Trained RandomForestClassifier
-    """
-    model = RandomForestClassifier(
-        n_estimators=N_ESTIMATORS,
-        max_depth=MAX_DEPTH,
-        min_samples_split=5,
-        min_samples_leaf=2,
-        class_weight="balanced",
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-    )
-    model.fit(X_train, y_train)
-    return model
-
-
-def evaluate_model(model: RandomForestClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> tuple:
-    """
-    Evaluate model performance.
-
-    Args:
-        model: Trained Random Forest model
-        X_test: Test features
-        y_test: Test target
-
-    Returns:
-        Tuple of (metrics_dict, y_pred, y_pred_proba, report_text, confusion_matrix)
-    """
-    y_pred = model.predict(X_test)
-    y_pred_proba = model.predict_proba(X_test)[:, 1]
-
-    metrics = {
-        "accuracy": accuracy_score(y_test, y_pred),
-        "precision": precision_score(y_test, y_pred),
-        "recall": recall_score(y_test, y_pred),
-        "f1_score": f1_score(y_test, y_pred),
-        "roc_auc": roc_auc_score(y_test, y_pred_proba),
-        "average_precision": average_precision_score(y_test, y_pred_proba),
-    }
-
-    report_text = classification_report(y_test, y_pred)
-    cm = confusion_matrix(y_test, y_pred)
-
-    return metrics, y_pred, y_pred_proba, report_text, cm
-
-
-def save_metrics(metrics: dict, save_path: Path) -> None:
-    """Save metrics as JSON file."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(save_path, "w") as f:
-        json.dump(metrics, f, indent=4)
-
-
-def save_classification_report(report_text: str, save_path: Path) -> None:
-    """Save classification report as text file."""
-    with open(save_path, "w") as f:
-        f.write(report_text)
-
-
-def save_predictions(y_test: pd.Series, y_pred: np.ndarray, y_prob: np.ndarray, save_path: Path) -> None:
-    """Save test predictions as CSV."""
-    predictions_df = pd.DataFrame({
-        "actual": y_test, "predicted": y_pred, "predicted_probability": y_prob
-    })
-    predictions_df.to_csv(save_path, index=False)
-
-
-def save_feature_importance(model: RandomForestClassifier, feature_names: list, save_path: Path) -> None:
-    """Save top 20 feature importances as CSV."""
-    importance_df = pd.DataFrame({
-        "feature": feature_names,
-        "importance": model.feature_importances_
-    }).sort_values("importance", ascending=False)
-    importance_df.head(20).to_csv(save_path, index=False)
-    return importance_df
-
-
-def plot_confusion_matrix(cm: np.ndarray, save_path: Path) -> None:
-    """Generate and save confusion matrix plot."""
+# ---------------------------------------------------------------------------
+# Helper functions (plotting and saving)
+# ---------------------------------------------------------------------------
+def save_confusion_matrix_plot(cm, save_path: Path) -> None:
+    """Save confusion matrix figure."""
     plt.figure(figsize=(6, 5))
     plt.imshow(cm, interpolation="nearest", cmap="Blues")
     plt.title("Random Forest Confusion Matrix")
     plt.colorbar()
     plt.xticks([0, 1], ["Pred 0", "Pred 1"])
     plt.yticks([0, 1], ["Actual 0", "Actual 1"])
-    
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
             plt.text(j, i, str(cm[i, j]), ha="center", va="center")
-    
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
     plt.tight_layout()
@@ -188,10 +60,9 @@ def plot_confusion_matrix(cm: np.ndarray, save_path: Path) -> None:
     plt.close()
 
 
-def plot_roc_curve(y_test: pd.Series, y_prob: np.ndarray, roc_auc: float, save_path: Path) -> None:
-    """Generate and save ROC curve."""
+def save_roc_curve(y_test, y_prob, roc_auc, save_path: Path) -> None:
+    """Save ROC curve figure."""
     fpr, tpr, _ = roc_curve(y_test, y_prob)
-    
     plt.figure(figsize=(6, 5))
     plt.plot(fpr, tpr, label=f"ROC-AUC = {roc_auc:.4f}", linewidth=2)
     plt.plot([0, 1], [0, 1], linestyle="--", color="gray", linewidth=1)
@@ -205,10 +76,9 @@ def plot_roc_curve(y_test: pd.Series, y_prob: np.ndarray, roc_auc: float, save_p
     plt.close()
 
 
-def plot_precision_recall_curve(y_test: pd.Series, y_prob: np.ndarray, avg_precision: float, save_path: Path) -> None:
-    """Generate and save Precision-Recall curve."""
+def save_precision_recall_curve(y_test, y_prob, avg_precision, save_path: Path) -> None:
+    """Save Precision-Recall curve figure."""
     precisions, recalls, _ = precision_recall_curve(y_test, y_prob)
-    
     plt.figure(figsize=(6, 5))
     plt.plot(recalls, precisions, label=f"AP = {avg_precision:.4f}", linewidth=2)
     plt.xlabel("Recall")
@@ -221,10 +91,9 @@ def plot_precision_recall_curve(y_test: pd.Series, y_prob: np.ndarray, avg_preci
     plt.close()
 
 
-def plot_feature_importance(importance_df: pd.DataFrame, save_path: Path) -> None:
-    """Generate and save feature importance plot."""
+def save_feature_importance_plot(importance_df: pd.DataFrame, save_path: Path) -> None:
+    """Save horizontal bar chart of top 20 feature importances."""
     top20 = importance_df.head(20).sort_values("importance")
-    
     plt.figure(figsize=(10, 8))
     plt.barh(top20["feature"], top20["importance"])
     plt.title("Random Forest Top 20 Feature Importances")
@@ -234,59 +103,182 @@ def plot_feature_importance(importance_df: pd.DataFrame, save_path: Path) -> Non
     plt.close()
 
 
+# ---------------------------------------------------------------------------
+# Main routine
+# ---------------------------------------------------------------------------
 def main() -> None:
-    """Main execution function."""
-    # Create directories
+    """Load data, train Random Forest, evaluate, and save all outputs."""
+
+    # Create output directories
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
+    # ----------------------------
     # Load data
-    print("[1/5] Loading data...")
-    X_train, y_train, X_test, y_test = load_data(TRAIN_PATH, TEST_PATH)
-    print(f"      Train: {X_train.shape}, Test: {X_test.shape}")
+    # ----------------------------
+    train = pd.read_csv(TRAIN_PATH)
+    test = pd.read_csv(TEST_PATH)
 
-    # Encode categorical variables
-    print("[2/5] Encoding categorical features...")
-    X_train, X_test = encode_categorical(X_train, X_test)
+    X_train = train.drop(columns=[TARGET_COL])
+    y_train = train[TARGET_COL]
+    X_test = test.drop(columns=[TARGET_COL])
+    y_test = test[TARGET_COL]
 
-    # Train model
-    print("[3/5] Training Random Forest...")
-    model = train_model(X_train, y_train)
+    print("Train shape:", X_train.shape)
+    print("Test shape:", X_test.shape)
 
-    # Evaluate
-    print("[4/5] Evaluating model...")
-    metrics, y_pred, y_prob, report_text, cm = evaluate_model(model, X_test, y_test)
+    # ----------------------------
+    # Identify column types
+    # ----------------------------
+    numeric_features = X_train.select_dtypes(include=["int64", "float64"]).columns.tolist()
+    categorical_features = X_train.select_dtypes(include=["object"]).columns.tolist()
 
-    # Feature importance
-    print("[5/5] Saving results...")
-    importance_df = save_feature_importance(model, X_train.columns.tolist(), 
-                                            RESULTS_DIR / "random_forest_feature_importance_top20.csv")
+    print("\nNumber of numeric features:", len(numeric_features))
+    print("Number of categorical features:", len(categorical_features))
 
-    # Save all outputs
-    save_metrics(metrics, RESULTS_DIR / "random_forest_metrics.json")
-    save_classification_report(report_text, RESULTS_DIR / "random_forest_classification_report.txt")
-    
-    cm_df = pd.DataFrame(cm, index=["Actual_0", "Actual_1"], columns=["Predicted_0", "Predicted_1"])
+    # ----------------------------
+    # Preprocessing pipeline
+    # ----------------------------
+    # OrdinalEncoder is chosen over OneHotEncoder because Random Forest
+    # is a tree-based model that handles integer-coded categories without
+    # assuming any ordinal relationship between them. This keeps the
+    # feature space compact and makes importance scores directly
+    # interpretable per original feature.
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", StandardScaler(), numeric_features),
+            (
+                "cat",
+                OrdinalEncoder(
+                    handle_unknown="use_encoded_value",
+                    unknown_value=-1,
+                ),
+                categorical_features,
+            ),
+        ]
+    )
+
+    # ----------------------------
+    # Full model pipeline
+    # ----------------------------
+    model = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            (
+                "classifier",
+                RandomForestClassifier(
+                    n_estimators=100,
+                    max_depth=10,
+                    min_samples_split=5,
+                    min_samples_leaf=2,
+                    class_weight="balanced",
+                    random_state=RANDOM_STATE,
+                    n_jobs=-1,
+                ),
+            ),
+        ]
+    )
+
+    # ----------------------------
+    # Train
+    # ----------------------------
+    print("\nTraining Random Forest...")
+    model.fit(X_train, y_train)
+
+    # ----------------------------
+    # Predict
+    # ----------------------------
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
+
+    # ----------------------------
+    # Metrics
+    # ----------------------------
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    roc_auc = roc_auc_score(y_test, y_prob)
+    avg_precision = average_precision_score(y_test, y_prob)
+    cm = confusion_matrix(y_test, y_pred)
+
+    print("\n=== Random Forest Results ===")
+    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1 Score: {f1:.4f}")
+    print(f"ROC-AUC: {roc_auc:.4f}")
+    print(f"Average Precision: {avg_precision:.4f}")
+
+    print("\nConfusion Matrix:")
+    print(cm)
+
+    print("\nClassification Report:")
+    report = classification_report(y_test, y_pred)
+    print(report)
+
+    # ----------------------------
+    # Save metrics and reports
+    # ----------------------------
+    metrics = {
+        "accuracy": float(accuracy),
+        "precision": float(precision),
+        "recall": float(recall),
+        "f1_score": float(f1),
+        "roc_auc": float(roc_auc),
+        "average_precision": float(avg_precision),
+    }
+
+    with open(RESULTS_DIR / "random_forest_metrics.json", "w") as f:
+        json.dump(metrics, f, indent=4)
+
+    with open(RESULTS_DIR / "random_forest_classification_report.txt", "w") as f:
+        f.write(report)
+
+    cm_df = pd.DataFrame(
+        cm,
+        index=["Actual_0", "Actual_1"],
+        columns=["Predicted_0", "Predicted_1"],
+    )
     cm_df.to_csv(RESULTS_DIR / "random_forest_confusion_matrix.csv", index=True)
-    
-    save_predictions(y_test, y_pred, y_prob, RESULTS_DIR / "random_forest_test_predictions.csv")
 
-    # Generate plots
-    plot_confusion_matrix(cm, FIGURES_DIR / "random_forest_confusion_matrix.png")
-    plot_roc_curve(y_test, y_prob, metrics["roc_auc"], FIGURES_DIR / "random_forest_roc_curve.png")
-    plot_precision_recall_curve(y_test, y_prob, metrics["average_precision"], 
-                                FIGURES_DIR / "random_forest_precision_recall_curve.png")
-    plot_feature_importance(importance_df, FIGURES_DIR / "random_forest_feature_importance_top20.png")
+    predictions_df = pd.DataFrame({
+        "actual": y_test,
+        "predicted": y_pred,
+        "predicted_probability": y_prob,
+    })
+    predictions_df.to_csv(RESULTS_DIR / "random_forest_test_predictions.csv", index=False)
 
-    # Print results
-    print("\n" + "=" * 50)
-    print("RANDOM FOREST RESULTS")
-    print("=" * 50)
-    for name, value in metrics.items():
-        print(f"{name.replace('_', ' ').title():20s}: {value:.4f}")
+    # ----------------------------
+    # Feature importances
+    # ----------------------------
+    feature_names = model.named_steps["preprocessor"].get_feature_names_out()
+    importances = model.named_steps["classifier"].feature_importances_
 
-    print(f"\n Results saved to {RESULTS_DIR}")
-    print(f" Figures saved to {FIGURES_DIR}")
+    importance_df = pd.DataFrame({
+        "feature": feature_names,
+        "importance": importances,
+    }).sort_values("importance", ascending=False)
+
+    importance_df.head(20).to_csv(
+        RESULTS_DIR / "random_forest_feature_importance_top20.csv", index=False
+    )
+
+    # ----------------------------
+    # Plots
+    # ----------------------------
+    save_confusion_matrix_plot(cm, FIGURES_DIR / "random_forest_confusion_matrix.png")
+    save_roc_curve(y_test, y_prob, roc_auc, FIGURES_DIR / "random_forest_roc_curve.png")
+    save_precision_recall_curve(
+        y_test, y_prob, avg_precision,
+        FIGURES_DIR / "random_forest_precision_recall_curve.png",
+    )
+    save_feature_importance_plot(
+        importance_df,
+        FIGURES_DIR / "random_forest_feature_importance_top20.png",
+    )
+
+    print("\nSaved Random Forest results and figures successfully.")
 
 
 if __name__ == "__main__":
