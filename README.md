@@ -321,8 +321,8 @@ We measured global fairness using two quantitative metrics to provide a rigorous
 
 | Criterion | Calculation Logic | Interpretation & Benchmark |
 | :--- | :--- | :--- |
-| **DP Difference** | Max gap in Selection Rates between any two groups | **U.S. EEOC 4/5 Rule**: The selection rate of any group should be $\geq 80\%$ of the highest-performing group to avoid disparate impact. |
-| **EO Difference** | Max difference in either **TPR** or **FPR** across all groups | **Equal Opportunity**: Monitors whether the model is unintentionally stricter or more lenient toward specific demographics. |
+| **Demographic Parity(DP) Difference** | Max gap in Selection Rates between any two groups | **U.S. EEOC 4/5 Rule**: The selection rate of any group should be $\geq$ 80% of the highest-performing group to avoid disparate impact. |
+| **Equalized Odds(EO) Difference** | Max difference in either **TPR** or **FPR** across all groups | **Equal Opportunity**: Monitors whether the model is unintentionally stricter or more lenient toward specific demographics. |
 
 (*EEOC: Equal Employment Opportunity Commission*)
 
@@ -330,7 +330,7 @@ We measured global fairness using two quantitative metrics to provide a rigorous
 
 #### Step 5: Model Explainability (SHAP Analysis)
 
-Using the **SHAP (SHapley Additive exPlanations)** library, we analyzed the global feature importance. This step verifies how much weight the model assigns to sensitive attributes versus financial indicators (e.g., DTI, LTV), identifying potential proxy-based discrimination.
+Using the **SHAP (SHapley Additive exPlanations)** library, we analyzed the global feature importance. This step verifies how much weight the model assigns to demographic attributes versus financial indicators (e.g., DTI, LTV), identifying potential proxy-based discrimination.
 
 - **Result**: Visualized in `reports/figures/fairness/shap_summary_fairness.png`.
 
