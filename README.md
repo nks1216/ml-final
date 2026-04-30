@@ -255,7 +255,7 @@ Each model uses a different importance metric, so absolute values are not compar
 
 The fact that **DTI appears in the top features of three of the four models** strongly suggests it is the most decision-relevant variable in the dataset, with structural housing features serving as a complementary signal that tree-based ensembles exploit especially well.
 
-<img width="2383" height="2105" alt="combined_feature_importance" src="https://github.com/user-attachments/assets/346b19b0-1695-4eb9-bbc5-8ab739e8a336" />
+<img width="2383" height="2105" alt="combined_feature_importance" src="https://github.com/user-attachments/assets/8b60aa11-8191-4328-acbc-018b54b499c8" />
 
 ### 3.5. Key Takeaways and Recommendation
 
