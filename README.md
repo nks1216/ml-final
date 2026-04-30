@@ -660,8 +660,6 @@ Our fairness audit reveals systematic bias across intersectional groups, persist
 
 **3. Correct calibration:** Apply temperature scaling or similar techniques to equalize model confidence across all demographic groups and prevent hidden discrimination in loan pricing
 
-These interventions ensure equal treatment in both approval rates AND loan terms.
-
 ---
 
 ## 5. Reproducibility
